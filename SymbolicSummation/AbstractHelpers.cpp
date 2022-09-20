@@ -10,7 +10,7 @@
 #include "Container.hpp"
 #include "Symbol.hpp"
 #include "PauliMatrices.hpp"
-#include "ExpressionHelpers.hpp"
+#include "AlgebraicHelpers.hpp"
 #include <unordered_map>
 #include <iostream>
 #include <fstream>
@@ -492,7 +492,7 @@ ExprVector removeElementFromVector(ExprVector source, ExpressionObject* target, 
 
 Expression removeElementMultiplicatively(ExpressionObject* source, ExpressionObject* target, bool rightToLeft) {
     if(*source == *target)
-        return *new Expression(new NullObject("this is what happens when you remove something from itself!"));
+        return ONE;//*new Expression(new NullObject("this is what happens when you remove something from itself!"));
     size_t type = source->getTypeHash();
     if(type == SIGNTYPE) {
         Sign& sourceObj = dynamic_cast<Sign&>(*source);
@@ -547,7 +547,7 @@ Expression removeElementMultiplicatively(ExpressionObject* source, ExpressionObj
 };
 Expression removeElementAdditively(ExpressionObject* source, ExpressionObject* target, bool rightToLeft) {
     if(source == target)
-        return *new Expression(new NullObject("this is what happens when you remove something from itself!"));
+        return ZERO;//*new Expression(new NullObject("this is what happens when you remove something from itself!"));
     if(source->getTypeHash() != ADDTYPE)
         return *new Expression(new NullObject("could not remove target additively"));
     Add& sourceObj = dynamic_cast<Add&>(*source);

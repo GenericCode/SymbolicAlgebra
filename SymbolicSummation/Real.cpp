@@ -5,9 +5,9 @@
 //  Created by Robert Stahulak on 1/28/22.
 //
 #include "Real.hpp"
-#include "Expression.h"
+#include "Expression.hpp"
 #include "Container.hpp"
-#include "ExpressionHelpers.hpp"
+#include "AlgebraicHelpers.hpp"
 #include "AbstractHelpers.hpp"
 
 

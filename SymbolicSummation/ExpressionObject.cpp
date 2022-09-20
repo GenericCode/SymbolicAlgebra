@@ -1,5 +1,5 @@
-#include "ExpressionObject.h"
-#include "Expression.h"
+#include "ExpressionObject.hpp"
+#include "Expression.hpp"
 #include "AbstractHelpers.hpp"
 ExpressionObject::~ExpressionObject(){};
 

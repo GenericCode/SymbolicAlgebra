@@ -9,7 +9,7 @@
 #define AbstractHelpers_hpp
 
 #include <stdio.h>
-#include "Expression.h"
+#include "Expression.hpp"
 
 void initializeDefaultSymbols();
 //bool isSubtypeOf(size_t sub, size_t super);

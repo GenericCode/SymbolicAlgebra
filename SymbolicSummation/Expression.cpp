@@ -1,6 +1,6 @@
 #include "Real.hpp"
 #include "Container.hpp"
-#include "ExpressionHelpers.hpp"
+#include "AlgebraicHelpers.hpp"
 #include "AbstractHelpers.hpp"
 
 /*
