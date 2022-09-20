@@ -3,20 +3,6 @@
 #include "AlgebraicHelpers.hpp"
 #include "AbstractHelpers.hpp"
 
-/*
-bool Expression::containsTypeOf(size_t type) {
-    return (**this).containsTypeOf(type);
-};
-bool Expression::contains(Expression target) {
-    return (**this).contains(target);
-};
-Expression Expression::getFirstInstanceOfType(size_t type, bool rightToLeft) {
-    return (**this).firstInstanceOfType(*this, type, rightToLeft);
-};
-Expression Expression::remove(Expression target, bool rightToLeft) {
-    return (**this).remove(*this, target, rightToLeft);
-};
- */
 void Expression::setSimplified(bool simpled) {
     (**this).simplified = simpled;
 };

@@ -2,6 +2,9 @@
 //#include "Expression.hpp"
 #include <string>
 class Expression;
+/**
+ *The abstract class from which all structures for the symbolic algebra library are derived. Like Expression objects, these also support algebraic operations (+, -, *, /, etc.)
+ */
 class ExpressionObject {
     friend Expression;
 public:
@@ -11,17 +14,8 @@ public:
     virtual Expression negate() = 0;
     virtual Expression multiply(ExpressionObject* other) = 0;
     virtual Expression divide(ExpressionObject* other) = 0;
-    //virtual ptr commutator(SymbolicObject* other) = 0;
-    /* should be handled elsewhere
-    virtual bool containsTypeOfPerform(size_t type) = 0;
-    virtual bool containsPerform(Expression target) = 0;
-    virtual Expression firstInstanceOfTypePerform(, size_t type, bool rightToLeft) = 0;
-    virtual Expression removePerform(, Expression target, bool rightToLeft) = 0;
-     */
     
     bool simplified = false;
-    //DO THIS INSTEAD OF DOING INDIVIDUAL FINDING
-    //virtual std::vector<size_t> typesDoesNotCommuteWith() = 0;
 public:
     virtual std::string print() = 0;
     friend bool areEqual(ExpressionObject* left,ExpressionObject* right);
@@ -50,6 +44,9 @@ public:
     }
 };
 
+/**
+ *The null object for ExpressionObjects. Created whenever it makes sense to have an 'unitialized' ExpressionObject. Cannot be safely used, as they will throw std::logic_error, and so the output of many functions must be tested with getTypeHash() for NULLTYPE. Contains a public origin string, describing why the object was created.
+ */
 class NullObject : public ExpressionObject {
 public:
     NullObject(std::string newOrigin);
@@ -60,13 +57,6 @@ protected:
     Expression negate();
     Expression multiply(ExpressionObject* other);
     Expression divide(ExpressionObject* other);
-    //virtual ptr commutator(SymbolicObject* other) = 0;
-    /*
-    bool containsTypeOfPerform(size_t type);
-    bool containsPerform(Expression target);
-    Expression firstInstanceOfTypePerform(, size_t type, bool rightToLeft);
-    Expression removePerform(, Expression target, bool rightToLeft);
-     */
     std::string print();
 };
 

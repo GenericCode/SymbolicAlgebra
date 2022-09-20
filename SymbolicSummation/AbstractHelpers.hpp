@@ -2,7 +2,7 @@
 //  AbstractHelpers.hpp
 //  SymbolicSummation
 //
-//  Created by Robert Stahulak on 6/22/22.
+//  Created by Laina Stahulak on 6/22/22.
 //
 
 #ifndef AbstractHelpers_hpp

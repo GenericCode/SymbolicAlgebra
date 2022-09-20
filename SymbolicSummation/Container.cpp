@@ -2,7 +2,7 @@
 //  Operator.cpp
 //  SymbolicSummation
 //
-//  Created by Robert Stahulak on 1/29/22.
+//  Created by Laina Stahulak on 1/29/22.
 //
 
 #include "Container.hpp"
@@ -12,9 +12,6 @@
 
 //Operator
 Expression Container::add(ExpressionObject* other) {
-    /*if(*other == *-this)
-        return ZERO;*/
-    //
     if(this == other)
         return 2**this;
     if(other->getTypeHash() == ZEROTYPE)
@@ -22,9 +19,6 @@ Expression Container::add(ExpressionObject* other) {
     return combineSums(this, other);
 };
 Expression Container::multiply(ExpressionObject* other){
-    /*if(*other == *reciprocal(this)) {
-        return ONE;
-    }*/
     if(other->getTypeHash() == ZEROTYPE)
         return ZERO;
     if(other->getTypeHash() == ONETYPE)
@@ -53,7 +47,7 @@ Add::~Add() {
 Add& Add::operator=(const Add &target) {
     if(this == &target)
         return *this;
-    members = target.members;//*new ExprVector(*new ExprVector(*target.members));
+    members = target.members;
     name = target.name;
     return *this;
 };
@@ -88,44 +82,7 @@ Expression Add::negate() {
     Expression result = *new Expression(new Add(newMembers));
     return result;
 };
-/*
-bool Add::containsTypeOfPerform(size_t type) {
-    return positionOfType(members, type) >= 0;
-};
-bool Add::containsPerform(Expression target) {
-    return positionOfElementIgnoringSign(members, target) >= 0;
-};
-Expression Add::firstInstanceOfTypePerform(, size_t type, bool rightToLeft) {
-    int location = positionOfType(members, type, rightToLeft);
-    if(location >= 0) {
-        if(memberSigns[location]) {
-            Expression result = -members[location];
-            return result;
-        }
-        return members[location];
-    }
-    Expression result = *new Expression(new NullObject("could not find target in ADDTYPE"));
-    return result;
-};
-Expression Add::removePerform(, Expression target, bool rightToLeft) {
-    //int location = positionOfElementIgnoringSign(members, target, rightToLeft);
-    SignVector newSigns = *new SignVector();
-    ExprVector newMembers = *new ExprVector();//members;
-    for(int i = 0; i< members.size(); i++ ) {
-        if(members[i] == target || (memberSigns[i] && -target == members[i]))
-            continue;
-        newMembers.push_back(members[i]);
-        newSigns.push_back(memberSigns[i]);
-    }
-    if(newMembers.size() == 0)
-        return ZERO;
-    if(newMembers.size() == 1 && !newSigns[0])
-        return newMembers[0];
-    Expression result = *new Expression(new Add(newMembers,newSigns));
-    return result;
-    return this;
-};
- */
+
 std::string Add::print() {
     std::string result = "";
     //std::cout << members.size();
@@ -178,27 +135,7 @@ Expression Sign::multiply(ExpressionObject* other) {
         return *new Expression(this);
     return -(*member**other);
 }
-/*
-bool Sign::containsTypeOfPerform(size_t type) {
-    return member.getTypeHash() == type;
-};
-bool Sign::containsPerform(Expression target) {
-    return target == member;
-};
-Expression Sign::firstInstanceOfTypePerform(, size_t type, bool rightToLeft) {
-    if(type == member.getTypeHash()) {
-        return this;
-    }
-    Expression result = *new Expression(new NullObject("does not contain target type"));
-    return result;
-};
-Expression Sign::removePerform(, Expression target, bool rightToLeft) {
-    if(target == this)
-        return ZERO;
-    else
-        return this;
-};
- */
+
 std::string Sign::print() {
     std::string result = "-";
     result += member.print();
@@ -252,45 +189,7 @@ Expression Mul::negate() {
     Expression result = *new Expression(new Mul(newMembers));
     return result;
 };
-/*
-bool Mul::containsTypeOfPerform(size_t type) {
-    return positionOfType(members, type) >= 0;
-};
-bool Mul::containsPerform(Expression target) {
-    return positionOfElement(members, target) >= 0;
-};
-Expression Mul::firstInstanceOfTypePerform(, size_t type, bool rightToLeft) {
-    int location = positionOfType(members, type, rightToLeft);
-    if(location >= 0) {
-        return members[location];
-    }
-    Expression result = *new Expression(new NullObject("could not find target in MULTYPE"));
-    return result;
-    
-};
-Expression Mul::removePerform(, Expression target, bool rightToLeft) {
-    int location = positionOfElement(members, target, rightToLeft);
-    if(location >= 0) {
-        ExprVector newMembers = *new ExprVector();//members;
-        for(int i = 0; i< members.size(); i++ ) {
-            if(i == location)
-                continue;
-            newMembers.push_back(members[i]);
-        }
-        //std::cout << (newMembers.size());
-        //std::cout << "\n";
-        if(newMembers.size() == 0)
-            return ZERO;
-        if(newMembers.size() == 1) {
-            return newMembers[0];
-        }
-        Expression resultExpr = *new Expression(new Mul(newMembers));
-        return resultExpr;
-    }
-    //Expression result(this);
-    return this;
-};
- */
+
 std::string Mul::print() {
     std::string result = "";
     for(int i = 0; i<members.size(); i++) {
@@ -338,63 +237,7 @@ Expression Frac::negate() {
     Expression result = *new Expression(new Frac(negativeOf.get(),denomenator.get()));
     return result;
 };
-/*
-bool Frac::containsTypeOfPerform(size_t type) {
-    if(type == FRACTYPE)
-        return true;
-    bool contains = false;
-    contains |= denomenator.containsTypeOf(type);
-    contains |= numerator.containsTypeOf(type);
-    return contains;
-};
-bool Frac::containsPerform(Expression target) {
-    if(*target == *this)
-        return true;
-    bool contains = false;
-    contains |= (denomenator).contains(reciprocal(target));
-    contains |= (numerator).contains(target);
-    return contains;
-};
-Expression Frac::firstInstanceOfTypePerform(, size_t type, bool rightToLeft) {
-    if(!rightToLeft) {
-        Expression candidate = numerator.getFirstInstanceOfType(type);
-        if(candidate.getTypeHash() != NULLTYPE )
-            return candidate;
-        candidate = denomenator.getFirstInstanceOfType(type);
-        if(candidate.getTypeHash() != NULLTYPE )
-            return reciprocal(candidate);
-        Expression result = * new Expression(new NullObject("could not find target in FRACTYPE"));
-        return result;
-    } else {
-        Expression candidate = *new Expression(denomenator.getFirstInstanceOfType(type));
-        if(candidate.getTypeHash() != NULLTYPE )
-            return reciprocal(candidate);
-        candidate = numerator.getFirstInstanceOfType(type);
-        if(candidate.getTypeHash() != NULLTYPE )
-            return candidate;
-        Expression result = * new Expression(new NullObject("could not find target in FRACTYPE"));
-        return result;
-    }
-};
 
-//not sure this function is necessary or useful
-Expression Frac::removePerform(, Expression target, bool rightToLeft) {
-    if(numerator.contains(target)) {
-        Expression removeResult = *new Expression(numerator.remove(target,rightToLeft));
-        Expression result = * new Expression(new Frac(removeResult,denomenator));
-        return result;
-    }
-    Expression recip = reciprocal(target);
-    if( denomenator.contains(recip) )
-    {
-        Expression removeResult = *new Expression(denomenator.remove(recip,rightToLeft));
-        Expression result = * new Expression(new Frac(removeResult,denomenator));
-        return result;
-    }
-    
-    return this;
-};
- */
 std::string Frac::print() {
     std::string result = "(";
     result += numerator.print();
@@ -465,33 +308,7 @@ Expression Exp::multiply(ExpressionObject* other) {
     }
     return distribute(this, other);
 }
-/*
-bool Exp::containsTypeOfPerform(size_t type) {
-    if(type == EXPTYPE)
-        return true;
-    return base.containsTypeOf(type) || exponent.containsTypeOf(type);
-};
-bool Exp::containsPerform(Expression target) {
-    if(*target == *this)
-        return true;
-    return base.contains(target) || exponent.contains(target);
-};
-Expression Exp::firstInstanceOfTypePerform(, size_t type, bool rightToLeft) {
-    return *new Expression(base.getFirstInstanceOfType(type,rightToLeft));
-};
-Expression Exp::removePerform(, Expression target, bool rightToLeft) {
-    if(base == target) {
-        Expression expOneDown = exponent-1;
-        expOneDown = simplify(expOneDown);
-        if(expOneDown == ONE)
-            return base;
-        if(expOneDown == ZERO)
-            return ONE;
-        return *new Expression(new Exp(base,expOneDown));
-    }
-    else return this;
-};
- */
+
 std::string Exp::print() {
     std::string result = "";
     if(isSubtypeOf(base.get(), OPERATORTYPE))

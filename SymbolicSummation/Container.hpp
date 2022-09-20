@@ -2,7 +2,7 @@
 //  Operator.hpp
 //  SymbolicSummation
 //
-//  Created by Robert Stahulak on 1/29/22.
+//  Created by Laina Stahulak on 1/29/22.
 //
 #pragma once
 #ifndef Operator_hpp
@@ -28,12 +28,6 @@ protected:
     ExprVector members = *new ExprVector();
     //SignVector memberSigns = *new SignVector();
     Expression negate();
-    /*
-    bool containsTypeOfPerform(size_t type);
-    bool containsPerform(SymbolicObject* target);
-    Expression firstInstanceOfTypePerform(, size_t type, bool rightToLeft);
-    Expression removePerform(, SymbolicObject* target, bool rightToLeft);
-     */
 public:
     std::string print();
     Add(const Add& target);
@@ -64,12 +58,6 @@ protected:
     Expression multiply(ExpressionObject* other);
     Expression add(ExpressionObject* other);
     Expression subtract(ExpressionObject* other);
-    /*
-    bool containsTypeOfPerform(size_t type);
-    bool containsPerform(SymbolicObject* target);
-    Expression firstInstanceOfTypePerform(, size_t type, bool rightToLeft);
-    Expression removePerform(, SymbolicObject* target, bool rightToLeft);
-     */
     std::string print();
 public:
     Sign(const Sign& target);
@@ -96,12 +84,6 @@ class Mul : public Container {
 protected:
     ExprVector members = *new ExprVector();
     Expression negate();
-    /*
-    bool containsTypeOfPerform(size_t type);
-    bool containsPerform(SymbolicObject* target);
-    Expression firstInstanceOfTypePerform(, size_t type, bool rightToLeft);
-    Expression removePerform(, SymbolicObject* target, bool rightToLeft);
-     */
     std::string print();
 public:
     Mul(const Mul& target);
@@ -128,12 +110,6 @@ protected:
     Expression numerator;
     Expression denomenator;
     Expression negate();
-    /*
-    bool containsTypeOfPerform(size_t type);
-    bool containsPerform(SymbolicObject* target);
-    Expression firstInstanceOfTypePerform(, size_t type, bool rightToLeft);
-    Expression removePerform(, SymbolicObject* target, bool rightToLeft);
-     */
     std::string print();
 public:
     Frac& operator=(const Frac& target);
@@ -161,12 +137,6 @@ protected:
     Expression exponent;
     Expression negate();
     Expression multiply(ExpressionObject* other);
-    /*
-    bool containsTypeOfPerform(size_t type);
-    bool containsPerform(SymbolicObject* target);
-    Expression firstInstanceOfTypePerform(, size_t type, bool rightToLeft);
-    Expression removePerform(, SymbolicObject* target, bool rightToLeft);
-     */
     std::string print();
 public:
     Exp& operator=(const Exp& target);
@@ -196,12 +166,6 @@ protected:
     Expression divide (ExpressionObject* other);
     Expression subtract(ExpressionObject* other);
     Expression negate();
-    /*
-    bool containsTypeOfPerform(size_t type);
-    bool containsPerform(SymbolicObject* target);
-    Expression firstInstanceOfTypePerform(, size_t type, bool rightToLeft);
-    Expression removePerform(, SymbolicObject* target, bool rightToLeft);
-     */
     std::string print();
 public:
     Func& operator=(const Func& target);

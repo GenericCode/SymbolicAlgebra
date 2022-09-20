@@ -2,7 +2,7 @@
 //  main.cpp
 //  SymbolicSummation
 //
-//  Created by Robert Stahulak on 1/27/22.
+//  Created by Laina Stahulak on 1/27/22.
 //
 
 #include <iostream>
@@ -15,10 +15,6 @@
 Expression matrixElement(Expression potential,Expression initialState, Expression finalState) {
     Expression temp = transpose(initialState.get())*potential*finalState;
     Expression result = simplify(temp.get());
-    //result = cancelTerms(result.get());
-    //result = result*finalState;
-    //result = simplify(result);
-    //std::cout<<result.print()+"\n";
     return result;
 }
 
@@ -86,7 +82,6 @@ Expression spinIsospinSummation(ExprVector interactions, bool exchange ) {
                     contribution = matrixElement(contribution, tauBStates[l], tauBStates[l]);
                     std::cout<<"tauB\n";
                     std::cout<<contribution.print()+"\n";
-                    //Expression negativeOfPotential = -first;
                     Expression exchangeContribution;
                     if(exchange) {
                         exchangeContribution = matrixElement(exchangePotential, sigmaAStates[j], sigmaAStates[j]);
@@ -107,7 +102,6 @@ Expression spinIsospinSummation(ExprVector interactions, bool exchange ) {
                     Expression tempTotal = total;
                     total = tempTotal + contribution + exchangeContribution;
                     std::cout<<total.print()+"\n";
-                    //total = cancelTerms(total.get());
                     std::cout<<"running total:"+total.print()+"\n\n";
                 }
             }
@@ -132,28 +126,8 @@ Expression spinIsospinSummation(std::vector<std::string> interactions, bool exch
 
 int main(int argc, const char * argv[]) {
     initializeDefaultSymbols();
-    /*ExprVector upVectors = {declarePauliVector(true, "sigmaA"),declarePauliVector(true, "sigmaB"),declarePauliVector(true, "tauA"),declarePauliVector(true, "tauB")};
-    ExprVector downVectors = {declarePauliVector(false, "sigmaA"),declarePauliVector(false, "sigmaB"),declarePauliVector(false, "tauA"),declarePauliVector(false, "tauB")};
-    ExprVector sigAMats = {declarePauliMatrix(1, "sigmaA"),declarePauliMatrix(2, "sigmaA"),declarePauliMatrix(3, "sigmaA")};
-    ExprVector sigBMats = {declarePauliMatrix(1, "sigmaB"),declarePauliMatrix(2, "sigmaB"),declarePauliMatrix(3, "sigmaB")};
-    ExprVector tauAMats = {declarePauliMatrix(1, "tauA"),declarePauliMatrix(2, "tauA"),declarePauliMatrix(3, "tauA")};
-    ExprVector tauBMats = {declarePauliMatrix(1, "tauB"),declarePauliMatrix(2, "tauB"),declarePauliMatrix(3, "tauB")};
-    Expression sigmaAVector = declareMatrix("sigmaAVector", {{sigAMats[0],sigAMats[1],sigAMats[2]}});
-    Expression sigmaBVector = declareMatrix("sigmaBVector", {{sigAMats[0],sigAMats[1],sigAMats[2]}});
-    Expression tauAVector = declareMatrix("tauAVector", {{sigAMats[0],sigAMats[1],sigAMats[2]}});
-    Expression tauBVector = declareMatrix("tauBVector", {{sigAMats[0],sigAMats[1],sigAMats[2]}});
-    Expression kVector = declareMatrix("kVector", {{declareSymbol("kx"),declareSymbol("ky"),declareSymbol("kz")}});*/
-    //Expression result = sigmaAVector*transpose(kVector);
-    //std::vector<std::string> interactions = {"-f^2/m^2*tauAVector*tauBVector*sigmaAVector*kVector*sigmaBVector*kVector/(k^2+m^2)"};
-    ExprVector interactions = {};
-    //Expression result = parseString("(sigmaX*qx+sigmaY*qy+sigmaZ*qz)/(q^2+m^2)+1/(q^2+m^2)");
+    std::vector<std::string> interactions = {};
     Expression result = spinIsospinSummation(interactions, true);
-    //result = simplify(result);
-    //Expression result = -ONE*-ONE;
-    //result = simplify(result);
-    //Expression result = parseString("-A/B^2*C/D");
-    //Expression result = 2-ONE;
-    //result = simplify(result);
     std::cout << result.print()+"\n";
     
     return 0;

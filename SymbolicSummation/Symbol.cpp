@@ -2,7 +2,7 @@
 //  Symbol.cpp
 //  SymbolicSummation
 //
-//  Created by Robert Stahulak on 2/3/22.
+//  Created by Laina Stahulak on 2/3/22.
 //
 
 #include "Symbol.hpp"
@@ -35,7 +35,6 @@ Expression Symbol::negate() {
 };
 Expression Symbol::subtract(ExpressionObject* other) {
     if(other == this) {
-        //Expression result(&ZERO);
         return ZERO;
     }
     
@@ -52,40 +51,11 @@ Expression Symbol::multiply(ExpressionObject* other) {
     }
     return distribute(this, other);
 };
-/*
-bool Symbol::containsPerform(SymbolicObject* other) {
-    return *other == *this;
-};
-bool Symbol::containsTypeOfPerform(size_t type) {
-    return type == SYMBOLTYPE;
-};
-Expression Symbol::firstInstanceOfTypePerform(, size_t type, bool rightToLeft) {
-    if(type == this->getTypeHash())
-        return this;
-    //Expression result(nullptr);
-    return *new Expression(new NullObject("SYMBOLTYPE has no members"));
-};
-Expression Symbol::removePerform(SymbolicObject* other, bool rightToLeft) {
-    if(other == this) {
-        return ZERO;
-    }
-    return this;
-};
-*/
+
 //ImaginaryUnit
 ImaginaryUnit::ImaginaryUnit(const ImaginaryUnit& target) : Symbol(target.name) {
 };
-/*
-Expression ImaginaryUnit::dividePerform(SymbolicObject* other) {
-    
-};
-Expression ImaginaryUnit::addPerform(SymbolicObject* other) {
-    
-};
-Expression ImaginaryUnit::subtractPerform(SymbolicObject* other) {
-    
-};
- */
+
 Expression ImaginaryUnit::multiply(ExpressionObject* other) {
     if(*other == *this) {;
         return MINUSONE;

@@ -2,7 +2,7 @@
 //  Real.cpp
 //  SymbolicSummation
 //
-//  Created by Robert Stahulak on 1/28/22.
+//  Created by Laina Stahulak on 1/28/22.
 //
 #include "Real.hpp"
 #include "Expression.hpp"
@@ -104,26 +104,6 @@ Expression Real::divide(ExpressionObject* other) {
         return distribute(this, reciprocalOf);
     }
 };
-/*
-bool Real::containsTypeOfPerform(size_t type) {
-    return type == REALTYPE;
-};
-
-bool Real::containsPerform(Expression target) {
-    return (*this) == *target;
-};
-
-Expression Real::removePerform(, Expression target, bool rightToLeft) {
-    if(target == this)
-        return ZERO;
-    return this;
-}
-
-Expression Real::firstInstanceOfTypePerform(, size_t type, bool rightToLeft) {
-    Expression result = *new Expression(new NullObject("REALTYPE has no members"));
-    return result;
-}
-*/
 std::string Real::print() {
     std::string result;
     if(ceilf(value) == value)

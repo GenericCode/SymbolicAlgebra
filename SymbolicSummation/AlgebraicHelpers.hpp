@@ -2,7 +2,7 @@
 //  ExpressionHelpers.hpp
 //  SymbolicSummation
 //
-//  Created by Robert Stahulak on 2/1/22.
+//  Created by Laina Stahulak on 2/1/22.
 //
 
 #ifndef ExpressionHelpers_hpp

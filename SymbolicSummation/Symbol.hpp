@@ -2,7 +2,7 @@
 //  Symbol.hpp
 //  SymbolicSummation
 //
-//  Created by Robert Stahulak on 2/3/22.
+//  Created by Laina Stahulak on 2/3/22.
 //
 
 #ifndef Symbol_hpp

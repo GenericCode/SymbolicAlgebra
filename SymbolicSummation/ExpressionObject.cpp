@@ -61,50 +61,19 @@ NullObject::NullObject(std::string newOrigin) {
 }
 Expression NullObject::add(ExpressionObject* other) {
     throw std::logic_error("null object: "+origin);
-    //Expression result = *new Expression(new NullObject());
-    //return result;
 };
 Expression NullObject::subtract(ExpressionObject* other) {
     throw std::logic_error("null object: "+origin);
-    //Expression result = *new Expression(new NullObject());
-    //return result;
 };
 Expression NullObject::negate() {
     throw std::logic_error("null object: "+origin);
-    //Expression result = *new Expression(new NullObject());
-    //return result;
 };
 Expression NullObject::multiply(ExpressionObject* other) {
     throw std::logic_error("null object: "+origin);
-    //Expression result = *new Expression(new NullObject());
-    //return result;
 };
 Expression NullObject::divide(ExpressionObject* other) {
     throw std::logic_error("null object: "+origin);
-    //Expression result = *new Expression(new NullObject());
-    //return result;
 };
-//virtual ptr commutator(SymbolicObject* other) = 0;
-/*
-bool NullObject::containsTypeOf(size_t type) {
-    throw std::logic_error("null object: "+origin);
-    //return false;
-};
-bool NullObject::contains(Expression target) {
-    throw std::logic_error("null object: "+origin);
-    //return false;
-};
-Expression NullObject::firstInstanceOfType(, size_t type, bool rightToLeft) {
-    throw std::logic_error("null object: "+origin);
-    //Expression result = *new Expression(new NullObject());
-    //return result;
-};
-Expression NullObject::remove(, Expression target, bool rightToLeft) {
-    throw std::logic_error("null object: "+origin);
-    //Expression result = *new Expression(new NullObject());
-    //return result;
-};
- */
 std::string NullObject::print() {
     throw std::logic_error("null object: "+origin);
     //return NULL;

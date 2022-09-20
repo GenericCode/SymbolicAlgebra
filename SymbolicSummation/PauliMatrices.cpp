@@ -2,7 +2,7 @@
 //  PauliMatrices.cpp
 //  SymbolicSummation
 //
-//  Created by Robert Stahulak on 4/8/22.
+//  Created by Laina Stahulak on 4/8/22.
 //
 
 #include "PauliMatrices.hpp"
@@ -41,7 +41,6 @@ PauliMatrix::PauliMatrix(int index, std::string flavor) :  Matrix(flavor+std::to
     (*this).index = index;
     (*this).flavor = flavor;
     dimensions = {2,2};
-    //(*this).elements = *new ExprMatrix();
     switch(index) {
         case 1:
             (*this).elements = generateExprMatrix({{ZERO,ONE},{ONE,ZERO}});
@@ -80,20 +79,12 @@ Expression PauliMatrix::add(ExpressionObject* other) {
         Matrix& resultingMatrix = dynamic_cast<Matrix&>(*tempResult);
         Expression resultingPauli = *new Expression(new PauliMatrix(flavor+resultingMatrix.print(),0,thisPauli.flavor,resultingMatrix.getElements()));
         return resultingPauli;
-        //need to keep as a Pauli matrix, to retain flavor commuation vs noncommut
-        //return leftAsMatExpr*rightAsMatExpr;
     }
     Expression pauliTarget = getElementOfType(other, PAULIMATRIXTYPE);
     //bool wasAVector = false;
     if(pauliTarget.getTypeHash() == NULLTYPE) {
         Expression result = combineSums(other, this);
         return result;
-        /*pauliTarget = getElementOfType(other, PAULIVECTORTYPE);
-        if(pauliTarget.getTypeHash() == NULLTYPE) {
-            Expression result = combineSums(other, this);
-            return result;
-        }
-        wasAVector = true;*/
     }
     PauliMatrix& targetMatrix = dynamic_cast<PauliMatrix&>(*pauliTarget);
     if(targetMatrix.flavor != thisPauli.flavor) {
@@ -117,17 +108,8 @@ Expression PauliMatrix::add(ExpressionObject* other) {
     Matrix& resultingMatrix = dynamic_cast<Matrix&>(*(leftAsMatExpr+distrMat));
     Expression resultingPauli = *new Expression(new PauliMatrix(flavor+resultingMatrix.print(),0,thisPauli.flavor,resultingMatrix.getElements()));
     Expression result;
-    //if(!wasAVector)
-        result = replaceElementOfType(other, PAULIMATRIXTYPE, resultingPauli.get());
-    //else
-    //    result = replaceElementOfType(other, PAULIVECTORTYPE, resultingPauli);
+    result = replaceElementOfType(other, PAULIMATRIXTYPE, resultingPauli.get());
     return result;
-    //NEED TO CHECK WHETHER other CONTAINS A PAULI MATRIX
-    //IF NOT, result = Mul(other,this) to enforce the commutation
-    
-    //Expression leftAsMatExpr = *new Expression(dynamic_cast<Matrix*>(*this.get()));
-    //Expression rightAsMatExpr = *new Expression(dynamic_cast<Matrix*>(*other->get()));
-    //return leftAsMatExpr*other;
 };
 Expression PauliMatrix::subtract(ExpressionObject* other) {
     Expression negativeOf = -*other;
@@ -141,17 +123,11 @@ Expression PauliMatrix::multiply(ExpressionObject* other) {
     PauliMatrix& thisPauli = dynamic_cast<PauliMatrix&>(*this);
     if(rtype == PAULIMATRIXTYPE) {
         PauliMatrix& otherPauli = dynamic_cast<PauliMatrix&>(*other);
-        //std::cout << thisPauli.flavor + "*" + otherPauli.flavor;
         if(thisPauli.flavor != otherPauli.flavor) {
             Expression result = *new Expression(new Mul(this,other));
             return result;
         }
         
-        /*if(thisPauli.index != 0 && thisPauli.index == otherPauli.index) {
-            ExprMatrix identityElements = {{one,zero},{zero,one}};
-            Expression result = *new Expression(new Matrix("identity",identityElements));
-            return result;
-        }*/
         Matrix& leftAsMat = dynamic_cast<Matrix&>(*this);
         Matrix& rightAsMat = dynamic_cast<Matrix&>(*other);
         Expression tempResult = matMul(&leftAsMat, &rightAsMat);//leftAsMat*rightAsMat;
@@ -160,54 +136,8 @@ Expression PauliMatrix::multiply(ExpressionObject* other) {
         Matrix& resultingMatrix = dynamic_cast<Matrix&>(*tempResult);
         Expression resultingPauli = *new Expression(new PauliMatrix(flavor+resultingMatrix.print(),0,thisPauli.flavor,resultingMatrix.getElements()));
         return resultingPauli;
-        //need to keep as a Pauli matrix, to retain flavor commuation vs noncommut
-        //return leftAsMatExpr*rightAsMatExpr;
     }
     
-    /*
-    Expression pauliTarget = getElementOfType(other, PAULIMATRIXTYPE);
-    //bool wasAVector = false;
-    if(pauliTarget.getTypeHash() == NULLTYPE) {
-        //need more sophisticated way of finding matrices of the same flavor
-        Expression result = distribute(this, other);
-        return result;
-    }
-    PauliMatrix& targetMatrix = dynamic_cast<PauliMatrix&>(*pauliTarget);
-    if(thisPauli.flavor != targetMatrix.flavor) {
-        Expression result = distribute(this, other);
-    }
-    PauliMatrix& leftPauli = dynamic_cast<PauliMatrix&>(*this);
-    PauliMatrix& rightPauli = dynamic_cast<PauliMatrix&>(*pauliTarget);
-    Matrix leftAsMat = leftPauli;
-    Matrix rightAsMat = rightPauli;
-    Expression leftAsMatExpr = *new Expression(&leftAsMat);
-    Expression rightAsMatExpr = *new Expression(&rightAsMat);
-    Expression tempResult = leftAsMatExpr*rightAsMatExpr;
-    if(tempResult.getTypeHash() != MATRIXTYPE)
-        return tempResult;
-    Matrix& resultingMatrix = dynamic_cast<Matrix&>(*tempResult);
-    Expression resultingPauli = *new Expression(new PauliMatrix(0,thisPauli.flavor,resultingMatrix.getElements()));
-    Expression result;
-    //if(!wasAVector)
-        result = replaceElementOfType(other, PAULIMATRIXTYPE, resultingPauli);
-    //else
-    //    result = replaceElementOfType(other, PAULIVECTORTYPE, resultingPauli);*/
-    //Expression result = combineProducts(this, other);
-    //result = simplify(result);*/
     Expression result = distribute(this, other);
     return result;
 };
-
-
-//PauliVector
-
-/*
-PauliVector::PauliVector(bool direction, std::string flavor) : PauliMatrix(0, flavor){
-    dimensions = {2,1};
-    if(direction) {
-        elements = {{ONE},{ZERO}};
-    } else {
-        elements = {{ZERO},{ONE}};
-    }
-}
-*/

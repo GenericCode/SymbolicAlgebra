@@ -2,7 +2,7 @@
 //  AbstractHelpers.cpp
 //  SymbolicSummation
 //
-//  Created by Robert Stahulak on 6/22/22.
+//  Created by Laina Stahulak on 6/22/22.
 //
 
 #include "AbstractHelpers.hpp"
@@ -16,21 +16,6 @@
 #include <fstream>
 
 static std::unordered_map<std::string,Expression> declaredSymbols = *new std::unordered_map<std::string, Expression>();
-
-/*bool isSubtypeOf(size_t sub, size_t super) {
-    bool result = false;
-    if(sub == super)
-        result = true;
-    if(super == REALTYPE && (sub == ONETYPE || sub == ZEROTYPE) )
-        result = true;
-    if(super == MATRIXTYPE && sub == PAULIMATRIXTYPE)
-        result = true;
-    if(super == typeid(ExpressionContainer).hash_code() && (sub == ADDTYPE || sub == MULTYPE || sub == FRACTYPE || sub == EXPTYPE || sub == SIGNTYPE))
-        result = true;
-    if(super == ADDTYPE && sub == SIGNTYPE)
-        result = true;
-    return result;
-}*/
 
 bool isSubtypeOf(ExpressionObject* sub, ExpressionObject* super) {
     size_t subType = sub->getTypeHash();
@@ -228,12 +213,12 @@ std::string sanitize(std::string expr) {
 void initializeDefaultSymbols() {
     if(declaredSymbols.empty()) {
         declaredSymbols["1"] = ONE;
-        declaredSymbols["-1"] = MINUSONE;//*new Expression(new Sign(ONE));
+        declaredSymbols["-1"] = MINUSONE;
         declaredSymbols["0"] = ZERO;
         float temp = 1;
         declaredSymbols[std::to_string(temp)] = ONE;
         temp = -1;
-        declaredSymbols[std::to_string(temp)] = MINUSONE;//*new Expression(new Sign(ONE));
+        declaredSymbols[std::to_string(temp)] = MINUSONE;
         temp = 0;
         declaredSymbols[std::to_string(temp)] = ZERO;
         declaredSymbols["pi"] = PI;
@@ -552,15 +537,6 @@ Expression removeElementAdditively(ExpressionObject* source, ExpressionObject* t
         return *new Expression(new NullObject("could not remove target additively"));
     Add& sourceObj = dynamic_cast<Add&>(*source);
     ExprVector newMembers = removeElementFromVector(sourceObj.members, target);
-    /*int location = positionOfElementIgnoringSign(sourceObj.members, target, rightToLeft);
-    if(location < 0)
-        return *new Expression(source);
-    ExprVector newMembers = *new ExprVector();
-    for(int i = 0; i<sourceObj.members.size(); i++) {
-        if(i == location)
-            continue;
-        newMembers.push_back(sourceObj.members[i]);
-    }*/
     if(newMembers == sourceObj.members)
         return *new Expression(new NullObject("could not find target to remove"));
     if(newMembers.size() == 0)
@@ -596,29 +572,22 @@ Expression getElementOfType(ExpressionObject* source, size_t type, bool rightToL
     
     if(!rightToLeft) {
         for(int i = 0; i<elementsToCheck.size(); i++) {
-            if(isSubtypeOf(elementsToCheck[i].get(), type) )// || (elementsToCheck[i].getTypeHash() == SIGNTYPE && isSubclassOf((-elementsToCheck[i]).getTypeHash(), type) ))
+            if(isSubtypeOf(elementsToCheck[i].get(), type) )
                 return *new Expression(elementsToCheck[i]);
-            /*Expression candidate = getElementOfType(elementsToCheck[i], type, rightToLeft);
-            if(!(candidate.getTypeHash() == NULLTYPE) )
-                return candidate;*/
         }
         Expression result = *new Expression(new NullObject("could not find element of specified type"));
         return result;
     } else {
         for(int i = (int)elementsToCheck.size()-1; i>=0; i--) {
-            if(isSubtypeOf(elementsToCheck[i].get(), type) ) {//|| (elementsToCheck[i].getTypeHash() == SIGNTYPE && isSubclassOf((-elementsToCheck[i]).getTypeHash(), type) ))
+            if(isSubtypeOf(elementsToCheck[i].get(), type) ) {
                 return *new Expression(elementsToCheck[i]);
             }
-            /*Expression candidate = getElementOfType(elementsToCheck[i], type, rightToLeft);
-            if(!(candidate.getTypeHash() == NULLTYPE) )
-                return candidate;*/
         }
         Expression result = *new Expression(new NullObject("could not find element of specified type"));
         return result;
     }
 };
 
-//this is pointless
 ExprVector replaceElementOfTypeInVector(ExprVector source, size_t type, ExpressionObject* value, bool rightToLeft) {
     ExprVector result = *new ExprVector();
     int location = positionOfType(source, type, rightToLeft);
@@ -661,10 +630,7 @@ ExprVector replaceElementInVector(ExprVector source, ExpressionObject* target, E
     }
     return source;
 };
-/*
-Expression replaceElement(SymbolicObject* source, SymbolicObject* target, SymbolicObject* value, bool rightToLeft) {
-    
-};*/
+
 Expression replaceElementOfType(ExpressionObject* source, size_t type, ExpressionObject* value, bool rightToLeft) {
     size_t sourceType = source->getTypeHash();
     if(isSubtypeOf(source, type))
@@ -687,36 +653,6 @@ Expression replaceElementOfType(ExpressionObject* source, size_t type, Expressio
         return finalResult;
     }
     elementsToCheck = replaceElementOfTypeInVector(elementsToCheck, type, value, rightToLeft);
-    /*
-    if(!rightToLeft) {
-        for(int i = 0; i<elementsToCheck.size(); i++) {
-            if(isSubclassOf(elementsToCheck[i].getTypeHash(), type)) {
-                elementsToCheck.erase(elementsToCheck.begin()+i);
-                elementsToCheck.insert(elementsToCheck.begin()+i, value);
-                break;
-            }
-            Expression newElement = replaceElementOfType(elementsToCheck[i], type, value, rightToLeft);
-            if(newElement != elementsToCheck[i]) {
-                elementsToCheck.erase(elementsToCheck.begin()+i);
-                elementsToCheck.insert(elementsToCheck.begin()+i, newElement);
-                break;
-            }
-        }
-    } else {
-        for(int i = (int)elementsToCheck.size()-1; i>=0; i--) {
-            if(isSubclassOf(elementsToCheck[i].getTypeHash(), type)) {
-                elementsToCheck.erase(elementsToCheck.begin()+i);
-                elementsToCheck.insert(elementsToCheck.begin()+i, value);
-                break;
-            }
-            Expression newElement = replaceElementOfType(elementsToCheck[i], type, value, rightToLeft);
-            if(newElement != elementsToCheck[i]) {
-                elementsToCheck.erase(elementsToCheck.begin()+i);
-                elementsToCheck.insert(elementsToCheck.begin()+i, newElement);
-                break;
-            }
-        }
-    }*/
     if(sourceType == ADDTYPE) {
         Add& addObj = dynamic_cast<Add&>(*source);
         if(elementsToCheck == addObj.members)

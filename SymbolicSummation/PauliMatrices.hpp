@@ -2,7 +2,7 @@
 //  PauliMatrices.hpp
 //  SymbolicSummation
 //
-//  Created by Robert Stahulak on 4/8/22.
+//  Created by Laina Stahulak on 4/8/22.
 //
 
 #ifndef PauliMatrices_hpp
@@ -35,12 +35,6 @@ public:
     friend bool areEqual(ExpressionObject& left, ExpressionObject& right);
     friend Expression substitute(ExpressionObject* source, ExpressionObject* target, ExpressionObject* value);
 };
-
-/*
-class PauliVector : public PauliMatrix {
-public:
-    PauliVector(bool direction, std::string flavor = "");
-};*/
 
 static const size_t PAULIMATRIXTYPE = typeid(PauliMatrix).hash_code();
 //static const size_t PAULIVECTORTYPE = typeid(PauliVector).hash_code();

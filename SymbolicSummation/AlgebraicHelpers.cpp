@@ -2,7 +2,7 @@
 //  ExpressionHelpers.cpp
 //  SymbolicSummation
 //
-//  Created by Robert Stahulak on 2/1/22.
+//  Created by Laina Stahulak on 2/1/22.
 //
 
 #include "AlgebraicHelpers.hpp"
@@ -185,29 +185,9 @@ Expression combineProducts(ExpressionObject* left, ExpressionObject* right) {
             Mul& rMul = dynamic_cast<Mul&>(*right);
             ExprVector rightMembers = rMul.members;
             for(int i = 0; i<rightMembers.size(); i++) {
-                /*bool commutes = true;
-                for(int j = 0; j<newMembers.size(); j++) {
-                    commutes = commutesWith(newMembers[j], rightMembers[i]);
-                    if(!commutes) {
-                        Expression temp = newMembers[j];
-                        newMembers[j] = temp*rightMembers[i];
-                        break;
-                    }
-                }
-                if(commutes)*/
                 newMembers.push_back(rightMembers[i]);
             }
         } else {
-            /*bool commutes = true;
-            for(int i = 0; i<newMembers.size(); i++) {
-                commutes = commutesWith(newMembers[i],right);
-                if(!commutes) {
-                    Expression temp = newMembers[i];
-                    newMembers[i] = temp*right;
-                    break;
-                }
-            }
-            if(commutes)*/
             newMembers.push_back(*new Expression(right));
         }
         if((int)newMembers.size() == 1)
@@ -264,37 +244,14 @@ Expression combineSums(ExpressionObject* left, ExpressionObject* right) {
     }
     if(isSubtypeOf(right, ADDTYPE)) {
         Add& rAdd = dynamic_cast<Add&>(*right);
-        //ExprVector newMembers = rAdd.members;
-        //SignVector newSigns = rAdd.memberSigns;
-        //int positionOfLeftInRight = positionOfElement(newMembers, left);
-        /*if(positionOfLeftInRight >= 0) {
-            newMembers.erase(newMembers.begin()+positionOfLeftInRight);
-            newMembers.insert(newMembers.begin()+positionOfLeftInRight, 2*left);
-            newSigns.erase(newSigns.begin()+positionOfLeftInRight);
-            newSigns.insert(newSigns.begin()+positionOfLeftInRight, false);
-        } else {*/
-        /*if(rAdd.members.size() == 1) {
-            if(rAdd.memberSigns[0]) {
-                Expression result = -left+rAdd.members[0];
-                result = -result;
-                return result;
-            }
-            return *new Expression(left)+rAdd.members[0];
-        }*/
         ExprVector newMembers = *new ExprVector();
         newMembers.push_back(*new Expression(left));
         for(int i = 0; i<rAdd.members.size(); i++) {
             newMembers.push_back(rAdd.members[i]);
         }
-        //newMembers.insert(newMembers.begin(), left);
-        //newSigns.insert(newSigns.begin(), false);
-        //}
-        Expression result = *new Expression(new Add(newMembers));//cancelTerms(new Add(newMembers,newSigns));
-        //Expression finalResult = cancelTerms(result);
+        Expression result = *new Expression(new Add(newMembers));
         return result;
     } else {
-        //if(!isSubclassOf(left, OPERATORTYPE) && right == left)
-        //    return *new Expression(left)+right;
         Expression result = *new Expression(new Add(left,right));
         return result;
     }
@@ -308,11 +265,11 @@ bool commutesWith(ExpressionObject* left, ExpressionObject* right) {
     if(ltype == MATRIXTYPE) {
         if(rtype == MATRIXTYPE)
             return false;
-        Expression matTarget = getElementOfType(right, MATRIXTYPE);//right->getFirstInstanceOfType(MATRIXTYPE);
+        Expression matTarget = getElementOfType(right, MATRIXTYPE);
         return matTarget.getTypeHash() == NULLTYPE;
     }
     if(rtype == MATRIXTYPE) {
-        Expression matTarget = getElementOfType(left, MATRIXTYPE);//left->getFirstInstanceOfType(MATRIXTYPE);
+        Expression matTarget = getElementOfType(left, MATRIXTYPE);
         return matTarget.getTypeHash() == NULLTYPE;
     }
     
@@ -320,11 +277,11 @@ bool commutesWith(ExpressionObject* left, ExpressionObject* right) {
     if(ltype == PAULIMATRIXTYPE) {
         if(rtype == PAULIMATRIXTYPE)
             return false;
-        Expression matTarget = getElementOfType(right, PAULIMATRIXTYPE);//right->getFirstInstanceOfType(PAULIMATRIXTYPE);
+        Expression matTarget = getElementOfType(right, PAULIMATRIXTYPE);
         return matTarget.getTypeHash() == NULLTYPE;
     }
     if(rtype == PAULIMATRIXTYPE) {
-        Expression matTarget = getElementOfType(left, PAULIMATRIXTYPE);//left->getFirstInstanceOfType(PAULIMATRIXTYPE);
+        Expression matTarget = getElementOfType(left, PAULIMATRIXTYPE);
         return matTarget.getTypeHash() == NULLTYPE;
     }
     
@@ -382,83 +339,6 @@ Expression cancelTerms(ExpressionObject* target) {
     }
     return *new Expression(target);
 }
-
-/*
-//this is unsophisticated and will only cancel terms that are identical not including their sign
-Expression cancelTerms(SymbolicObject* target) {
-    if(target != ADDTYPE)
-        return *new Expression(target);
-    Add& addObj = dynamic_cast<Add&>(*target);
-    ExprVector members = addObj.members;
-    if(members.size() == 1)
-        return *new Expression(target);
-    ExprVector newMembers = *new ExprVector();
-    ExprVector newNewMembers = *new ExprVector();
-    SignVector newSigns = *new SignVector(addObj.memberSigns);
-    SignVector newNewSigns = *new SignVector();
-    for(int i = 0; i<members.size(); i++) {
-        Expression currExpr = members[i];
-        if(isSubtypeOf(currExpr.getTypeHash(), ADDTYPE)) {
-            currExpr = -currExpr;
-            newSigns[i] = newSigns[i] != true;
-        }
-        newMembers.push_back(currExpr);
-    }
-    std::vector<int> indicesToSkip = *new std::vector<int>();
-    for(int i = 0; i<newMembers.size(); i++) {
-        if(intVectorContains(indicesToSkip, i))
-            continue;
-        Expression currExpr = newMembers[i];
-        if(newSigns[i])
-            currExpr = -currExpr;
-        bool combined = false;
-        //int total = 1;
-        Expression total = currExpr;
-        for(int j = i+1; j<newMembers.size(); j++) {
-            if(intVectorContains(indicesToSkip, j))
-                continue;
-            Expression nextExpr = newMembers[j];
-            if(newSigns[j])
-                nextExpr = -nextExpr;
-            Expression tempResult = combineTermsDifferingByCoefficientsAdditively(total.get(), nextExpr.get());
-            if(tempResult.getTypeHash() != NULLTYPE && tempResult.getTypeHash() != ADDTYPE ) {
-                total = tempResult;
-                combined = true;
-                indicesToSkip.push_back(i);
-                indicesToSkip.push_back(j);
-                //if(tempResult.getTypeHash()==ZEROTYPE)
-                break;
-            }
-        }
-        
-        if(!combined) {
-            newNewMembers.push_back(newMembers[i]);
-            newNewSigns.push_back(newSigns[i]);
-        } else if(total != currExpr) {
-            if(total == ZERO)
-                continue;
-            bool newSign = total.getTypeHash() == SIGNTYPE;
-            if(newSign)
-                newNewMembers.push_back(-total);
-            else
-                newNewMembers.push_back(total);
-            newNewSigns.push_back(newSign);
-        }
-    }
-    //std::cout<< target->print() + "\n";
-    if(newNewMembers.size() == 0)
-        return ZERO;
-    if(newNewMembers.size() == 1) {
-        if(newNewSigns[0])
-            return -newNewMembers[0];
-        return newNewMembers[0];
-    }
-    Expression simplifiedTarget = *new Expression(new Add(newNewMembers,newNewSigns));
-    //delete &newSigns;
-    //delete &newMembers;
-    return simplifiedTarget;
-};
-*/
 
 Expression simplifySubExpressions(ExpressionObject* target) {
     bool isMul = target->getTypeHash() == MULTYPE;
@@ -647,14 +527,6 @@ Expression simplify(ExpressionObject* target) {
             Expression first = getElementOfType(result.get(), type);
             if(first.getTypeHash() == NULLTYPE)
                 continue;
-            /*if(isMul && first.getTypeHash() == REALTYPE) {
-                Real& firstReal = dynamic_cast<Real&>(*first);
-                if(firstReal.value == 0)
-                    return zero;
-                if(firstReal.value < 0)
-                    overallSign = overallSign != true;
-                first = -first;
-            }*/
             Expression remainder;// = result.remove(first);
             if(isMul) {
                 remainder = removeElementMultiplicatively(result.get(), first.get());
@@ -671,14 +543,6 @@ Expression simplify(ExpressionObject* target) {
                 if(isAdd) {
                     remainder = removeElementAdditively(remainder.get(), second.get());
                 }
-                /*if(isMul && type == REALTYPE) {
-                    Real& secondReal = dynamic_cast<Real&>(*second);
-                    if(secondReal.value == 0)
-                        return zero;
-                    if(secondReal.value < 0)
-                        overallSign = overallSign != true;
-                    second = -second;
-                }*/
                 if(isMul)
                     total = total*second;
                 if(isAdd)
@@ -1036,27 +900,7 @@ ExprVector getCommonFactors(ExprVector terms) {
     return commonFactors;
 }
 
-/*ExprVector getFactorsWhichAreNotCommon(ExprVector terms) {
-    ExprVector uncommonFactors = *new ExprVector();
-    ExprMatrix ithTermFactors = *new ExprMatrix();
-    ExprVector firstTermFactors = getFactors(terms[0]);
-    if(terms.size()<2) {
-        return {ZERO};
-    }
-    for(int i = 1; i<terms.size(); i++)
-        ithTermFactors.push_back(getFactors(terms[i]));
-    for(int i = 0; i<firstTermFactors.size(); i++) {
-        bool isCommonFactor = true;
-        for(int j=0; j<(ithTermFactors).size(); j++) {
-            isCommonFactor &= containsElement(ithTermFactors[j], firstTermFactors[i]);
-        }
-        if(!isCommonFactor)
-            uncommonFactors.push_back(firstTermFactors[i]);
-    }
-    return uncommonFactors;
-}*/
-
-//DOES NOT RESPECT COMMUTATION PROPERTIES
+//DOES NOT RESPECT COMMUTATION PROPERTIES... probably
 Expression combineTermsDifferingByCoefficientsAdditively(ExpressionObject* left, ExpressionObject* right) {
     if(left->getTypeHash() == ZEROTYPE)
         return *new Expression(right);
@@ -1078,16 +922,8 @@ Expression combineTermsDifferingByCoefficientsAdditively(ExpressionObject* left,
         return simplify((2**left).get());
     ExprVector targets = generateExprVector({*new Expression(left),*new Expression(right)});
     ExprVector commonFactors = getCommonFactors(targets);//getCommonFactors(targets);
-    /*ExprVector curatedCommonFactors = *new ExprVector();
-    for(int i = 0; i< commonFactors.size(); i++) {
-        if(isSubTypeOf(commonFactors[i].getTypeHash(), MATRIXTYPE))
-            continue;
-        curatedCommonFactors.push_back(commonFactors[i]);
-    }
-    commonFactors = curatedCommonFactors;*/
     if(commonFactors.size() == 0)
         return *new Expression(new NullObject("no common factors"));
-    //ExprVector uncommonFactors = getFactorsWhichAreNotCommon({left,right});
     targets = generateExprVector({*new Expression(left),*new Expression(right)});
     ExprVector results = cancelCommonFactors(targets);//cancelCommonFactors(targets);
     Expression inCommon = ONE;
