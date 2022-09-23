@@ -10,6 +10,9 @@
 #include "Container.hpp"
 #include "AlgebraicHelpers.hpp"
 #include "AbstractHelpers.hpp"
+Symbol::~Symbol() {
+    //delete &name;
+}
 
 Symbol::Symbol(const Symbol& target) {
     name = target.name;
@@ -87,9 +90,9 @@ Expression ImaginaryUnit::negate() const {
 //Matrix
 
 Matrix::~Matrix() {
-    delete &elements;
-    delete &name;
-    delete &dimensions;
+    //delete &elements;
+    //delete &name;
+    //delete &dimensions;
 }
 
 Matrix::Matrix(const Matrix& target) : Symbol(target.name) {
@@ -198,8 +201,9 @@ Expression Matrix::negate() const {
     return negativeMatrix;
 };
 Expression Matrix::subtract(Expression other) const {
+    Expression thisExpr = *new Expression(this);
     Expression negativeOf = -other;
-    return this->add(negativeOf);
+    return thisExpr+negativeOf;
 };
 Expression Matrix::multiply(Expression other) const {
     Expression thisExpr = *new Expression(this);

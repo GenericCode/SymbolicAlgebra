@@ -71,31 +71,31 @@ Expression spinIsospinSummation(ExprVector interactions, bool exchange ) {
                     std::cout<<"\n";
                     Expression dirPot = potential;//substitute(potential, qVector, ZERO);
                     Expression contribution = matrixElement(dirPot, sigmaAStates[i], sigmaAStates[i]);
-                    std::cout<<"sigmaA\n";
-                    std::cout<<contribution.print()+"\n";
+                    //std::cout<<"sigmaA\n";
+                    //std::cout<<contribution.print()+"\n";
                     contribution = matrixElement(contribution, sigmaBStates[j], sigmaBStates[j]);
-                    std::cout<<"sigmaB\n";
-                    std::cout<<contribution.print()+"\n";
+                    //std::cout<<"sigmaB\n";
+                    //std::cout<<contribution.print()+"\n";
                     contribution = matrixElement(contribution, tauAStates[k], tauAStates[k]);
-                    std::cout<<"tauA\n";
-                    std::cout<<contribution.print()+"\n";
+                    //std::cout<<"tauA\n";
+                    //std::cout<<contribution.print()+"\n";
                     contribution = matrixElement(contribution, tauBStates[l], tauBStates[l]);
-                    std::cout<<"tauB\n";
-                    std::cout<<contribution.print()+"\n";
+                    //std::cout<<"tauB\n";
+                    //std::cout<<contribution.print()+"\n";
                     Expression exchangeContribution;
                     if(exchange) {
                         exchangeContribution = matrixElement(exchangePotential, sigmaAStates[j], sigmaAStates[j]);
-                        std::cout<<"exchange sigmaA\n";
-                        std::cout<<exchangeContribution.print()+"\n";
+                        //std::cout<<"exchange sigmaA\n";
+                        //std::cout<<exchangeContribution.print()+"\n";
                         exchangeContribution = matrixElement(exchangeContribution, sigmaBStates[i], sigmaBStates[i]);
-                        std::cout<<"exchange sigmaB\n";
-                        std::cout<<exchangeContribution.print()+"\n";
+                        //std::cout<<"exchange sigmaB\n";
+                        //std::cout<<exchangeContribution.print()+"\n";
                         exchangeContribution = matrixElement(exchangeContribution, tauAStates[l], tauAStates[l]);
-                        std::cout<<"exchange tauA\n";
-                        std::cout<<exchangeContribution.print()+"\n";
+                        //std::cout<<"exchange tauA\n";
+                        //std::cout<<exchangeContribution.print()+"\n";
                         exchangeContribution = matrixElement(exchangeContribution, tauBStates[k], tauBStates[k]);
-                        std::cout<<"exchange TauB\n";
-                        std::cout<<exchangeContribution.print()+"\n";
+                        //std::cout<<"exchange TauB\n";
+                        //std::cout<<exchangeContribution.print()+"\n";
                     } else {
                         exchangeContribution = ZERO;
                     }

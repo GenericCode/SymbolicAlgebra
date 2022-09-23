@@ -32,6 +32,7 @@ public:
     Symbol(std::string newName) {
         name = newName;
     };
+    ~Symbol();
     
 };
 

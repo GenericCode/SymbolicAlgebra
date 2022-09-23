@@ -12,20 +12,20 @@
 #include "AbstractHelpers.hpp"
 
 PauliMatrix::~PauliMatrix() {
-    delete &elements;
-    delete &name;
-    delete &flavor;
-    delete &dimensions;
+    //delete &elements;
+    //delete &name;
+    //delete &flavor;
+    //delete &dimensions;
 }
 
-PauliMatrix::PauliMatrix(std::string name, int index, std::string flavor, std::initializer_list<std::initializer_list<Expression>> newElements ) : Matrix(name+flavor+std::to_string(index),newElements) {
+PauliMatrix::PauliMatrix(std::string name, int index, std::string flavor, std::initializer_list<std::initializer_list<Expression>> newElements ) : Matrix(name,newElements) {
     (*this).index = index;
     (*this).flavor = flavor;
 }
 
 
 
-PauliMatrix::PauliMatrix(std::string name, int index, std::string flavor, ExprMatrix elements) : Matrix(name+flavor+std::to_string(index),elements) {
+PauliMatrix::PauliMatrix(std::string name, int index, std::string flavor, ExprMatrix elements) : Matrix(name,elements) {
     (*this).flavor = flavor;
     (*this).index = index;
 }
@@ -122,8 +122,9 @@ Expression PauliMatrix::add(Expression other) const {
     return result;
 };
 Expression PauliMatrix::subtract(Expression other) const {
+    Expression thisExpr =  *new Expression(this);
     Expression negativeOf = -other;
-    return this->add(negativeOf);
+    return thisExpr+negativeOf;
 };
 Expression PauliMatrix::negate() const {
     return *new Expression(new Sign(*new Expression(this)));
