@@ -12,10 +12,10 @@
 #include "AbstractHelpers.hpp"
 
 PauliMatrix::~PauliMatrix() {
-    //delete &elements;
-    //delete &name;
-    //delete &flavor;
-    //delete &dimensions;
+    delete &elements;
+    delete &name;
+    delete &flavor;
+    delete &dimensions;
 }
 
 PauliMatrix::PauliMatrix(std::string name, int index, std::string flavor, std::initializer_list<std::initializer_list<Expression>> newElements ) : Matrix(name+flavor+std::to_string(index),newElements) {
@@ -35,6 +35,14 @@ PauliMatrix::PauliMatrix(const PauliMatrix& target) : Matrix(target.name) {
     (*this).dimensions = *new std::pair<int,int>(target.dimensions);
     (*this).flavor = target.flavor;
     (*this).index = target.index;
+};
+
+PauliMatrix& PauliMatrix::operator=(const PauliMatrix& target) {
+    (*this).elements = *new ExprMatrix(target.elements);
+    (*this).dimensions = *new std::pair<int,int>(target.dimensions);
+    (*this).flavor = target.flavor;
+    (*this).index = target.index;
+    return *this;
 };
 
 PauliMatrix::PauliMatrix(int index, std::string flavor) :  Matrix(flavor+std::to_string(index)) {
@@ -60,12 +68,13 @@ PauliMatrix::PauliMatrix(int index, std::string flavor) :  Matrix(flavor+std::to
 }
 
 Expression PauliMatrix::add(Expression other) const {
+    Expression thisExpr = *new Expression(this);
     size_t rtype = other->getTypeHash();
     const PauliMatrix& thisPauli = dynamic_cast<const PauliMatrix&>(*this);
     if(rtype == PAULIMATRIXTYPE) {
         const PauliMatrix& otherPauli = dynamic_cast<const PauliMatrix&>(*other);
         if(thisPauli.flavor != otherPauli.flavor) {
-            Expression result = *new Expression(new Add(this,other));
+            Expression result = *new Expression(new Add(thisExpr,other));
             return result;
         }
         const PauliMatrix& leftPauli = dynamic_cast<const PauliMatrix&>(*this);
@@ -84,12 +93,12 @@ Expression PauliMatrix::add(Expression other) const {
     Expression pauliTarget = getElementOfType(other, PAULIMATRIXTYPE);
     //bool wasAVector = false;
     if(pauliTarget.getTypeHash() == NULLTYPE) {
-        Expression result = combineSums(other, this);
+        Expression result = combineSums(thisExpr, other);
         return result;
     }
     const PauliMatrix& targetMatrix = dynamic_cast<const PauliMatrix&>(*pauliTarget);
     if(targetMatrix.flavor != thisPauli.flavor) {
-        Expression result = combineSums(this, other);
+        Expression result = combineSums(thisExpr, other);
         return result;
     }
     Expression otherCoefficent = removeElementMultiplicatively(other, pauliTarget);//other->remove(pauliTarget);
@@ -113,11 +122,11 @@ Expression PauliMatrix::add(Expression other) const {
     return result;
 };
 Expression PauliMatrix::subtract(Expression other) const {
-    Expression negativeOf = -*other;
+    Expression negativeOf = -other;
     return this->add(negativeOf);
 };
 Expression PauliMatrix::negate() const {
-    return *new Expression(new Sign(this));
+    return *new Expression(new Sign(*new Expression(this)));
 }
 Expression PauliMatrix::multiply(Expression other) const {
     size_t rtype = other->getTypeHash();
@@ -125,13 +134,11 @@ Expression PauliMatrix::multiply(Expression other) const {
     if(rtype == PAULIMATRIXTYPE) {
         const PauliMatrix& otherPauli = dynamic_cast<const PauliMatrix&>(*other);
         if(thisPauli.flavor != otherPauli.flavor) {
-            Expression result = *new Expression(new Mul(this,other));
+            Expression result = *new Expression(new Mul(*new Expression(this),other));
             return result;
         }
         
-        const Matrix& leftAsMat = dynamic_cast<const Matrix&>(*this);
-        const Matrix& rightAsMat = dynamic_cast<const Matrix&>(*other);
-        Expression tempResult = matMul(&leftAsMat, &rightAsMat);//leftAsMat*rightAsMat;
+        Expression tempResult = matMul(*new Expression(this), other);//leftAsMat*rightAsMat;
         if(tempResult.getTypeHash() != MATRIXTYPE)
             return tempResult;
         const Matrix& resultingMatrix = dynamic_cast<const Matrix&>(*tempResult);
@@ -139,6 +146,6 @@ Expression PauliMatrix::multiply(Expression other) const {
         return resultingPauli;
     }
     
-    Expression result = distribute(this, other);
+    Expression result = distribute(*new Expression(this), other);
     return result;
 };

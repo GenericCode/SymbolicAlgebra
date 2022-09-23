@@ -132,7 +132,7 @@ Expression matMul(Expression left, Expression right) {
         if(newDimensions.first == 1 && newDimensions.second == 1) {
             return newElements[0][0];
         }
-        Expression result = new Matrix(newName,*new ExprMatrix(newElements));
+        Expression result = *new Expression(new Matrix(newName,*new ExprMatrix(newElements)));
         return declareSymbol(newName,result);
     }
     return combineProducts(left, right);
@@ -235,7 +235,7 @@ Expression combineSums(Expression left, Expression right) {
             }
         } else {
             if(lAdd.members.size() == 1) {
-                return *lAdd.members[0]+*right;
+                return lAdd.members[0]+right;
             }
             newMembers.push_back(*new Expression(right));
         }
@@ -467,7 +467,7 @@ Expression simplify(Expression target) {
         return *new Expression(result);
     }
     if(targetType == SIGNTYPE) {
-        return -simplify((-*target));
+        return -simplify(-target);
     }
     if(!isMul && !isAdd) {// !isSubclassOf(target, typeid(Operator).hash_code())) {
         return *new Expression(target.get());
@@ -707,7 +707,7 @@ Expression distribute(Expression left, Expression right) {
         const Add& rightObj = dynamic_cast<const Add&>(*right);
         ExprVector newMembers = *new ExprVector();
         for(int i=0; i<rightObj.members.size(); i++) {
-            Expression result = *left*(*rightObj.members[i]);
+            Expression result = left*rightObj.members[i];
             //result = simplify(*result);//combineProducts(left, rightObj.members[i]);
             newMembers.push_back(result);
         }
@@ -876,9 +876,11 @@ ExprVector getCommonFactors(ExprVector terms) {
             for(int k = 0; k<ithTermFactors[j].size(); k++) {
                 if(intVectorContains(indicesAlreadyCounted[j], k))
                     continue;
-                containsFactor |= firstTermFactors[i] == ithTermFactors[j][k];
-                containsFactor |= -firstTermFactors[i] == ithTermFactors[j][k];
-                containsFactor |= firstTermFactors[i] == -ithTermFactors[j][k];
+                Expression firstFactor = *new Expression(firstTermFactors[i]);
+                Expression ithFactor = *new Expression(ithTermFactors[j][k]);
+                containsFactor |= firstFactor == ithFactor;
+                containsFactor |= -firstFactor == ithFactor;
+                containsFactor |= firstFactor == -ithFactor;
                 containsFactor &= !isSubtypeOf(firstTermFactors[i], MATRIXTYPE);
                 if(containsFactor) {
                     indicesAlreadyCounted[j].push_back(k);
@@ -911,11 +913,11 @@ Expression combineTermsDifferingByCoefficientsAdditively(Expression left, Expres
     }
     else if(right->getTypeHash() == SIGNTYPE) {
         const Sign& signObj = dynamic_cast<const Sign&>(*right);
-        if(*signObj.member == *left)
+        if(signObj.member == left)
             return ZERO;
     }
-    if(*left == *right)
-        return simplify((2*left));
+    if(left == right)
+        return simplify(2*left);
     ExprVector targets = generateExprVector({*new Expression(left),*new Expression(right)});
     ExprVector commonFactors = getCommonFactors(targets);//getCommonFactors(targets);
     if(commonFactors.size() == 0)
@@ -928,14 +930,14 @@ Expression combineTermsDifferingByCoefficientsAdditively(Expression left, Expres
     }
     Expression combinedCoeffs = combineTermsDifferingByCoefficientsAdditively(results[0], results[1]);
     if(combinedCoeffs.getTypeHash() == NULLTYPE)
-        return *left+*right;
+        return left+right;
     Expression temp = combinedCoeffs*inCommon;
     return temp;
 }
 
 Expression substitute(Expression source, Expression target, Expression value) {
     Expression valueExpr = *new Expression(value);
-    if(*source == *target)
+    if(source == target)
         return valueExpr;
     size_t sourceType = source->getTypeHash();
     if(isSubtypeOf(source, MATRIXTYPE)) {
@@ -944,12 +946,12 @@ Expression substitute(Expression source, Expression target, Expression value) {
         bool foundTarget = false;
         for(int i = 0; i<matObj.dimensions.first; i++) {
             for (int j = 0; j<matObj.dimensions.second; j++) {
-                if(*elements[i][j] == *target) {
+                if(elements[i][j] == target) {
                     elements[i][j] = valueExpr;
                     foundTarget = true;
                     break;
                 }
-                if(*-elements[i][j] == *target || *elements[i][j] == *-*target) {
+                if(-elements[i][j] == target || elements[i][j] == -target) {
                     elements[i][j] = -valueExpr;
                     foundTarget = true;
                     break;

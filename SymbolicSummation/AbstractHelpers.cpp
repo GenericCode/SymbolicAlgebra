@@ -20,11 +20,11 @@ static std::unordered_map<std::string,Expression> declaredSymbols = *new std::un
 bool isSubtypeOf(Expression sub, Expression super) {
     size_t subType = sub->getTypeHash();
     if(subType == SIGNTYPE) {
-        subType = (-*sub).getTypeHash();
+        subType = (-sub).getTypeHash();
     }
     size_t superType = super->getTypeHash();
     if(superType == SIGNTYPE) {
-        superType = (-*super).getTypeHash();
+        superType = (-super).getTypeHash();
     }
     bool result = false;
     if(subType == superType)
@@ -41,7 +41,7 @@ bool isSubtypeOf(Expression sub, Expression super) {
 bool isSubtypeOf(Expression sub, size_t superType) {
     size_t subType = sub->getTypeHash();
     if(subType == SIGNTYPE) {
-        subType = (-*sub).getTypeHash();
+        subType = (-sub).getTypeHash();
     }
     bool result = false;
     if(subType == superType)
@@ -285,8 +285,7 @@ Expression declareSymbol(std::string name, Expression value) {
             declaredSymbols[name] = value;
             return *new Expression(declaredSymbols[name].get());
         }
-        Expression newSymbol = *new Expression(new Symbol(name));
-        declaredSymbols[name] = newSymbol;
+        declaredSymbols[name] = *new Expression(new Symbol(name));;
     }
     return *new Expression(declaredSymbols[name].get());
 };
@@ -585,8 +584,7 @@ ExprVector replaceElementOfTypeInVector(ExprVector source, size_t type, Expressi
     return source;
 };
 ExprVector generateExprVector(std::initializer_list<Expression> elements) {
-    ExprVector vecPtr = *new ExprVector(elements);
-    return *new ExprVector(vecPtr);
+    return *new ExprVector(elements);
 };
 ExprMatrix generateExprMatrix(std::initializer_list<std::initializer_list<Expression>> elements) {
     ExprMatrix matPtr = *new ExprMatrix();

@@ -23,17 +23,12 @@ protected:
     Expression negate() const;
     Expression subtract(Expression other) const;
     Expression multiply(Expression other) const;
-    /*
-    bool containsPerform(Expression target);
-    bool containsTypeOfPerform(size_t type);
-    Expression firstInstanceOfTypePerform(, size_t type, bool rightToLeft);
-    Expression removePerform(SymbolicObject* other, bool rightToLeft);
-     */
 public:
     std::string print() const {
         return name;
     };
     Symbol(const Symbol& target);
+    Symbol& operator=(const Symbol& target);
     Symbol(std::string newName) {
         name = newName;
     };
@@ -52,6 +47,7 @@ protected:
      
 public:
     ImaginaryUnit(const ImaginaryUnit& target);
+    ImaginaryUnit& operator=(const ImaginaryUnit& target);
     ImaginaryUnit() : Symbol("i") {};
 };
 
@@ -68,6 +64,7 @@ protected:
 public:
     std::string print() const;
     Matrix(const Matrix& target);
+    Matrix& operator=(const Matrix& target);
     Matrix(std::string name, ExprMatrix newElements);
     Matrix(std::string name, std::initializer_list<std::initializer_list<Expression>> newElements);
     Matrix(std::string name, std::vector<int> newDimensions = {0,0});//empty matrix

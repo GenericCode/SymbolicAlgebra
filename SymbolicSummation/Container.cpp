@@ -16,32 +16,34 @@ Expression Container::add(Expression other) const {
         return 2**this;
     if(other->getTypeHash() == ZEROTYPE)
         return *new Expression(this);
-    return combineSums(this, other);
+    return combineSums(*new Expression(this), other);
 };
 Expression Container::multiply(Expression other) const {
     if(other->getTypeHash() == ZEROTYPE)
         return ZERO;
     if(other->getTypeHash() == ONETYPE)
         return *new Expression(this);
-    return distribute(this, other);
+    return distribute(*new Expression(this), other);
 };
 Expression Container::divide(Expression other) const {
-    if(other == this) {
+    Expression thisExpr = *new Expression(this);
+    if(other == thisExpr) {
         return ONE;
     }
     Expression reciprocalOf = reciprocal(other);
-    return distribute(this, reciprocalOf);
+    return distribute(thisExpr, reciprocalOf);
 };
 Expression Container::subtract(Expression other) const {
-    if(this == other)
+    Expression thisExpr = *new Expression(this);
+    if(thisExpr == other)
         return ZERO;
-    Expression negativeOf = -*other;
-    return combineSums(this,negativeOf);
+    Expression negativeOf = -other;
+    return combineSums(thisExpr,negativeOf);
 };
 //Add
 Add::~Add() {
-    //delete &members;
-    //delete &name;
+    delete &members;
+    delete &name;
 }
 
 Add& Add::operator=(const Add &target) {
@@ -63,7 +65,7 @@ Add::Add(std::initializer_list<Expression> newMembers) {
 
 Add::Add(ExprVector newMembers) {
     //ExprVector newMembersObject = *new ExprVector(*newMembers);
-    members = newMembers;
+    members = *new ExprVector(newMembers);
     name = (*this).print();
 };
 
@@ -97,8 +99,8 @@ std::string Add::print() const {
 //Sign
 
 Sign::~Sign() {
-    //delete &member;
-    //delete &name;
+    delete &member;
+    delete &name;
 }
 
 Expression Sign::negate() const {
@@ -113,13 +115,13 @@ Expression Sign::add(Expression other) const {
     }
     if(other->getTypeHash() == ZEROTYPE)
         return *new Expression(this);
-    return -(*member-*other);//combineSums(this, other);
+    return -(member-other);
 }
 
 Expression Sign::subtract(Expression other) const {
     if(other->getTypeHash() == ZEROTYPE)
         return *new Expression(this);
-    Expression result = *member+*other;
+    Expression result = member+other;
     return -result;
 }
 
@@ -133,7 +135,7 @@ Expression Sign::multiply(Expression other) const {
         return ZERO;
     if(other->getTypeHash() == ONETYPE)
         return *new Expression(this);
-    return -(*member**other);
+    return -(member*other);
 }
 
 std::string Sign::print() const {
@@ -142,22 +144,22 @@ std::string Sign::print() const {
     return result;
 };
 Sign::Sign(const Sign& target) {
-    member = *new Expression(target.member.get());
+    member = *new Expression(target.member);
 };
 const Sign& Sign::operator=(const Sign& target) {
     if(this == &target)
         return *this;
-    member = *new Expression(target.member.get());
+    member = *new Expression(target.member);
     return *this;
 };
 Sign::Sign(Expression expr) {
-    (*this).member = *new Expression(expr.get());
+    (*this).member = *new Expression(expr);
     (*this).name = "-"+member.print();
 };
 //Mul
 Mul::~Mul() {
-    //delete &members;
-    //delete &name;
+    delete &members;
+    delete &name;
 }
 Mul& Mul::operator=(const Mul &target) {
     if(this == &target)
@@ -179,9 +181,9 @@ Mul::Mul(Expression right, Expression left) {
     name = (*this).print();
 };
 Expression Mul::negate() const {
-    Expression negateTarget = getElementOfType(this, SIGNTYPE);//this.getFirstInstanceOfType(SIGNTYPE);
+    Expression negateTarget = getElementOfType(*new Expression(this), SIGNTYPE);//this.getFirstInstanceOfType(SIGNTYPE);
     if(negateTarget.getTypeHash() == NULLTYPE) {
-        Expression result = *new Expression(new Sign(this));
+        Expression result = *new Expression(new Sign(*new Expression(this)));
         return result;
     }
     Expression negatedTarget = -negateTarget;
@@ -205,20 +207,20 @@ std::string Mul::print() const {
 };
 //Frac
 Frac::~Frac() {
-    //delete &numerator;
-    //delete &denomenator;
-    //delete &name;
+    delete &numerator;
+    delete &denomenator;
+    delete &name;
 }
 Frac& Frac::operator=(const Frac &target) {
     if(this == &target)
         return *this;
-    numerator = *new Expression(target.numerator.get());
-    denomenator = *new Expression(target.denomenator.get());
+    numerator = *new Expression(target.numerator);
+    denomenator = *new Expression(target.denomenator);
     return *this;
 };
 Frac::Frac(const Frac& target) {
-    numerator = *new Expression(target.numerator.get());
-    denomenator = *new Expression(target.denomenator.get());
+    numerator = *new Expression(target.numerator);
+    denomenator = *new Expression(target.denomenator);
     name = target.name;
 };
 
@@ -249,20 +251,20 @@ std::string Frac::print() const {
 
 //Exp
 Exp::~Exp() {
-    //delete &exponent;
-    //delete &base;
-    //delete &name;
+    delete &exponent;
+    delete &base;
+    delete &name;
 }
 const Exp& Exp::operator=(const Exp &target) {
     if(this == &target)
         return *this;
-    base = *new Expression(target.base.get());
-    exponent = *new Expression(target.exponent.get());
+    base = *new Expression(target.base);
+    exponent = *new Expression(target.exponent);
     return *this;
 };
 Exp::Exp(const Exp& target) {
-    base = *new Expression(target.base.get());
-    exponent = *new Expression(target.exponent.get());
+    base = *new Expression(target.base);
+    exponent = *new Expression(target.exponent);
     name = target.name;
 };
 Exp::Exp(Expression newBase, Expression newExponent) {
@@ -296,17 +298,17 @@ Expression Exp::multiply(Expression other) const {
                 return -result;
             return result;
         }
-        return *new Expression(new Mul(this,other));
+        return *new Expression(new Mul(*new Expression(this),other));
     }
-    if(*other == *base || *-*other == *base) {
+    if(other == base || -other == base) {
         Expression expUpOne = exponent+ONE;
         expUpOne = simplify(expUpOne);
         Expression result = *new Expression(new Exp(base,expUpOne));
-        if(-*other == base)
+        if(-other == base)
             return -result;
         return result;
     }
-    return distribute(this, other);
+    return distribute(*new Expression(this), other);
 }
 
 std::string Exp::print() const {

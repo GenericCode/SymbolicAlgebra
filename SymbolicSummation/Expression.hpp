@@ -33,24 +33,23 @@ protected:
      *Basic constructor for an Expression object. Expected to be used with 'new' keyword, allocating memory on the heap.
      *@param ptr a newly constructed or extracted ExpressionObject pointer
      */
-    Expression(const ExpressionObject* ptr) : std::shared_ptr<const ExpressionObject>(ptr) {
-    };
+    Expression(const ExpressionObject* ptr) : std::shared_ptr<const ExpressionObject>(ptr) {};
     size_t getTypeHash() const;
     std::string print() const;
-    friend Expression operator+(const Expression& self, const Expression& other);
-    friend Expression operator-(const Expression& self, const Expression& other);
-    friend Expression operator-(const Expression& self);
-    friend Expression operator*(const Expression& self, const Expression& other);
-    friend Expression operator/(const Expression& self, const Expression& other);
-    friend Expression operator+(const Expression& self, float other);
-    friend Expression operator-(const Expression& self, float other);
-    friend Expression operator*(const Expression& self, float other);
-    friend Expression operator/(const Expression& self, float other);
-    friend Expression operator+(float self, const Expression& other);
-    friend Expression operator-(float self, const Expression& other);
-    friend Expression operator*(float self, const Expression& other);
-    friend Expression operator/(float self, const Expression& other);
-    friend bool operator==(const Expression& self, const Expression& other);
+    friend Expression operator+(Expression self, Expression other);
+    friend Expression operator-(Expression self, Expression other);
+    friend Expression operator-(Expression self);
+    friend Expression operator*(Expression self, Expression other);
+    friend Expression operator/(Expression self, Expression other);
+    friend Expression operator+(Expression self, float other);
+    friend Expression operator-(Expression self, float other);
+    friend Expression operator*(Expression self, float other);
+    friend Expression operator/(Expression self, float other);
+    friend Expression operator+(float self, Expression other);
+    friend Expression operator-(float self, Expression other);
+    friend Expression operator*(float self, Expression other);
+    friend Expression operator/(float self, Expression other);
+    friend bool operator==(Expression self, Expression other);
     
     friend Expression simplify(Expression target);
 };
@@ -60,20 +59,20 @@ typedef std::vector<ExprVector> ExprMatrix;
 typedef std::vector<bool> SignVector;
 
 
-Expression operator+(const Expression& self, const Expression& other);
-Expression operator-(const Expression& self, const Expression& other);
-Expression operator-(const Expression& self);
-Expression operator*(const Expression& self, const Expression& other);
-Expression operator/(const Expression& self, const Expression& other);
-Expression operator+(const Expression& self, float other);
-Expression operator-(const Expression& self, float other);
-Expression operator*(const Expression& self, float other);
-Expression operator/(const Expression& self, float other);
-Expression operator+(float self, const Expression& other);
-Expression operator-(float self, const Expression& other);
-Expression operator*(float self, const Expression& other);
-Expression operator/(float self, const Expression& other);
-bool operator==(const Expression& self, const Expression& other);
+Expression operator+(Expression self, Expression other);
+Expression operator-(Expression self, Expression other);
+Expression operator-(Expression self);
+Expression operator*(Expression self, Expression other);
+Expression operator/(Expression self, Expression other);
+Expression operator+(Expression self, float other);
+Expression operator-(Expression self, float other);
+Expression operator*(Expression self, float other);
+Expression operator/(Expression self, float other);
+Expression operator+(float self, Expression other);
+Expression operator-(float self, Expression other);
+Expression operator*(float self, Expression other);
+Expression operator/(float self, Expression other);
+bool operator==(Expression self, Expression other);
 
 
 //#include "Real.hpp"

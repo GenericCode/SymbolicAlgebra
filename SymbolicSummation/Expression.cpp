@@ -28,54 +28,54 @@ std::string Expression::print() const {
     return (**this).print();
 };
 
-Expression operator+(const Expression& self, const Expression& other) {
+Expression operator+(Expression self, Expression other) {
     return self.add(other);
 };
-Expression operator-(const Expression& self, const Expression& other) {
+Expression operator-(Expression self, Expression other) {
     return self.subtract(other);
 };
-Expression operator-(const Expression& self) {
+Expression operator-(Expression self) {
     return self.negate();
 };
-Expression operator*(const Expression& self, const Expression& other) {
+Expression operator*(Expression self, Expression other) {
     return self.multiply(other);
 };
-Expression operator/(const Expression& self, const Expression& other) {
+Expression operator/(Expression self, Expression other) {
     return self.divide(other);
 };
 
-Expression operator+(const Expression& self, float other) {
+Expression operator+(Expression self, float other) {
     Expression newReal = declareReal(other);
     return self.add(newReal);
 };
-Expression operator-(const Expression& self, float other) {
+Expression operator-(Expression self, float other) {
     Expression newReal = declareReal(other);
     return self.subtract(newReal);
 };
-Expression operator*(const Expression& self, float other) {
+Expression operator*(Expression self, float other) {
     Expression newReal = declareReal(other);
     return self.multiply(newReal);
 };
-Expression operator/(const Expression& self, float other) {
+Expression operator/(Expression self, float other) {
     Expression newReal = declareReal(other);
     return self.divide(newReal);
 };
-Expression operator+(float self, const Expression& other) {
+Expression operator+(float self, Expression other) {
     Expression newReal = declareReal(self);
     return newReal.add(other);
 };
-Expression operator-(float self, const Expression& other) {
+Expression operator-(float self, Expression other) {
     Expression newReal = declareReal(self);
     return newReal.subtract(other);
 };
-Expression operator*(float self, const Expression& other) {
+Expression operator*(float self, Expression other) {
     Expression newReal = declareReal(self);
     return newReal.multiply(other);
 };
-Expression operator/(float self, const Expression& other) {
+Expression operator/(float self, Expression other) {
     Expression newReal = declareReal(self);
     return newReal.divide(other);
 };
-bool operator==(const Expression& self, const Expression& other) {
+bool operator==(Expression self, Expression other) {
     return areEqual(*self, *other);
 };

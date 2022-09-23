@@ -26,6 +26,7 @@ public:
     PauliMatrix(std::string name, int index, std::string flavor, std::initializer_list<std::initializer_list<Expression>> newElements );
     PauliMatrix(std::string name, int index, std::string flavor, ExprMatrix elements);
     PauliMatrix(const PauliMatrix& target);
+    PauliMatrix& operator=(const PauliMatrix& target);
     PauliMatrix(int index, std::string flavor = "");
     ~PauliMatrix();
     friend Expression matMul(Expression left, Expression right);

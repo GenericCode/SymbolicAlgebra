@@ -58,18 +58,15 @@ Expression Real::subtract(Expression other) const {
         return result;
     } else if(other->getTypeHash() == ADDTYPE) {
         Expression negativeOf = -*other;
-        return combineSums(this,negativeOf);
+        return combineSums(*new Expression(this),negativeOf);
     }
     else {
-        Expression result = *new Expression(new Add(this,other));
+        Expression result = *new Expression(new Add(*new Expression(this),other));
         return result;
     }
 };
 Expression Real::negate() const {
-    
-    //Expression newAdd = *new Expression(new Add(this,true));
-    //return newAdd;
-    Expression result = declareReal(-value);//*new Expression(new Sign(this));
+    Expression result = declareReal(-value);
     return result;
 };
 Expression Real::multiply(Expression other) const {
@@ -79,10 +76,10 @@ Expression Real::multiply(Expression other) const {
         Expression result = declareReal(newVal);
         return result;
     } else if(other->getTypeHash() == MULTYPE) {
-        return combineProducts(this,other);
+        return combineProducts(*new Expression(this),other);
     }
     else  {
-        return distribute(this, other);
+        return distribute(*new Expression(this), other);
     }
 };
 Expression Real::divide(Expression other) const {
@@ -101,7 +98,7 @@ Expression Real::divide(Expression other) const {
         return result;
     } else  {
         Expression reciprocalOf = new Frac(other);
-        return distribute(this, reciprocalOf);
+        return distribute(*new Expression(this), reciprocalOf);
     }
 };
 std::string Real::print() const {

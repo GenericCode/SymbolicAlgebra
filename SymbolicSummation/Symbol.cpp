@@ -14,52 +14,69 @@
 Symbol::Symbol(const Symbol& target) {
     name = target.name;
 }
+
+Symbol& Symbol::operator=(const Symbol &target) {
+    name = target.name;
+    return *this;
+}
 Expression Symbol::divide(Expression other) const {
-    if(other == this) {
+    Expression thisExpr = *new Expression(this);
+    if(other == thisExpr) {
         return ONE;
     }
     
     Expression reciprocalOf = reciprocal(other);
-    return distribute(this, reciprocalOf);
+    return distribute(thisExpr, reciprocalOf);
 };
 Expression Symbol::add(Expression other) const {
+    Expression thisExpr = *new Expression(this);
     if(other->getTypeHash() == ZEROTYPE)
         return *new Expression(this);
-    if(other == this)
-        return 2**this;
-    return combineSums(this, other);
+    if(other == thisExpr)
+        return 2*thisExpr;
+    return combineSums(thisExpr, other);
 };
 Expression Symbol::negate() const {
-    return *new Expression(new Sign(this));
+    Expression thisExpr = *new Expression(this);
+    return *new Expression(new Sign(thisExpr));
 };
 Expression Symbol::subtract(Expression other) const {
-    if(other == this) {
+    Expression thisExpr = *new Expression(this);
+    if(other == thisExpr) {
         return ZERO;
     }
     
     Expression negativeOf = -other;
-    return combineSums(this, negativeOf);
+    return combineSums(thisExpr, negativeOf);
 };
 Expression Symbol::multiply(Expression other) const {
+    Expression thisSymbol = *new Expression(this);
     if(other->getTypeHash() == ZEROTYPE)
         return ZERO;
     if(other->getTypeHash() == ONETYPE)
         return *new Expression(this);
-    if(other->getTypeHash() == SYMBOLTYPE && this == other) {
-        return *new Expression(new Exp(this,2));
+    if(other->getTypeHash() == SYMBOLTYPE) {
+        if(thisSymbol == other) {
+            return *new Expression(new Exp(thisSymbol,2));
+        }
     }
-    return distribute(this, other);
+    return distribute(thisSymbol, other);
 };
 
 //ImaginaryUnit
 ImaginaryUnit::ImaginaryUnit(const ImaginaryUnit& target) : Symbol("i") {
 };
 
+ImaginaryUnit& ImaginaryUnit::operator=(const ImaginaryUnit &target) {
+    return *this;
+}
+
 Expression ImaginaryUnit::multiply(Expression other) const {
-    if(*other == *this) {;
+    Expression thisExpr = *new Expression(this);
+    if(other == thisExpr) {;
         return MINUSONE;
     }
-    return distribute(this, other);
+    return distribute(thisExpr, other);
 };
 
 Expression ImaginaryUnit::negate() const {
@@ -70,15 +87,22 @@ Expression ImaginaryUnit::negate() const {
 //Matrix
 
 Matrix::~Matrix() {
-    //delete &elements;
-    //delete &name;
-    //delete &dimensions;
+    delete &elements;
+    delete &name;
+    delete &dimensions;
 }
 
 Matrix::Matrix(const Matrix& target) : Symbol(target.name) {
     elements = *new ExprMatrix(target.elements);
     dimensions = *new std::pair<int,int>(target.dimensions);
 };
+
+Matrix& Matrix::operator=(const Matrix &target) {
+    elements = *new ExprMatrix(target.elements);
+    dimensions = *new std::pair<int,int>(target.dimensions);
+    return *this;
+}
+
 Matrix::Matrix(std::string name, ExprMatrix newElements) : Symbol(name) {
     elements = *new ExprMatrix(newElements);
     //dimensions = *new std::vector<int>();
@@ -114,12 +138,14 @@ Matrix::Matrix(Expression diag, int newDim)  : Symbol("I*"+diag->print()) {
 };//Identity matrix times const expression
 
 Expression Matrix::divide(Expression other) const {
-    Expression result = *new Expression(new Frac(this,other));
+    Expression thisExpr = *new Expression(this);
+    Expression result = *new Expression(new Frac(thisExpr,other));
     return result;
 };
 Expression Matrix::add(Expression other) const {
+    Expression thisExpr = *new Expression(this);
     if(other->getTypeHash() == ADDTYPE) {
-        return combineSums(this, other);
+        return combineSums(thisExpr, other);
     }
     if(other->getTypeHash() == MATRIXTYPE) {
         const Matrix& otherMat = dynamic_cast<const Matrix&>(*other);
@@ -141,7 +167,6 @@ Expression Matrix::add(Expression other) const {
         Expression result = *new Expression(new Matrix(newName,newElements));
         return result;
     }
-    //Expression result = combineTermsDifferingByCoefficientsAdditively(this, other);
     Expression matTarget = getElementOfType(other,MATRIXTYPE);
     if(matTarget.getTypeHash() == NULLTYPE)
         return matTarget;
@@ -170,7 +195,6 @@ Expression Matrix::negate() const {
         newElements.push_back(newColumn);
     }
     Expression negativeMatrix = *new Expression(new Matrix("negative "+name,newElements));
-    //Expression result = *new Expression(new Add(this,true));
     return negativeMatrix;
 };
 Expression Matrix::subtract(Expression other) const {
@@ -178,15 +202,16 @@ Expression Matrix::subtract(Expression other) const {
     return this->add(negativeOf);
 };
 Expression Matrix::multiply(Expression other) const {
+    Expression thisExpr = *new Expression(this);
     if(other->getTypeHash() == MATRIXTYPE) {
-        Expression result = matMul(this, other);
+        Expression result = matMul(*new Expression(this), other);
         return result;
     }
     Expression matTarget = getElementOfType(other,MATRIXTYPE);
     
     if(matTarget.getTypeHash() == NULLTYPE)
-        return distribute(this, other);
-    Expression result = matMul(this, matTarget);
+        return distribute(thisExpr, other);
+    Expression result = matMul(thisExpr, matTarget);
     Expression finalResult = replaceElementOfType(other,MATRIXTYPE,result);
     return finalResult;
 };
