@@ -15,10 +15,10 @@ class PauliMatrix : public Matrix {
 protected:
     int index = 0;
     std::string flavor = "";
-    Expression add(ExpressionObject* other);
-    Expression subtract(ExpressionObject* other);
-    Expression multiply(ExpressionObject* other);
-    Expression negate();
+    Expression add(Expression other) const;
+    Expression subtract(Expression other) const;
+    Expression multiply(Expression other) const;
+    Expression negate() const;
 public:
     std::string print() {
         return name;
@@ -28,12 +28,12 @@ public:
     PauliMatrix(const PauliMatrix& target);
     PauliMatrix(int index, std::string flavor = "");
     ~PauliMatrix();
-    friend Expression matMul(ExpressionObject* left, ExpressionObject* right);
-    friend ExprVector getConstituentSymbols(ExpressionObject* target);
-    friend Expression transpose(ExpressionObject* target);
-    friend Expression getMatrixMatchingPauliFlavor(ExpressionObject* target, ExpressionObject* matrixToMatch);
-    friend bool areEqual(ExpressionObject& left, ExpressionObject& right);
-    friend Expression substitute(ExpressionObject* source, ExpressionObject* target, ExpressionObject* value);
+    friend Expression matMul(Expression left, Expression right);
+    friend ExprVector getConstituentSymbols(Expression target);
+    friend Expression transpose(Expression target);
+    friend Expression getMatrixMatchingPauliFlavor(Expression target, Expression matrixToMatch);
+    friend bool areEqual(const ExpressionObject& left, const ExpressionObject& right);
+    friend Expression substitute(Expression source, Expression target, Expression value);
 };
 
 static const size_t PAULIMATRIXTYPE = typeid(PauliMatrix).hash_code();

@@ -19,22 +19,22 @@
 #include "Symbol.hpp"
  */
 
-bool commutesWith(ExpressionObject* left, ExpressionObject* right);
-Expression reciprocal(ExpressionObject* self);
-Expression matMul(ExpressionObject* left, ExpressionObject* right);
-Expression determinant(ExpressionObject* target);
-Expression transpose(ExpressionObject* target);
-Expression combineProducts(ExpressionObject* left, ExpressionObject* right);
-Expression combineSums(ExpressionObject* left, ExpressionObject* right);
-Expression cancelTerms(ExpressionObject* target);
-Expression simplify(ExpressionObject* target);
-Expression distribute(ExpressionObject* left, ExpressionObject* right);
-ExprVector getFactors(ExpressionObject* factee);
+bool commutesWith(Expression left, Expression right);
+Expression reciprocal(Expression self);
+Expression matMul(Expression left, Expression right);
+Expression determinant(Expression target);
+Expression transpose(Expression target);
+Expression combineProducts(Expression left, Expression right);
+Expression combineSums(Expression left, Expression right);
+Expression cancelTerms(Expression target);
+Expression simplify(Expression target);
+Expression distribute(Expression left, Expression right);
+ExprVector getFactors(Expression factee);
 ExprVector getCommonFactors(ExprVector terms);
 ExprVector getSimpleCommonFactors(ExprVector terms);
-Expression combineTermsDifferingByCoefficientsAdditively(ExpressionObject* left, ExpressionObject* right);
-Expression factor(ExpressionObject* factee);
-Expression substitute(ExpressionObject* source, ExpressionObject* target, ExpressionObject* value);
-Expression substitute(ExpressionObject* source, std::vector<std::pair<Expression,Expression>> substitutions);
+Expression combineTermsDifferingByCoefficientsAdditively(Expression left, Expression right);
+Expression factor(Expression factee);
+Expression substitute(Expression source, Expression target, Expression value);
+Expression substitute(Expression source, std::vector<std::pair<Expression,Expression>> substitutions);
 
 #endif /* ExpressionHelpers_hpp */

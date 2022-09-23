@@ -11,7 +11,7 @@
 #include "AbstractHelpers.hpp"
 
 
-Real::Real(const Real& target) {
+Real::Real( const Real& target) {
     value = target.value;
 };
 
@@ -22,20 +22,20 @@ Real::Real(float newVal)  {
         value = newVal;
 };
 
-Real& Real::operator=(const Real& target) {
+const Real& Real::operator=(const Real& target) {
     value = target.value;
     return *this;
 };
-Expression Real::add(ExpressionObject* other) {
+Expression Real::add(Expression other) const {
     if(isSubtypeOf(other, REALTYPE)) {
-        Real& thisObj = *this;
+        const Real& thisObj = *this;
         bool sign = other->getTypeHash() == SIGNTYPE;
         float otherVal;
         if(sign) {
-            Real& otherObj = dynamic_cast<Real&>(*-*other);
+            const Real& otherObj = dynamic_cast<const Real&>(*-other);
             otherVal = -otherObj.value;
         } else {
-            Real& otherObj = dynamic_cast<Real&>(*other);
+            const Real& otherObj = dynamic_cast<const Real&>(*other);
             otherVal = otherObj.value;
         }
         float newVal = thisObj.value + otherVal;
@@ -43,38 +43,38 @@ Expression Real::add(ExpressionObject* other) {
         return result;
     } else if(other->getTypeHash() == ADDTYPE) {
         Expression negativeOf;
-        return combineSums(this,other);
+        return combineSums(*new Expression(this),other);
     }
     else {
-        Expression result = *new Expression(new Add(this,other));
+        Expression result = *new Expression(new Add(*new Expression(this),other));
         return result;
     }
 };
-Expression Real::subtract(ExpressionObject* other) {
+Expression Real::subtract(Expression other) const {
     if(isSubtypeOf(other, REALTYPE)) {
-        Real& otherReal = dynamic_cast<Real&>(*other);
+        const Real& otherReal = dynamic_cast<const Real&>(*other);
         float newVal = value-otherReal.value;
         Expression result = declareReal(newVal);
         return result;
     } else if(other->getTypeHash() == ADDTYPE) {
         Expression negativeOf = -*other;
-        return combineSums(this,negativeOf.get());
+        return combineSums(this,negativeOf);
     }
     else {
         Expression result = *new Expression(new Add(this,other));
         return result;
     }
 };
-Expression Real::negate() {
+Expression Real::negate() const {
     
     //Expression newAdd = *new Expression(new Add(this,true));
     //return newAdd;
     Expression result = declareReal(-value);//*new Expression(new Sign(this));
     return result;
 };
-Expression Real::multiply(ExpressionObject* other) {
+Expression Real::multiply(Expression other) const {
     if(isSubtypeOf(other, REALTYPE)) {
-        Real& otherReal = dynamic_cast<Real&>(*other);
+        const Real& otherReal = dynamic_cast<const Real&>(*other);
         float newVal = value*otherReal.value;
         Expression result = declareReal(newVal);
         return result;
@@ -85,26 +85,26 @@ Expression Real::multiply(ExpressionObject* other) {
         return distribute(this, other);
     }
 };
-Expression Real::divide(ExpressionObject* other) {
+Expression Real::divide(Expression other) const {
     if(isSubtypeOf(other, REALTYPE)) {
         bool sign = other->getTypeHash() == SIGNTYPE;
-        ExpressionObject* temp = NULL;
+        Expression temp = NULL;
         if(sign)
-            temp = (-*other).get();
+            temp = (-*other);
         else
             temp = other;
-        Real& otherReal = dynamic_cast<Real&>(*temp);
+        const Real& otherReal = dynamic_cast<const Real&>(*temp);
         float newVal = value/otherReal.value;
         if(sign)
             newVal *= -1;
         Expression result = declareReal(newVal);
         return result;
     } else  {
-        ExpressionObject* reciprocalOf = new Frac(other);
+        Expression reciprocalOf = new Frac(other);
         return distribute(this, reciprocalOf);
     }
 };
-std::string Real::print() {
+std::string Real::print() const {
     std::string result;
     if(ceilf(value) == value)
         result = std::to_string((int)value);
@@ -113,22 +113,22 @@ std::string Real::print() {
     return result;
 }
 
-Expression Zero::add(ExpressionObject* other) {
+Expression Zero::add(Expression other) const {
     return *new Expression(other);
 };
 
-Expression Zero::subtract(ExpressionObject* other) {
+Expression Zero::subtract(Expression other) const {
     return -*other;
 };
 
-Expression Zero::multiply(ExpressionObject* other) {
+Expression Zero::multiply(Expression other) const {
     return *new Expression(this);
 };
 
-Expression Zero::negate() {
+Expression Zero::negate() const {
     return *new Expression(this);
 };
 
-Expression One::multiply(ExpressionObject* other) {
+Expression One::multiply(Expression other) const {
     return *new Expression(other);
 };

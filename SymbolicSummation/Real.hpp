@@ -15,18 +15,18 @@
 class Real : public ExpressionObject {
 protected:
     float value;
-    Expression add(ExpressionObject* other);
-    Expression subtract(ExpressionObject* other);
-    Expression negate();
-    Expression multiply(ExpressionObject* other);
-    Expression divide(ExpressionObject* other);
+    Expression add(Expression other) const;
+    Expression subtract(Expression other) const;
+    Expression negate() const;
+    Expression multiply(Expression other) const;
+    Expression divide(Expression other) const;
 public:
-    std::string print();
+    std::string print() const;
     Real(const Real& target);
-    Real& operator=(const Real& target);
+    const Real& operator=(const Real& target);
     Real(float newVal);
-    friend bool areEqual(ExpressionObject& left, ExpressionObject& right);
-    friend ExprVector getFactorsOfInt(ExpressionObject* factee);
+    friend bool areEqual(const ExpressionObject& left, const ExpressionObject& right);
+    friend ExprVector getFactorsOfInt(Expression factee);
     friend Expression simplify(Expression target);
 };
 
@@ -37,10 +37,10 @@ public:
         
     }
 protected:
-    Expression add(ExpressionObject* other);
-    Expression subtract(ExpressionObject* other);
-    Expression multiply(ExpressionObject* other);
-    Expression negate();
+    Expression add(Expression other) const;
+    Expression subtract(Expression other) const;
+    Expression multiply(Expression other) const;
+    Expression negate() const;
 };
 
 class One : public Real {
@@ -50,7 +50,7 @@ public:
         
     }
 protected:
-    Expression multiply(ExpressionObject* other);
+    Expression multiply(Expression other) const;
 };
 #include "Container.hpp"
 static const size_t REALTYPE = typeid(Real).hash_code();
@@ -59,7 +59,7 @@ static const size_t ZEROTYPE = typeid(Zero).hash_code();
 
 static const Expression ZERO = *new Expression(new Zero());
 static const Expression ONE = *new Expression(new One());
-static const Expression MINUSONE = *new Expression(new Sign(ONE.get()));
+static const Expression MINUSONE = *new Expression(new Sign(ONE));
 static const Expression PI = *new Expression(new Real(3.14159));
 static const Expression EULERNUM = *new Expression(new Real(2.71828));
 

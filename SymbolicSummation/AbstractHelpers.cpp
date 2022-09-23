@@ -17,7 +17,7 @@
 
 static std::unordered_map<std::string,Expression> declaredSymbols = *new std::unordered_map<std::string, Expression>();
 
-bool isSubtypeOf(ExpressionObject* sub, ExpressionObject* super) {
+bool isSubtypeOf(Expression sub, Expression super) {
     size_t subType = sub->getTypeHash();
     if(subType == SIGNTYPE) {
         subType = (-*sub).getTypeHash();
@@ -38,7 +38,7 @@ bool isSubtypeOf(ExpressionObject* sub, ExpressionObject* super) {
     return result;
 }
 
-bool isSubtypeOf(ExpressionObject* sub, size_t superType) {
+bool isSubtypeOf(Expression sub, size_t superType) {
     size_t subType = sub->getTypeHash();
     if(subType == SIGNTYPE) {
         subType = (-*sub).getTypeHash();
@@ -230,34 +230,16 @@ void initializeDefaultSymbols() {
     }
 }
 
-Expression declareMatrix(ExpressionObject* value) {
+Expression declareMatrix(Expression value) {
     return declareSymbol(value->print(),value);
 };
 
 Expression declarePauliMatrix(int index, std::string flavor) {
-    ExpressionObject* pMat = new NullObject("invalid Pauli index");
-    switch(index) {
-        case 1:
-            delete pMat;
-            pMat = new PauliMatrix(index,flavor);
-            //std::cout << pMat.print();
-            break;
-        case 2:
-            delete pMat;
-            pMat = new PauliMatrix(index,flavor);
-            break;
-        case 3:
-            delete pMat;
-            pMat = new PauliMatrix(index,flavor);
-            break;
-        case 0:
-        default:
-            return pMat;
-    }
+    Expression pMat = *new Expression(new PauliMatrix(index,flavor));
     return declareSymbol(flavor+std::to_string(index),pMat);
 }
 
-Expression declarePauliMatrix(ExpressionObject* value) {
+Expression declarePauliMatrix(Expression value) {
     return declareSymbol(value->print(), value);
 }
 
@@ -280,7 +262,7 @@ Expression declareMatrix(std::string matName, std::initializer_list<std::initial
 };
 
 Expression declareSymbol(std::string name) {
-    ExpressionObject* value = new NullObject("temp null obj to force creation of new symbol");
+    Expression value = new NullObject("temp null obj to force creation of new symbol");
     return declareSymbol(name, value);
 }
 
@@ -296,17 +278,17 @@ Expression declareReal(float value) {
     }
 }
 
-Expression declareSymbol(std::string name, ExpressionObject* value) {
+Expression declareSymbol(std::string name, Expression value) {
     initializeDefaultSymbols();
     if(!declaredSymbols.contains(name)) {
         if(value->getTypeHash() != NULLTYPE) {
-            declaredSymbols[name] = *new Expression(value);
-            return declaredSymbols[name];
+            declaredSymbols[name] = value;
+            return *new Expression(declaredSymbols[name].get());
         }
         Expression newSymbol = *new Expression(new Symbol(name));
         declaredSymbols[name] = newSymbol;
     }
-    return declaredSymbols[name];
+    return *new Expression(declaredSymbols[name].get());
 };
 
 Expression parseString(std::string exprString) {
@@ -346,14 +328,14 @@ Expression parseString(std::string exprString) {
         std::vector<std::string> tokens = tokenize(sanitize(exprString), "/()");
         Expression numerator = parseString(tokens[0]);
         Expression denominator = parseString(tokens[1]);
-        Expression result = *new Expression(new Frac(numerator.get(),denominator.get()));
+        Expression result = *new Expression(new Frac(numerator,denominator));
         return result;
     }
     if(exprType == "exp") {
         std::vector<std::string> tokens = tokenize(sanitize(exprString), "^()");
         Expression base = parseString(tokens[0]);
         Expression exponent = parseString(tokens[1]);
-        Expression result = *new Expression(new Exp(base.get(),exponent.get()));
+        Expression result = *new Expression(new Exp(base,exponent));
         return result;
     }
     if(exprType == "real") {
@@ -381,8 +363,8 @@ Expression parseString(std::string exprString) {
         }
         realPart = expr.substr(0,i);
         symbolPart = expr.substr(i+1);
-        ExpressionObject* rePart = parseString(realPart).get();
-        ExpressionObject* symPart = parseString(symbolPart).get();
+        Expression rePart = parseString(realPart);
+        Expression symPart = parseString(symbolPart);
         Expression result = *new Expression(new Mul(rePart,symPart));
         return result;
     }
@@ -394,18 +376,18 @@ Expression parseString(std::string exprString) {
     return result;
 };
 
-int positionOfElement(ExprVector list, ExpressionObject* target, bool rightToLeft) {
+int positionOfElement(ExprVector list, Expression target, bool rightToLeft) {
     int i = 0;
     if(!rightToLeft) {
         while(i<list.size()) {
-            if(*list[i] == *target)
+            if(list[i] == target)
                 return i;
             i++;
         }
     } else {
         i = (int)list.size()-1;
         while(i>=0) {
-            if(*list[i] == *target)
+            if(list[i] == target)
                 return i;
             i--;
         }
@@ -413,18 +395,18 @@ int positionOfElement(ExprVector list, ExpressionObject* target, bool rightToLef
     return -1;
 };
 
-int positionOfElementIgnoringSign(ExprVector list, ExpressionObject* target, bool rightToLeft) {
+int positionOfElementIgnoringSign(ExprVector list, Expression target, bool rightToLeft) {
     int i = 0;
     if(!rightToLeft) {
         while(i<list.size()) {
-            if(*list[i] == *target || *-list[i] == *target)
+            if(list[i] == target || -list[i] == target)
                 return i;
             i++;
         }
     } else {
         i = (int)list.size()-1;
         while(i>=0) {
-            if(*list[i] == *target || *-list[i] == *target)
+            if(list[i] == target || -list[i] == target)
                 return i;
             i--;
         }
@@ -436,7 +418,7 @@ int positionOfType(ExprVector list, size_t type, bool rightToLeft) {
     int i = 0;
     if(!rightToLeft) {
         while(i<(int)list.size()) {
-            if(isSubtypeOf(list[i].get(), type)) {
+            if(isSubtypeOf(list[i], type)) {
                 return i;
             }
             i++;
@@ -444,7 +426,7 @@ int positionOfType(ExprVector list, size_t type, bool rightToLeft) {
     } else {
         i = (int)list.size()-1;
         while(i>=0) {
-            if(isSubtypeOf(list[i].get(), type)) {
+            if(isSubtypeOf(list[i], type)) {
                 return i;
             }
             i--;
@@ -457,11 +439,11 @@ bool containsType(ExprVector list, size_t type, bool rightToLeft) {
     return positionOfType(list, type, rightToLeft) >= 0;
 }
 
-bool containsElement(ExprVector list, ExpressionObject* target, bool rightToLeft) {
+bool containsElement(ExprVector list, Expression target, bool rightToLeft) {
     return positionOfElement(list, target, rightToLeft) >= 0;
 }
 
-ExprVector removeElementFromVector(ExprVector source, ExpressionObject* target, bool rightToLeft = false) {
+ExprVector removeElementFromVector(ExprVector source, Expression target, bool rightToLeft = false) {
     ExprVector result = *new ExprVector();
     int location = positionOfElement(source, target, rightToLeft);
     if(location < 0)
@@ -475,19 +457,19 @@ ExprVector removeElementFromVector(ExprVector source, ExpressionObject* target, 
     return result;
 }
 
-Expression removeElementMultiplicatively(ExpressionObject* source, ExpressionObject* target, bool rightToLeft) {
-    if(*source == *target)
+Expression removeElementMultiplicatively(Expression source, Expression target, bool rightToLeft) {
+    if(source == target)
         return ONE;//*new Expression(new NullObject("this is what happens when you remove something from itself!"));
     size_t type = source->getTypeHash();
     if(type == SIGNTYPE) {
-        Sign& sourceObj = dynamic_cast<Sign&>(*source);
-        Expression result = removeElementMultiplicatively(sourceObj.member.get(), target);
+        const Sign& sourceObj = dynamic_cast<const Sign&>(*source);
+        Expression result = removeElementMultiplicatively(sourceObj.member, target);
         if(result.getTypeHash() == NULLTYPE)
             return result;
         return -result;
     }
     if(type == MULTYPE) {
-        Mul& sourceObj = dynamic_cast<Mul&>(*source);
+        const Mul& sourceObj = dynamic_cast<const Mul&>(*source);
         ExprVector newMembers = removeElementFromVector(sourceObj.members, target,rightToLeft);
         if(newMembers == sourceObj.members)
             return *new Expression(source);
@@ -499,30 +481,30 @@ Expression removeElementMultiplicatively(ExpressionObject* source, ExpressionObj
         return *new Expression(new Mul(newMembers));
     }
     if(type == FRACTYPE) {
-        Frac& sourceObj = dynamic_cast<Frac&>(*source);
-        Expression result = removeElementMultiplicatively(sourceObj.numerator.get(), target, rightToLeft);
+        const Frac& sourceObj = dynamic_cast<const Frac&>(*source);
+        Expression result = removeElementMultiplicatively(sourceObj.numerator, target, rightToLeft);
         if(result.getTypeHash() == NULLTYPE) {
             Expression recip = reciprocal(target);
-            result = removeElementMultiplicatively(sourceObj.denomenator.get(), recip.get(), rightToLeft);
+            result = removeElementMultiplicatively(sourceObj.denomenator, recip, rightToLeft);
             if(result.getTypeHash() == NULLTYPE)
                 return result;
             if(result == ONE)
                 return sourceObj.numerator;
             else
-                return *new Expression(new Frac(sourceObj.numerator.get(),result.get()));
+                return *new Expression(new Frac(sourceObj.numerator,result));
         }
-        return *new Expression(new Frac(result.get(),sourceObj.denomenator.get()));
+        return *new Expression(new Frac(result,sourceObj.denomenator));
     }
     if(type == EXPTYPE) {
-        Exp& sourceObj = dynamic_cast<Exp&>(*source);
-        if(sourceObj.base.get() == target) {
+        const Exp& sourceObj = dynamic_cast<const Exp&>(*source);
+        if(sourceObj.base == target) {
             Expression expOneDown = sourceObj.exponent-ONE;
-            expOneDown = simplify(expOneDown.get());
+            expOneDown = simplify(expOneDown);
             if(expOneDown == ONE)
                 return sourceObj.base;
             if(expOneDown == ZERO)
                 return ONE;
-            return *new Expression(new Exp(sourceObj.base.get(),expOneDown.get()));
+            return *new Expression(new Exp(sourceObj.base,expOneDown));
         }
         return *new Expression(new NullObject("could not find target to remove"));
     }
@@ -530,12 +512,12 @@ Expression removeElementMultiplicatively(ExpressionObject* source, ExpressionObj
         return ONE;
     return *new Expression(new NullObject("could not remove target multiplicatively"));
 };
-Expression removeElementAdditively(ExpressionObject* source, ExpressionObject* target, bool rightToLeft) {
+Expression removeElementAdditively(Expression source, Expression target, bool rightToLeft) {
     if(source == target)
         return ZERO;//*new Expression(new NullObject("this is what happens when you remove something from itself!"));
     if(source->getTypeHash() != ADDTYPE)
         return *new Expression(new NullObject("could not remove target additively"));
-    Add& sourceObj = dynamic_cast<Add&>(*source);
+    const Add& sourceObj = dynamic_cast<const Add&>(*source);
     ExprVector newMembers = removeElementFromVector(sourceObj.members, target);
     if(newMembers == sourceObj.members)
         return *new Expression(new NullObject("could not find target to remove"));
@@ -543,14 +525,14 @@ Expression removeElementAdditively(ExpressionObject* source, ExpressionObject* t
         return ZERO;
     return *new Expression(new Add(*new ExprVector(newMembers)));
 };
-Expression removeElementAbsolutely(ExpressionObject* source, ExpressionObject* target, bool rightToLeft) {
+Expression removeElementAbsolutely(Expression source, Expression target, bool rightToLeft) {
     if(source->getTypeHash() == ADDTYPE)
         return removeElementAdditively(source, target, rightToLeft);
     else
         return removeElementMultiplicatively(source, target,rightToLeft);
 };
 
-Expression getElementOfType(ExpressionObject* source, size_t type, bool rightToLeft) {
+Expression getElementOfType(Expression source, size_t type, bool rightToLeft) {
     size_t sourceType = source->getTypeHash();
     if(sourceType == NULLTYPE)
         return source;
@@ -558,28 +540,28 @@ Expression getElementOfType(ExpressionObject* source, size_t type, bool rightToL
         return *new Expression(source);
     ExprVector elementsToCheck = *new ExprVector();
     if(sourceType == ADDTYPE) {
-        Add& addObj = dynamic_cast<Add&>(*source);
+        const Add& addObj = dynamic_cast<const Add&>(*source);
         elementsToCheck = addObj.members;
     }
     if(sourceType == MULTYPE) {
-        Mul& mulObj = dynamic_cast<Mul&>(*source);
+        const Mul& mulObj = dynamic_cast<const Mul&>(*source);
         elementsToCheck = mulObj.members;
     }
     if(sourceType == FRACTYPE) {
-        Frac& fracObj = dynamic_cast<Frac&>(*source);
-        return getElementOfType(fracObj.numerator.get(), type, rightToLeft);
+        const Frac& fracObj = dynamic_cast<const Frac&>(*source);
+        return getElementOfType(fracObj.numerator, type, rightToLeft);
     }
     
     if(!rightToLeft) {
         for(int i = 0; i<elementsToCheck.size(); i++) {
-            if(isSubtypeOf(elementsToCheck[i].get(), type) )
+            if(isSubtypeOf(elementsToCheck[i], type) )
                 return *new Expression(elementsToCheck[i]);
         }
         Expression result = *new Expression(new NullObject("could not find element of specified type"));
         return result;
     } else {
         for(int i = (int)elementsToCheck.size()-1; i>=0; i--) {
-            if(isSubtypeOf(elementsToCheck[i].get(), type) ) {
+            if(isSubtypeOf(elementsToCheck[i], type) ) {
                 return *new Expression(elementsToCheck[i]);
             }
         }
@@ -588,7 +570,7 @@ Expression getElementOfType(ExpressionObject* source, size_t type, bool rightToL
     }
 };
 
-ExprVector replaceElementOfTypeInVector(ExprVector source, size_t type, ExpressionObject* value, bool rightToLeft) {
+ExprVector replaceElementOfTypeInVector(ExprVector source, size_t type, Expression value, bool rightToLeft) {
     ExprVector result = *new ExprVector();
     int location = positionOfType(source, type, rightToLeft);
     if(location >= 0) {
@@ -616,7 +598,7 @@ ExprMatrix generateExprMatrix(std::initializer_list<std::initializer_list<Expres
     return *new ExprMatrix(matPtr);
 };
 
-ExprVector replaceElementInVector(ExprVector source, ExpressionObject* target, ExpressionObject* value, bool rightToLeft) {
+ExprVector replaceElementInVector(ExprVector source, Expression target, Expression value, bool rightToLeft) {
     ExprVector result = *new ExprVector();
     int location = positionOfElement(source, target);
     if(location >= 0) {
@@ -631,37 +613,37 @@ ExprVector replaceElementInVector(ExprVector source, ExpressionObject* target, E
     return source;
 };
 
-Expression replaceElementOfType(ExpressionObject* source, size_t type, ExpressionObject* value, bool rightToLeft) {
+Expression replaceElementOfType(Expression source, size_t type, Expression value, bool rightToLeft) {
     size_t sourceType = source->getTypeHash();
     if(isSubtypeOf(source, type))
         return *new Expression(value);
     ExprVector elementsToCheck;
     if(sourceType == ADDTYPE) {
-        Add& addObj = dynamic_cast<Add&>(*source);
+        const Add& addObj = dynamic_cast<const Add&>(*source);
         elementsToCheck = addObj.members;
     }
     if(sourceType == MULTYPE) {
-        Mul& mulObj = dynamic_cast<Mul&>(*source);
+        const Mul& mulObj = dynamic_cast<const Mul&>(*source);
         elementsToCheck = mulObj.members;
     }
     if(sourceType == FRACTYPE) {
-        Frac& fracObj = dynamic_cast<Frac&>(*source);
-        Expression result = replaceElementOfType(fracObj.numerator.get(), type, value, rightToLeft);
+        const Frac& fracObj = dynamic_cast<const Frac&>(*source);
+        Expression result = replaceElementOfType(fracObj.numerator, type, value, rightToLeft);
         if(result == fracObj.numerator)
             return *new Expression(source);
-        Expression finalResult = *new Expression(new Frac(result.get(),fracObj.denomenator.get()));
+        Expression finalResult = *new Expression(new Frac(result,fracObj.denomenator));
         return finalResult;
     }
     elementsToCheck = replaceElementOfTypeInVector(elementsToCheck, type, value, rightToLeft);
     if(sourceType == ADDTYPE) {
-        Add& addObj = dynamic_cast<Add&>(*source);
+        const Add& addObj = dynamic_cast<const Add&>(*source);
         if(elementsToCheck == addObj.members)
             return source;
         Expression result = *new Expression(new Add(elementsToCheck));
         return result;
     }
     if(sourceType == MULTYPE) {
-        Mul& mulObj = dynamic_cast<Mul&>(*source);
+        const Mul& mulObj = dynamic_cast<const Mul&>(*source);
         if(elementsToCheck == mulObj.members)
             return source;
         Expression result = *new Expression(new Mul(elementsToCheck));
@@ -670,7 +652,7 @@ Expression replaceElementOfType(ExpressionObject* source, size_t type, Expressio
     return *new Expression(source);
 };
 
-bool areEqual(ExpressionObject& left, ExpressionObject& right) {
+bool areEqual(const ExpressionObject& left, const ExpressionObject& right) {
     bool areEqual = true;
     size_t leftType = typeid(left).hash_code();
     size_t rightType = typeid(right).hash_code();
@@ -678,46 +660,46 @@ bool areEqual(ExpressionObject& left, ExpressionObject& right) {
     if(!areEqual)
         return areEqual;
     if(leftType == REALTYPE) {
-        Real& leftObj = dynamic_cast<Real&>(left);
-        Real& rightObj = dynamic_cast<Real&>(right);
+        const Real& leftObj = dynamic_cast<const Real&>(left);
+        const Real& rightObj = dynamic_cast<const Real&>(right);
         areEqual &= (leftObj.value == rightObj.value);
     }
     if(leftType == SYMBOLTYPE) {
         areEqual &= (left.print() == right.print());
     }
     if(leftType == ADDTYPE) {
-        Add& leftObj = dynamic_cast<Add&>(left);
-        Add& rightObj = dynamic_cast<Add&>(right);
+        const Add& leftObj = dynamic_cast<const Add&>(left);
+        const Add& rightObj = dynamic_cast<const Add&>(right);
         for(int i = 0; i<leftObj.members.size(); i++) {
-            areEqual &= containsElement(rightObj.members, leftObj.members[i].get());
+            areEqual &= containsElement(rightObj.members, leftObj.members[i]);
         }
     }
     if(leftType == SIGNTYPE) {
-        Sign& leftObj = dynamic_cast<Sign&>(left);
-        Sign& rightObj = dynamic_cast<Sign&>(right);
+        const Sign& leftObj = dynamic_cast<const Sign&>(left);
+        const Sign& rightObj = dynamic_cast<const Sign&>(right);
         areEqual &= leftObj.member == rightObj.member;
     }
     if(leftType == MULTYPE) {
-        Mul& leftObj = dynamic_cast<Mul&>(left);
-        Mul& rightObj = dynamic_cast<Mul&>(right);
+        const Mul& leftObj = dynamic_cast<const Mul&>(left);
+        const Mul& rightObj = dynamic_cast<const Mul&>(right);
         areEqual &= leftObj.members.size() == rightObj.members.size();
         for(int i = 0; i<leftObj.members.size(); i++) {
-            areEqual &= containsElement(rightObj.members, leftObj.members[i].get());
+            areEqual &= containsElement(rightObj.members, leftObj.members[i]);
         }
     }
     if(leftType == FRACTYPE) {
-        Frac& leftObj = dynamic_cast<Frac&>(left);
-        Frac& rightObj = dynamic_cast<Frac&>(right);
+        const Frac& leftObj = dynamic_cast<const Frac&>(left);
+        const Frac& rightObj = dynamic_cast<const Frac&>(right);
         areEqual &= (leftObj.numerator == rightObj.numerator && leftObj.denomenator == rightObj.denomenator);
     }
     if(leftType == EXPTYPE) {
-        Exp& leftObj = dynamic_cast<Exp&>(left);
-        Exp& rightObj = dynamic_cast<Exp&>(right);
+        const Exp& leftObj = dynamic_cast<const Exp&>(left);
+        const Exp& rightObj = dynamic_cast<const Exp&>(right);
         areEqual &= (leftObj.base == rightObj.base && leftObj.exponent == rightObj.exponent);
     }
     if(leftType == MATRIXTYPE) {
-        Matrix& leftObj = dynamic_cast<Matrix&>(left);
-        Matrix& rightObj = dynamic_cast<Matrix&>(right);
+        const Matrix& leftObj = dynamic_cast<const Matrix&>(left);
+        const Matrix& rightObj = dynamic_cast<const Matrix&>(right);
         if(leftObj.dimensions != rightObj.dimensions)
             return false;
         for(int i = 0; i<leftObj.dimensions.first; i++) {
@@ -727,8 +709,8 @@ bool areEqual(ExpressionObject& left, ExpressionObject& right) {
         }
     }
     if(leftType == PAULIMATRIXTYPE) {
-        PauliMatrix& leftObj = dynamic_cast<PauliMatrix&>(left);
-        PauliMatrix& rightObj = dynamic_cast<PauliMatrix&>(right);
+        const PauliMatrix& leftObj = dynamic_cast<const PauliMatrix&>(left);
+        const PauliMatrix& rightObj = dynamic_cast<const PauliMatrix&>(right);
         if(leftObj.dimensions != rightObj.dimensions || leftObj.flavor != rightObj.flavor)
             return false;
         for(int i = 0; i<leftObj.dimensions.first; i++) {
@@ -759,10 +741,10 @@ std::string printExprMatrix(ExprMatrix target) {
 
 Expression declarePauliVector(bool up, std::string flavor) {
     if(up) {
-        ExpressionObject* result = new PauliMatrix(flavor+"Up",0,flavor,{{ONE},{ZERO}});
+        Expression result = new PauliMatrix(flavor+"Up",0,flavor,{{ONE},{ZERO}});
         return declareSymbol(flavor+"Up", result);
     } else {
-        ExpressionObject* result = new PauliMatrix(flavor+"Down",0,flavor,{{ZERO},{ONE}});
+        Expression result = new PauliMatrix(flavor+"Down",0,flavor,{{ZERO},{ONE}});
         return declareSymbol(flavor+"Down", result);
     }
 }
@@ -785,55 +767,55 @@ ExprVector combineExprVectors(ExprVector left, ExprVector right) {
     return *new ExprVector(newVector);
 }
 
-ExprVector getConstituentSymbols(ExpressionObject* target) {
+ExprVector getConstituentSymbols(Expression target) {
     size_t targetType = target->getTypeHash();
     if(targetType == ADDTYPE) {
         ExprVector symbols = *new ExprVector;
-        Add& addTarget = dynamic_cast<Add&>(*target);
+        const Add& addTarget = dynamic_cast<const Add&>(*target);
         for(int i = 0; i< addTarget.members.size(); i++) {
-            symbols = combineExprVectors(symbols, getConstituentSymbols(addTarget.members[i].get()));
+            symbols = combineExprVectors(symbols, getConstituentSymbols(addTarget.members[i]));
         }
         return symbols;
     }
     if(targetType == MULTYPE) {
         ExprVector symbols = *new ExprVector;
-        Mul& mulTarget = dynamic_cast<Mul&>(*target);
+        const Mul& mulTarget = dynamic_cast<const Mul&>(*target);
         for(int i = 0; i< mulTarget.members.size(); i++) {
-            symbols = combineExprVectors(symbols, getConstituentSymbols(mulTarget.members[i].get()));
+            symbols = combineExprVectors(symbols, getConstituentSymbols(mulTarget.members[i]));
         }
         return symbols;
     }
     if(targetType == FRACTYPE) {
-        Frac& fracTarget = dynamic_cast<Frac&>(*target);
-        ExprVector symbols = combineExprVectors(getConstituentSymbols(fracTarget.numerator.get()),getConstituentSymbols(fracTarget.numerator.get()));
+        const Frac& fracTarget = dynamic_cast<const Frac&>(*target);
+        ExprVector symbols = combineExprVectors(getConstituentSymbols(fracTarget.numerator),getConstituentSymbols(fracTarget.numerator));
         return symbols;
     }
     if(targetType == EXPTYPE) {
-        Exp& expTarget = dynamic_cast<Exp&>(*target);
-        ExprVector symbols = combineExprVectors(getConstituentSymbols(expTarget.base.get()),getConstituentSymbols(expTarget.exponent.get()));
+        const Exp& expTarget = dynamic_cast<const Exp&>(*target);
+        ExprVector symbols = combineExprVectors(getConstituentSymbols(expTarget.base),getConstituentSymbols(expTarget.exponent));
         return symbols;
     }
     if(targetType == MATRIXTYPE) {
-        Matrix& matTarget = dynamic_cast<Matrix&>(*target);
+        const Matrix& matTarget = dynamic_cast<const Matrix&>(*target);
         ExprVector symbols = *new ExprVector();
         
         for(int i = 0; i<matTarget.dimensions.first; i++) {
             for(int j = 0; j<matTarget.dimensions.second; j++) {
-                symbols = combineExprVectors(symbols, getConstituentSymbols(matTarget.elements[i][j].get()));
+                symbols = combineExprVectors(symbols, getConstituentSymbols(matTarget.elements[i][j]));
             }
         }
         return symbols;
     }
     if(targetType == SYMBOLTYPE) {
         ExprVector symbols = *new ExprVector();
-        symbols.push_back(*new Expression(target));
+        symbols.push_back(target);
         return *new ExprVector(symbols);
     }
     ExprVector symbols = *new ExprVector();
     return symbols;
 };
 
-void lambdifyToFile(ExpressionObject* func, std::string funcName = "foo", std::string filePath = "") {
+void lambdifyToFile(Expression func, std::string funcName = "foo", std::string filePath = "") {
     std::ofstream funcFile;
     std::string fullPath = filePath+"/"+funcName+".cpp";
     funcFile.open(fullPath);

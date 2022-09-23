@@ -13,8 +13,8 @@
 #include "Symbol.hpp"
 #include "PauliMatrices.hpp"
 Expression matrixElement(Expression potential,Expression initialState, Expression finalState) {
-    Expression temp = transpose(initialState.get())*potential*finalState;
-    Expression result = simplify(temp.get());
+    Expression temp = transpose(initialState)*potential*finalState;
+    Expression result = simplify(temp);
     return result;
 }
 
@@ -52,12 +52,12 @@ Expression spinIsospinSummation(ExprVector interactions, bool exchange ) {
     //Expression p1Vec = declareMatrix("p1Vec", {{declareSymbol("p1x"),declareSymbol("p1y"),declareSymbol("p1z")}});
     //Expression p3Vec = declareMatrix("p3Vec", {{declareSymbol("p3x"),declareSymbol("p3y"),declareSymbol("p3z")}});
     //Expression qExchVector = p3Vec-p1Vec;
-    //Expression first = (sigmaAVector*transpose(qVector.get()));
-    //Expression second = (sigmaBVector*transpose(qVector.get()));
-    Expression potential = simplify(parseString("(sigmaAVector*qVector)*(sigmaBVector*qVector)").get());//first*second;
-    Expression exchangePotential = substitute(potential.get(), qx.get(), ZERO.get());
-    exchangePotential = substitute(exchangePotential.get(), qy.get(), ZERO.get());
-    exchangePotential = substitute(exchangePotential.get(), qz.get(), ZERO.get());
+    //Expression first = (sigmaAVector*transpose(qVector));
+    //Expression second = (sigmaBVector*transpose(qVector));
+    Expression potential = simplify(parseString("(sigmaAVector*qVector)*(sigmaBVector*qVector)"));//first*second;
+    Expression exchangePotential = substitute(potential, qx, ZERO);
+    exchangePotential = substitute(exchangePotential, qy, ZERO);
+    exchangePotential = substitute(exchangePotential, qz, ZERO);
     std::cout << potential.print()+"\n";
     Expression total = ZERO;
     for(int i = 1; i>=0; i--) {
@@ -69,7 +69,7 @@ Expression spinIsospinSummation(ExprVector interactions, bool exchange ) {
                     std::cout<<k;
                     std::cout<<l;
                     std::cout<<"\n";
-                    Expression dirPot = potential;//substitute(potential.get(), qVector.get(), ZERO.get());
+                    Expression dirPot = potential;//substitute(potential, qVector, ZERO);
                     Expression contribution = matrixElement(dirPot, sigmaAStates[i], sigmaAStates[i]);
                     std::cout<<"sigmaA\n";
                     std::cout<<contribution.print()+"\n";
@@ -107,10 +107,10 @@ Expression spinIsospinSummation(ExprVector interactions, bool exchange ) {
             }
         }
     }
-    Expression result = simplify(total.get());
-    result = cancelTerms(result.get());
-    //result = simplify(result.get());
-    //result = cancelTerms(result.get());
+    Expression result = simplify(total);
+    result = cancelTerms(result);
+    //result = simplify(result);
+    //result = cancelTerms(result);
     return result;
 }
 

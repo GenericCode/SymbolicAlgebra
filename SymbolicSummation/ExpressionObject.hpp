@@ -9,17 +9,17 @@ class ExpressionObject {
     friend Expression;
 public:
 //protected:
-    virtual Expression add(ExpressionObject* other) = 0;
-    virtual Expression subtract(ExpressionObject* other) = 0;
-    virtual Expression negate() = 0;
-    virtual Expression multiply(ExpressionObject* other) = 0;
-    virtual Expression divide(ExpressionObject* other) = 0;
+    virtual Expression add(Expression other) const = 0;
+    virtual Expression subtract(Expression other) const = 0;
+    virtual Expression negate() const = 0;
+    virtual Expression multiply(Expression other) const = 0;
+    virtual Expression divide(Expression other) const = 0;
     
     bool simplified = false;
 public:
-    virtual std::string print() = 0;
-    friend bool areEqual(ExpressionObject* left,ExpressionObject* right);
-    friend Expression simplify(ExpressionObject* target);
+    virtual std::string print() const = 0;
+    friend bool areEqual(Expression left, Expression right);
+    friend Expression simplify(Expression target);
     friend void setSimplified(bool simpled);
     friend Expression operator+(ExpressionObject& self, ExpressionObject& other);
     friend Expression operator-(ExpressionObject& self, ExpressionObject& other);
@@ -38,8 +38,8 @@ public:
     virtual ~ExpressionObject() = 0;
     
     bool isSimplified(){return simplified;}
-    const size_t getTypeHash() {
-        const size_t testName = typeid(*this).hash_code();
+    size_t getTypeHash() const {
+        size_t testName = typeid(*this).hash_code();
         return testName;
     }
 };
@@ -52,27 +52,28 @@ public:
     NullObject(std::string newOrigin);
     std::string origin = "";
 protected:
-    Expression add(ExpressionObject* other);
-    Expression subtract(ExpressionObject* other);
-    Expression negate();
-    Expression multiply(ExpressionObject* other);
-    Expression divide(ExpressionObject* other);
-    std::string print();
+    Expression add(Expression other) const ;
+    Expression subtract(Expression other) const;
+    Expression negate() const;
+    Expression multiply(Expression other) const;
+    Expression divide(Expression other) const;
+public:
+    std::string print() const;
 };
 
 const size_t NULLTYPE = typeid(NullObject).hash_code();
-Expression operator+(ExpressionObject& self, ExpressionObject& other);
-Expression operator-(ExpressionObject& self, ExpressionObject& other);
-Expression operator-(ExpressionObject& self);
-Expression operator*(ExpressionObject& self, ExpressionObject& other);
-Expression operator/(ExpressionObject& self, ExpressionObject& other);
+Expression operator+(const ExpressionObject& self, const ExpressionObject& other);
+Expression operator-(const ExpressionObject& self, const ExpressionObject& other);
+Expression operator-(const ExpressionObject& self);
+Expression operator*(const ExpressionObject& self, const ExpressionObject& other);
+Expression operator/(const ExpressionObject& self, const ExpressionObject& other);
 
-Expression operator+(ExpressionObject& self, float other);
-Expression operator-(ExpressionObject& self, float other);
-Expression operator*(ExpressionObject& self, float other);
-Expression operator/(ExpressionObject& self, float other);
-Expression operator+(float self, ExpressionObject& other);
-Expression operator-(float self, ExpressionObject& other);
-Expression operator*(float self, ExpressionObject& other);
-Expression operator/(float self, ExpressionObject& other);
-bool operator==(ExpressionObject& left, ExpressionObject& right);
+Expression operator+(const ExpressionObject& self, float other);
+Expression operator-(const ExpressionObject& self, float other);
+Expression operator*(const ExpressionObject& self, float other);
+Expression operator/(const ExpressionObject& self, float other);
+Expression operator+(float self, const ExpressionObject& other);
+Expression operator-(float self, const ExpressionObject& other);
+Expression operator*(float self, const ExpressionObject& other);
+Expression operator/(float self, const ExpressionObject& other);
+bool operator==(const ExpressionObject& left, const ExpressionObject& right);

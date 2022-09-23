@@ -14,34 +14,33 @@
 Symbol::Symbol(const Symbol& target) {
     name = target.name;
 }
-Expression Symbol::divide(ExpressionObject* other) {
+Expression Symbol::divide(Expression other) const {
     if(other == this) {
         return ONE;
     }
     
     Expression reciprocalOf = reciprocal(other);
-    return distribute(this, reciprocalOf.get());
+    return distribute(this, reciprocalOf);
 };
-Expression Symbol::add(ExpressionObject* other) {
+Expression Symbol::add(Expression other) const {
     if(other->getTypeHash() == ZEROTYPE)
         return *new Expression(this);
     if(other == this)
         return 2**this;
     return combineSums(this, other);
 };
-Expression Symbol::negate() {
-    Expression result = *new Expression(new Sign(this));
-    return result;
+Expression Symbol::negate() const {
+    return *new Expression(new Sign(this));
 };
-Expression Symbol::subtract(ExpressionObject* other) {
+Expression Symbol::subtract(Expression other) const {
     if(other == this) {
         return ZERO;
     }
     
-    Expression negativeOf = -*other;
-    return combineSums(this, negativeOf.get());
+    Expression negativeOf = -other;
+    return combineSums(this, negativeOf);
 };
-Expression Symbol::multiply(ExpressionObject* other) {
+Expression Symbol::multiply(Expression other) const {
     if(other->getTypeHash() == ZEROTYPE)
         return ZERO;
     if(other->getTypeHash() == ONETYPE)
@@ -53,28 +52,32 @@ Expression Symbol::multiply(ExpressionObject* other) {
 };
 
 //ImaginaryUnit
-ImaginaryUnit::ImaginaryUnit(const ImaginaryUnit& target) : Symbol(target.name) {
+ImaginaryUnit::ImaginaryUnit(const ImaginaryUnit& target) : Symbol("i") {
 };
 
-Expression ImaginaryUnit::multiply(ExpressionObject* other) {
+Expression ImaginaryUnit::multiply(Expression other) const {
     if(*other == *this) {;
         return MINUSONE;
     }
     return distribute(this, other);
 };
 
+Expression ImaginaryUnit::negate() const {
+    return *new Expression(new Sign(IMAGUNIT));
+}
+
 
 //Matrix
 
 Matrix::~Matrix() {
-    delete &elements;
-    delete &name;
-    delete &dimensions;
+    //delete &elements;
+    //delete &name;
+    //delete &dimensions;
 }
 
 Matrix::Matrix(const Matrix& target) : Symbol(target.name) {
     elements = *new ExprMatrix(target.elements);
-    dimensions = target.dimensions;
+    dimensions = *new std::pair<int,int>(target.dimensions);
 };
 Matrix::Matrix(std::string name, ExprMatrix newElements) : Symbol(name) {
     elements = *new ExprMatrix(newElements);
@@ -96,7 +99,7 @@ Matrix::Matrix(std::string name, std::initializer_list<std::initializer_list<Exp
 Matrix::Matrix(std::string name, std::vector<int> newDimensions) : Symbol(name) {
     
 };//empty matrix
-Matrix::Matrix(ExpressionObject* diag, int newDim)  : Symbol("I*"+diag->print()) {
+Matrix::Matrix(Expression diag, int newDim)  : Symbol("I*"+diag->print()) {
     ExprMatrix newElements = *new ExprMatrix();
     Expression diagElement = *new Expression(diag);
     for(int i = 0; i< newDim; i++) {
@@ -110,16 +113,16 @@ Matrix::Matrix(ExpressionObject* diag, int newDim)  : Symbol("I*"+diag->print())
     }
 };//Identity matrix times const expression
 
-Expression Matrix::divide(ExpressionObject* other) {
+Expression Matrix::divide(Expression other) const {
     Expression result = *new Expression(new Frac(this,other));
     return result;
 };
-Expression Matrix::add(ExpressionObject* other) {
+Expression Matrix::add(Expression other) const {
     if(other->getTypeHash() == ADDTYPE) {
         return combineSums(this, other);
     }
     if(other->getTypeHash() == MATRIXTYPE) {
-        Matrix& otherMat = dynamic_cast<Matrix&>(*other);
+        const Matrix& otherMat = dynamic_cast<const Matrix&>(*other);
         if(dimensions != otherMat.dimensions) {
             Expression result = *new Expression(new NullObject("mismatch between dimensions for adding MATRIXTYPE"));
             return result;
@@ -142,8 +145,8 @@ Expression Matrix::add(ExpressionObject* other) {
     Expression matTarget = getElementOfType(other,MATRIXTYPE);
     if(matTarget.getTypeHash() == NULLTYPE)
         return matTarget;
-    Matrix& otherMat = dynamic_cast<Matrix&>(*matTarget);
-    Expression otherCoefficent = removeElementMultiplicatively(other, matTarget.get());//other->remove(matTarget);
+    const Matrix& otherMat = dynamic_cast<const Matrix&>(*matTarget);
+    Expression otherCoefficent = removeElementMultiplicatively(other, matTarget);//other->remove(matTarget);
     ExprMatrix distrElements = *new ExprMatrix();
     for(int i = 0; i<otherMat.dimensions.first; i++) {
         ExprVector currentColumn = *new ExprVector();
@@ -152,11 +155,11 @@ Expression Matrix::add(ExpressionObject* other) {
         }
         distrElements.push_back(currentColumn);
     }
-    ExpressionObject* distrMat = new Matrix("temp matrix",distrElements);
+    Expression distrMat = new Matrix("temp matrix",distrElements);
     Expression finalResult = *this+*distrMat;
     return finalResult;
 };
-Expression Matrix::negate() {
+Expression Matrix::negate() const {
     ExprMatrix newElements = *new ExprMatrix();
     for(int i = 0; i<dimensions.first; i++) {
         ExprVector newColumn = *new ExprVector();
@@ -170,11 +173,11 @@ Expression Matrix::negate() {
     //Expression result = *new Expression(new Add(this,true));
     return negativeMatrix;
 };
-Expression Matrix::subtract(ExpressionObject* other) {
-    Expression negativeOf = *new Expression(-*other);
-    return this->add(negativeOf.get());
+Expression Matrix::subtract(Expression other) const {
+    Expression negativeOf = -other;
+    return this->add(negativeOf);
 };
-Expression Matrix::multiply(ExpressionObject* other) {
+Expression Matrix::multiply(Expression other) const {
     if(other->getTypeHash() == MATRIXTYPE) {
         Expression result = matMul(this, other);
         return result;
@@ -183,17 +186,17 @@ Expression Matrix::multiply(ExpressionObject* other) {
     
     if(matTarget.getTypeHash() == NULLTYPE)
         return distribute(this, other);
-    Expression result = matMul(this, matTarget.get());
-    Expression finalResult = replaceElementOfType(other,MATRIXTYPE,result.get());
+    Expression result = matMul(this, matTarget);
+    Expression finalResult = replaceElementOfType(other,MATRIXTYPE,result);
     return finalResult;
 };
 
-ExprMatrix Matrix::getElements() {
-    ExprMatrix result = elements;
+ExprMatrix Matrix::getElements() const {
+    ExprMatrix result = *new ExprMatrix(elements);
     return result;
 }
 
-std::string Matrix::print() {
+std::string Matrix::print() const {
     std::string result = "";
     result += "{";
     for(int i = 0; i<dimensions.first; i++)

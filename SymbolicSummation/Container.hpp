@@ -16,10 +16,10 @@
 class Container : public ExpressionObject {
 protected:
     std::string name = "";
-    Expression add(ExpressionObject* other);
-    Expression multiply(ExpressionObject* other);
-    Expression divide(ExpressionObject* other);
-    Expression subtract(ExpressionObject* other);
+    Expression add(Expression other) const;
+    Expression multiply(Expression other) const;
+    Expression divide(Expression other) const;
+    Expression subtract(Expression other) const;
 public:
 };
 
@@ -27,156 +27,157 @@ class Add : public Container {
 protected:
     ExprVector members = *new ExprVector();
     //SignVector memberSigns = *new SignVector();
-    Expression negate();
+    Expression negate() const;
 public:
-    std::string print();
+    std::string print() const;
     Add(const Add& target);
     Add& operator=(const Add& target);
     Add(std::initializer_list<Expression> newMembers);
     Add(ExprVector newMembers);
-    Add(ExpressionObject* left, ExpressionObject* right);
+    Add(Expression left, Expression right);
     ~Add();
-    friend Expression distribute(ExpressionObject* left, ExpressionObject* right);
-    friend ExprVector getFactors(ExpressionObject* factee);
-    friend Expression combineProducts(ExpressionObject* left, ExpressionObject* right);
-    friend Expression cancelTerms(ExpressionObject* target);
-    friend Expression simplify(ExpressionObject* target);
-    friend Expression simplifyPauliMatrices(ExpressionObject* target);
-    friend Expression combineSums(ExpressionObject* left, ExpressionObject* right);
-    friend bool areEqual(ExpressionObject& left, ExpressionObject& right);
-    friend Expression getElementOfType(ExpressionObject* source, size_t type, bool rightToLeft);
-    friend Expression replaceElementOfType(ExpressionObject* source, size_t type, ExpressionObject* value, bool rightToLeft);
-    friend ExprVector getConstituentSymbols(ExpressionObject* target);
-    friend Expression removeElementAdditively(ExpressionObject* source, ExpressionObject* target, bool rightToLeft);
-    friend Expression substitute(ExpressionObject* source, ExpressionObject* target, ExpressionObject* value);
+    friend Expression distribute(Expression left, Expression right);
+    friend ExprVector getFactors(Expression factee);
+    friend Expression combineProducts(Expression left, Expression right);
+    friend Expression cancelTerms(Expression target);
+    friend Expression simplify(Expression target);
+    friend Expression simplifyPauliMatrices(Expression target);
+    friend Expression combineSums(Expression left, Expression right);
+    friend bool areEqual(const ExpressionObject& left, const ExpressionObject& right);
+    friend Expression getElementOfType(Expression source, size_t type, bool rightToLeft);
+    friend Expression replaceElementOfType(Expression source, size_t type, Expression value, bool rightToLeft);
+    friend ExprVector getConstituentSymbols(Expression target);
+    friend Expression removeElementAdditively(Expression source, Expression target, bool rightToLeft);
+    friend Expression substitute(Expression source, Expression target, Expression value);
 };
 
 class Sign : public Container {
 protected:
     Expression member;
-    Expression negate();
-    Expression multiply(ExpressionObject* other);
-    Expression add(ExpressionObject* other);
-    Expression subtract(ExpressionObject* other);
-    std::string print();
+    Expression negate() const;
+    Expression multiply(Expression other) const;
+    Expression add(Expression other) const;
+    Expression subtract(Expression other) const;
+    std::string print()  const;
 public:
     Sign(const Sign& target);
-    Sign& operator=(const Sign& target);
-    Sign(ExpressionObject* member);
+    const Sign& operator=(const Sign& target);
+    Sign(Expression member);
     ~Sign();
-    friend Expression distribute(ExpressionObject* left, ExpressionObject* right);
-    friend ExprVector getFactors(ExpressionObject* factee);
-    friend Expression combineProducts(ExpressionObject* left, ExpressionObject* right);
-    friend Expression combineTermsDifferingByCoefficientsAdditively(ExpressionObject* left, ExpressionObject* right);
-    friend Expression cancelTerms(ExpressionObject* target);
-    friend Expression simplify(ExpressionObject* target);
-    friend Expression combineSums(ExpressionObject* left, ExpressionObject* right);
-    friend bool areEqual(ExpressionObject& left, ExpressionObject& right);
-    friend Expression getElementOfType(ExpressionObject* source, size_t type, bool rightToLeft);
-    friend Expression replaceElementOfType(ExpressionObject* source, size_t type, ExpressionObject* value, bool rightToLeft);
-    friend Expression removeElementMultiplicatively(ExpressionObject* source, ExpressionObject* target, bool rightToLeft);
-    friend ExprVector getConstituentSymbols(ExpressionObject* target);
-    friend Expression substitute(ExpressionObject* source, ExpressionObject* target, ExpressionObject* value);
+    friend Expression distribute(Expression left, Expression right);
+    friend ExprVector getFactors(Expression factee);
+    friend Expression combineProducts(Expression left, Expression right);
+    friend Expression combineTermsDifferingByCoefficientsAdditively(Expression left, Expression right);
+    friend Expression cancelTerms(Expression target);
+    friend Expression simplify(Expression target);
+    friend Expression combineSums(Expression left, Expression right);
+    friend bool areEqual(const ExpressionObject& left, const ExpressionObject& right);
+    friend Expression getElementOfType(Expression source, size_t type, bool rightToLeft);
+    friend Expression replaceElementOfType(Expression source, size_t type, Expression value, bool rightToLeft);
+    friend Expression removeElementMultiplicatively(Expression source, Expression target, bool rightToLeft);
+    friend ExprVector getConstituentSymbols(Expression target);
+    friend Expression substitute(Expression source, Expression target, Expression value);
     
 };
 
 class Mul : public Container {
 protected:
     ExprVector members = *new ExprVector();
-    Expression negate();
-    std::string print();
+    Expression negate()  const;
 public:
+    std::string print() const;
     Mul(const Mul& target);
     Mul& operator=(const Mul& target);
     Mul(ExprVector newMembers);
-    Mul(ExpressionObject* right, ExpressionObject* left);
+    Mul(Expression right, Expression left);
     ~Mul();
-    friend Expression distribute(ExpressionObject* left, ExpressionObject* right);
-    friend ExprVector getFactors(ExpressionObject* factee);
-    friend Expression combineProducts(ExpressionObject* left, ExpressionObject* right);
-    friend Expression combineSums(ExpressionObject* left, ExpressionObject* right);
-    friend Expression simplify(ExpressionObject* target);
-    friend Expression simplifyPauliMatrices(ExpressionObject* target);
-    friend bool areEqual(ExpressionObject& left, ExpressionObject& right);
-    friend Expression getElementOfType(ExpressionObject* source, size_t type, bool rightToLeft);
-    friend Expression replaceElementOfType(ExpressionObject* source, size_t type, ExpressionObject* value, bool rightToLeft);
-    friend ExprVector getConstituentSymbols(ExpressionObject* target);
-    friend Expression removeElementMultiplicatively(ExpressionObject* source, ExpressionObject* target, bool rightToLeft);
-    friend Expression substitute(ExpressionObject* source, ExpressionObject* target, ExpressionObject* value);
+    friend Expression distribute(Expression left, Expression right);
+    friend ExprVector getFactors(Expression factee);
+    friend Expression combineProducts(Expression left, Expression right);
+    friend Expression combineSums(Expression left, Expression right);
+    friend Expression simplify(Expression target);
+    friend Expression simplifyPauliMatrices(Expression target);
+    friend bool areEqual(const ExpressionObject& left, const ExpressionObject& right);
+    friend Expression getElementOfType(Expression source, size_t type, bool rightToLeft);
+    friend Expression replaceElementOfType(Expression source, size_t type, Expression value, bool rightToLeft);
+    friend ExprVector getConstituentSymbols(Expression target);
+    friend Expression removeElementMultiplicatively(Expression source, Expression target, bool rightToLeft);
+    friend Expression substitute(Expression source, Expression target, Expression value);
 };
 
 class Frac : public Container {
 protected:
     Expression numerator;
     Expression denomenator;
-    Expression negate();
-    std::string print();
+    Expression negate() const;
 public:
+    std::string print() const;
     Frac& operator=(const Frac& target);
     Frac(const Frac& target);
-    Frac(ExpressionObject* denom);
-    Frac(ExpressionObject* num, ExpressionObject* denom);
+    Frac(Expression denom);
+    Frac(Expression num, Expression denom);
     ~Frac();
-    friend Expression distribute(ExpressionObject* left, ExpressionObject* right);
-    friend ExprVector getFactors(ExpressionObject* factee);
-    friend Expression combineProducts(ExpressionObject* left, ExpressionObject* right);
-    friend Expression combineSums(ExpressionObject* left, ExpressionObject* right);
-    friend Expression simplify(ExpressionObject* target);
-    friend bool areEqual(ExpressionObject& left, ExpressionObject& right);
-    friend Expression getElementOfType(ExpressionObject* source, size_t type, bool rightToLeft);
-    friend Expression replaceElementOfType(ExpressionObject* source, size_t type, ExpressionObject* value, bool rightToLeft);
-    friend Expression reciprocal(ExpressionObject* self);
-    friend ExprVector getConstituentSymbols(ExpressionObject* target);
-    friend Expression removeElementMultiplicatively(ExpressionObject* source, ExpressionObject* target, bool rightToLeft);
-    friend Expression substitute(ExpressionObject* source, ExpressionObject* target, ExpressionObject* value);
+    friend Expression distribute(Expression left, Expression right);
+    friend ExprVector getFactors(Expression factee);
+    friend Expression combineProducts(Expression left, Expression right);
+    friend Expression combineSums(Expression left, Expression right);
+    friend Expression simplify(Expression target);
+    friend bool areEqual(const ExpressionObject& left, const ExpressionObject& right);
+    friend Expression getElementOfType(Expression source, size_t type, bool rightToLeft);
+    friend Expression replaceElementOfType(Expression source, size_t type, Expression value, bool rightToLeft);
+    friend Expression reciprocal(Expression self);
+    friend ExprVector getConstituentSymbols(Expression target);
+    friend Expression removeElementMultiplicatively(Expression source, Expression target, bool rightToLeft);
+    friend Expression substitute(Expression source, Expression target, Expression value);
 };
 
 class Exp : public Container {
 protected:
     Expression base;
     Expression exponent;
-    Expression negate();
-    Expression multiply(ExpressionObject* other);
-    std::string print();
+    Expression negate() const;
+    Expression multiply(Expression other) const;
 public:
-    Exp& operator=(const Exp& target);
+    std::string print() const;
+    const Exp& operator=(const Exp& target);
     Exp(const Exp& target);
-    Exp(ExpressionObject* base, ExpressionObject* exponent);
-    Exp(ExpressionObject* base, int exponent);
+    Exp(Expression base, Expression exponent);
+    Exp(Expression base, int exponent);
     ~Exp();
-    friend Expression distribute(ExpressionObject* left, ExpressionObject* right);
-    friend ExprVector getFactors(ExpressionObject* factee);
-    friend Expression combineProducts(ExpressionObject* left, ExpressionObject* right);
-    friend Expression combineSums(ExpressionObject* left, ExpressionObject* right);
-    friend Expression simplify(ExpressionObject* target);
-    friend bool areEqual(ExpressionObject& left, ExpressionObject& right);
-    friend Expression getElementOfType(ExpressionObject* source, size_t type, bool rightToLeft);
-    friend Expression replaceElementOfType(ExpressionObject* source, size_t type, ExpressionObject* value, bool rightToLeft);
-    friend ExprVector getConstituentSymbols(ExpressionObject* target);
-    friend Expression removeElementMultiplicatively(ExpressionObject* source, ExpressionObject* target, bool rightToLeft);
-    friend Expression substitute(ExpressionObject* source, ExpressionObject* target, ExpressionObject* value);
+    friend Expression distribute(Expression left, Expression right);
+    friend ExprVector getFactors(Expression factee);
+    friend Expression combineProducts(Expression left, Expression right);
+    friend Expression combineSums(Expression left, Expression right);
+    friend Expression simplify(Expression target);
+    friend bool areEqual(const ExpressionObject& left, const ExpressionObject& right);
+    friend Expression getElementOfType(Expression source, size_t type, bool rightToLeft);
+    friend Expression replaceElementOfType(Expression source, size_t type, Expression value, bool rightToLeft);
+    friend ExprVector getConstituentSymbols(Expression target);
+    friend Expression removeElementMultiplicatively(Expression source, Expression target, bool rightToLeft);
+    friend Expression substitute(Expression source, Expression target, Expression value);
 };
 
 class Func : public Container {
 protected:
     std::string funcName;
     ExprVector members = *new ExprVector();
-    Expression add(ExpressionObject* other);
-    Expression multiply (ExpressionObject* other);
-    Expression divide (ExpressionObject* other);
-    Expression subtract(ExpressionObject* other);
-    Expression negate();
-    std::string print();
+    Expression add(Expression other) const;
+    Expression multiply (Expression other) const;
+    Expression divide (Expression other) const;
+    Expression subtract(Expression other) const;
+    Expression negate() const;
+    
 public:
+    std::string print() const;
     Func& operator=(const Func& target);
-    friend Expression distribute(ExpressionObject* left, ExpressionObject* right);
-    friend ExprVector getFactors(ExpressionObject* factee);
-    friend Expression combineProducts(ExpressionObject* left, ExpressionObject* right);
-    friend Expression combineSums(ExpressionObject* left, ExpressionObject* right);
-    friend bool areEqual(ExpressionObject& left, ExpressionObject& right);
-    friend Expression getElementOfType(ExpressionObject* source, size_t type, bool rightToLeft);
-    friend Expression replaceElementOfType(ExpressionObject* source, size_t type, ExpressionObject* value, bool rightToLeft);
-    friend ExprVector getConstituentSymbols(ExpressionObject* target);
+    friend Expression distribute(Expression left, Expression right);
+    friend ExprVector getFactors(Expression factee);
+    friend Expression combineProducts(Expression left, Expression right);
+    friend Expression combineSums(Expression left, Expression right);
+    friend bool areEqual(const ExpressionObject& left, const ExpressionObject& right);
+    friend Expression getElementOfType(Expression source, size_t type, bool rightToLeft);
+    friend Expression replaceElementOfType(Expression source, size_t type, Expression value, bool rightToLeft);
+    friend ExprVector getConstituentSymbols(Expression target);
 };
 
 static const size_t OPERATORTYPE = typeid(Container).hash_code();
