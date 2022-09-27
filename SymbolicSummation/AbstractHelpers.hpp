@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include "Expression.hpp"
+#include "Container.hpp"
 
 void initializeDefaultSymbols(bool force = false);
 void initializeDefaultFunctions(bool force = false);

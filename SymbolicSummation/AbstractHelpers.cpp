@@ -758,6 +758,11 @@ bool areEqual(const ExpressionObject& left, const ExpressionObject& right) {
         const Exp& rightObj = dynamic_cast<const Exp&>(right);
         areEqual &= (leftObj.base == rightObj.base && leftObj.exponent == rightObj.exponent);
     }
+    if(leftType == FUNCTYPE) {
+        const Func& leftObj = dynamic_cast<const Func&>(left);
+        const Func& rightObj = dynamic_cast<const Func&>(right);
+        areEqual &= (leftObj.member == rightObj.member && &leftObj.functionAction == &rightObj.functionAction);
+    }
     if(leftType == MATRIXTYPE) {
         const Matrix& leftObj = dynamic_cast<const Matrix&>(left);
         const Matrix& rightObj = dynamic_cast<const Matrix&>(right);

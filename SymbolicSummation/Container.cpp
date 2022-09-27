@@ -348,11 +348,23 @@ Func& Func::operator=(const Func &target) {
     return *this;
 }
 
+Expression nonFunc(Expression var) {
+    return var;
+}
+
 Func::Func(String name) {
     funcName = name;
-    functionAction = [] (Expression var) -> Expression {return var;};
+    //const ExprActionObj actionObj = [] (Expression var) -> Expression {return var;};
+    functionAction = *new ExprAction(nonFunc);
     this->name = this->print();
 };
+
+Func::Func(String name, ExprActionObj actionObj) {
+    funcName = name;
+    functionAction = *new ExprAction(actionObj);
+    this->name = this->print();
+};
+
 Func::Func(String name, ExprAction action) {
     funcName = name;
     functionAction = action;
@@ -380,5 +392,3 @@ String Func::print() const {
     result += "]";
     return result;
 }
-
-TransposeFunc::TransposeFunc() : Func("transpose", transpose) {};//[] (Expression var) -> Expression {return transpose(var);} ) {}

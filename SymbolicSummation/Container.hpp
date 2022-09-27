@@ -174,6 +174,17 @@ public:
     friend Expression insertAsVariable(Expression target, Expression var);
 };
 
+typedef std::function<Expression(Expression)> ExprActionObj;
+
+class ExprAction : public std::shared_ptr<const ExprActionObj> {
+public:
+    ExprAction() : std::shared_ptr<const ExprActionObj>(NULL) {};
+    ExprAction(const ExprActionObj& obj) : std::shared_ptr<const ExprActionObj>(&obj) {};
+    Expression operator()(Expression var) const {
+        return (**this)(var);
+    }
+};
+
 class Func : public Container {
 protected:
     String funcName;
@@ -195,6 +206,7 @@ public:
     //need to add a helper function that will attempt to insert an expression as variable to any functions in another expression
     //common functions like transpose, exp or whatever should probably have private/protected constructors? no need to make more
     Func(String name);
+    Func(String name, ExprActionObj action);
     Func(String name, ExprAction action);
     friend Expression parseString(String expr);
     friend Expression distribute(Expression left, Expression right);
