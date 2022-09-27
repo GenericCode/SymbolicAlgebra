@@ -971,7 +971,7 @@ Expression performActions(Expression target) {
         const Sign& signObj = dynamic_cast<const Sign&>(*target);
         return -performActions(signObj.member);
     }
-    if(sourceType == FUNCTYPE) {
+    if(isSubtypeOf(target, FUNCTYPE)) {
         const Func& funcObj = dynamic_cast<const Func&>(*target);
         return funcObj.act();
     }
@@ -1034,7 +1034,7 @@ Expression performActionsOn(Expression target, Expression var) {
         const Sign& signObj = dynamic_cast<const Sign&>(*target);
         return -performActionsOn(signObj.member, var);
     }
-    if(sourceType == FUNCTYPE) {
+    if(isSubtypeOf(target, FUNCTYPE)) {
         const Func& funcObj = dynamic_cast<const Func&>(*target);
         return funcObj.resultOfActingOn(var);
     }
@@ -1097,7 +1097,7 @@ Expression insertAsVariable(Expression target, Expression var) {
         const Sign& signObj = dynamic_cast<const Sign&>(*target);
         return -insertAsVariable(signObj.member, var);
     }
-    if(sourceType == FUNCTYPE) {
+    if(isSubtypeOf(target, FUNCTYPE)) {
         const Func& funcObj = dynamic_cast<const Func&>(*target);
         return funcObj.actingOn(var);
     }

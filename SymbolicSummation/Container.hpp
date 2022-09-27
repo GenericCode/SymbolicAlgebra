@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <vector>
 #include "Expression.hpp"
+#include "AlgebraicHelpers.hpp"
 //typedef std::vector<Expression> ExprVector;
 
 class Container : public ExpressionObject {
@@ -211,12 +212,7 @@ public:
     friend Expression performActionsOn(Expression target, Expression var);
     friend Expression insertAsVariable(Expression target, Expression var);
 };
-
-class TransposeFunc : public Func {
-public:
-    TransposeFunc();
-};
-static const Expression TRANSPOSE = *new Expression(new TransposeFunc());
+static const Expression TRANSPOSE = *new Expression(new Func("transpose",transpose));
 
 static const size_t OPERATORTYPE = typeid(Container).hash_code();
 static const size_t ADDTYPE = typeid(Add).hash_code();
