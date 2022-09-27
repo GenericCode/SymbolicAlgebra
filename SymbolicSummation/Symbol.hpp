@@ -78,6 +78,9 @@ public:
     friend Expression transpose(Expression target);
     friend Expression substitute(Expression source, Expression target, Expression value);
     friend bool areEqual(const ExpressionObject& left, const ExpressionObject& right);
+    friend Expression performActions(Expression target);
+    friend Expression performActionsOn(Expression target, Expression var);
+    friend Expression insertAsVariable(Expression target, Expression var);
 };
 
 static const size_t SYMBOLTYPE = typeid(Symbol).hash_code();

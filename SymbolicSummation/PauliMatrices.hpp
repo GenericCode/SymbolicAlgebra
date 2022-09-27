@@ -35,6 +35,9 @@ public:
     friend Expression getMatrixMatchingPauliFlavor(Expression target, Expression matrixToMatch);
     friend bool areEqual(const ExpressionObject& left, const ExpressionObject& right);
     friend Expression substitute(Expression source, Expression target, Expression value);
+    friend Expression performActions(Expression target);
+    friend Expression performActionsOn(Expression target, Expression var);
+    friend Expression insertAsVariable(Expression target, Expression var);
 };
 
 static const size_t PAULIMATRIXTYPE = typeid(PauliMatrix).hash_code();

@@ -58,6 +58,7 @@ bool isSubtypeOf(Expression sub, size_t superType) {
 
 String getStringExpressionType(String exprString) {
     int parenthesisDepth = 0;
+    int sqbracketDepth = 0;
     bool containsOperator = false;
     bool containsLetter = false;
     bool containsNumber = false;
@@ -103,6 +104,15 @@ String getStringExpressionType(String exprString) {
                         topLevelOperator = "exp";
                 }
                 break;
+            case '[':
+                if(sqbracketDepth != 1)
+                    return "badformat";
+                if(parenthesisDepth == 0 && topLevelOperator == "")
+                    return "func";
+                break;
+            case ']':
+                sqbracketDepth++;
+                break;
             default:
                 if(parenthesisDepth == 0) {
                     containsLetter |= isalpha(currChar);
@@ -134,7 +144,8 @@ std::vector<String> tokenize(String expr, String delimiters) {
         if(currChar == '(')
             parenthesisDepth++;
         if(i == expr.length()-1) {
-            currentToken += currChar;
+            if(delimiters.find(currChar) == String::npos)
+                currentToken += currChar;
             tokens.push_back(currentToken);
             continue;
         }

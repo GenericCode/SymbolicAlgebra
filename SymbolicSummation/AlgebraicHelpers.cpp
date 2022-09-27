@@ -935,6 +935,195 @@ Expression combineTermsDifferingByCoefficientsAdditively(Expression left, Expres
     return temp;
 }
 
+Expression performActions(Expression target) {
+    size_t sourceType = target->getTypeHash();
+    if(isSubtypeOf(target, MATRIXTYPE)) {
+        const Matrix& matObj = dynamic_cast<const Matrix&>(*target);
+        ExprMatrix elements = *new ExprMatrix(matObj.elements);
+        for(int i = 0; i<matObj.dimensions.first; i++) {
+            for (int j = 0; j<matObj.dimensions.second; j++) {
+                if(elements[i][j] == target) {
+                    elements[i][j] = performActions(elements[i][j]);
+                }
+            }
+        }
+        if(sourceType == PAULIMATRIXTYPE) {
+            const PauliMatrix& pauliSource = dynamic_cast<const PauliMatrix&>(*target);
+            Expression newMat = declarePauliMatrix(new PauliMatrix(printExprMatrix(elements),0,pauliSource.flavor,elements));
+            return newMat;
+        }
+        Expression newMat = declareMatrix(matObj.name+"with replacement", elements);
+        return newMat;
+    }
+    if(sourceType == FRACTYPE) {
+        const Frac& fracObj = dynamic_cast<const Frac&>(*target);
+        Expression newNum = performActions(fracObj.numerator);
+        Expression newDenom = performActions(fracObj.denomenator);
+        return *new Expression(new Frac(newNum,newDenom));
+    }
+    if(sourceType == EXPTYPE) {
+        const Exp& expObj = dynamic_cast<const Exp&>(*target);
+        Expression newBase = performActions(expObj.base);
+        Expression newExponent = performActions(expObj.exponent);
+        return *new Expression(new Exp(newBase,newExponent));
+    }
+    if(sourceType == SIGNTYPE) {
+        const Sign& signObj = dynamic_cast<const Sign&>(*target);
+        return -performActions(signObj.member);
+    }
+    if(sourceType == FUNCTYPE) {
+        const Func& funcObj = dynamic_cast<const Func&>(*target);
+        return funcObj.act();
+    }
+    ExprVector elementsToModify;
+    ExprVector newElements = *new ExprVector();
+    if(sourceType == ADDTYPE) {
+        const Add& addObj = dynamic_cast<const Add&>(*target);
+        elementsToModify = addObj.members;
+    }
+    if(sourceType == MULTYPE) {
+        const Mul& mulObj = dynamic_cast<const Mul&>(*target);
+        elementsToModify = mulObj.members;
+    }
+    for(int i = 0; i< elementsToModify.size(); i++) {
+        Expression moddedEle = performActions(elementsToModify[i]);
+        newElements.push_back(moddedEle);
+    }
+    if(sourceType == ADDTYPE) {
+        return *new Expression(new Add(newElements));
+    }
+    if(sourceType == MULTYPE) {
+        return *new Expression(new Mul(newElements));
+    }
+    return target;
+}
+
+Expression performActionsOn(Expression target, Expression var) {
+    size_t sourceType = target->getTypeHash();
+    if(isSubtypeOf(target, MATRIXTYPE)) {
+        const Matrix& matObj = dynamic_cast<const Matrix&>(*target);
+        ExprMatrix elements = *new ExprMatrix(matObj.elements);
+        for(int i = 0; i<matObj.dimensions.first; i++) {
+            for (int j = 0; j<matObj.dimensions.second; j++) {
+                if(elements[i][j] == target) {
+                    elements[i][j] = performActionsOn(elements[i][j],var);
+                }
+            }
+        }
+        if(sourceType == PAULIMATRIXTYPE) {
+            const PauliMatrix& pauliSource = dynamic_cast<const PauliMatrix&>(*target);
+            Expression newMat = declarePauliMatrix(new PauliMatrix(printExprMatrix(elements),0,pauliSource.flavor,elements));
+            return newMat;
+        }
+        Expression newMat = declareMatrix(matObj.name+"with replacement", elements);
+        return newMat;
+    }
+    if(sourceType == FRACTYPE) {
+        const Frac& fracObj = dynamic_cast<const Frac&>(*target);
+        Expression newNum = performActionsOn(fracObj.numerator, var);
+        Expression newDenom = performActionsOn(fracObj.denomenator, var);
+        return *new Expression(new Frac(newNum,newDenom));
+    }
+    if(sourceType == EXPTYPE) {
+        const Exp& expObj = dynamic_cast<const Exp&>(*target);
+        Expression newBase = performActionsOn(expObj.base, var);
+        Expression newExponent = performActionsOn(expObj.exponent, var);
+        return *new Expression(new Exp(newBase,newExponent));
+    }
+    if(sourceType == SIGNTYPE) {
+        const Sign& signObj = dynamic_cast<const Sign&>(*target);
+        return -performActionsOn(signObj.member, var);
+    }
+    if(sourceType == FUNCTYPE) {
+        const Func& funcObj = dynamic_cast<const Func&>(*target);
+        return funcObj.resultOfActingOn(var);
+    }
+    ExprVector elementsToModify;
+    ExprVector newElements = *new ExprVector();
+    if(sourceType == ADDTYPE) {
+        const Add& addObj = dynamic_cast<const Add&>(*target);
+        elementsToModify = addObj.members;
+    }
+    if(sourceType == MULTYPE) {
+        const Mul& mulObj = dynamic_cast<const Mul&>(*target);
+        elementsToModify = mulObj.members;
+    }
+    for(int i = 0; i< elementsToModify.size(); i++) {
+        Expression moddedEle = performActionsOn(elementsToModify[i], var);
+        newElements.push_back(moddedEle);
+    }
+    if(sourceType == ADDTYPE) {
+        return *new Expression(new Add(newElements));
+    }
+    if(sourceType == MULTYPE) {
+        return *new Expression(new Mul(newElements));
+    }
+    return target;
+}
+
+Expression insertAsVariable(Expression target, Expression var) {
+    size_t sourceType = target->getTypeHash();
+    if(isSubtypeOf(target, MATRIXTYPE)) {
+        const Matrix& matObj = dynamic_cast<const Matrix&>(*target);
+        ExprMatrix elements = *new ExprMatrix(matObj.elements);
+        for(int i = 0; i<matObj.dimensions.first; i++) {
+            for (int j = 0; j<matObj.dimensions.second; j++) {
+                if(elements[i][j] == target) {
+                    elements[i][j] = insertAsVariable(elements[i][j],var);
+                }
+            }
+        }
+        if(sourceType == PAULIMATRIXTYPE) {
+            const PauliMatrix& pauliSource = dynamic_cast<const PauliMatrix&>(*target);
+            Expression newMat = declarePauliMatrix(new PauliMatrix(printExprMatrix(elements),0,pauliSource.flavor,elements));
+            return newMat;
+        }
+        Expression newMat = declareMatrix(matObj.name+"with replacement", elements);
+        return newMat;
+    }
+    if(sourceType == FRACTYPE) {
+        const Frac& fracObj = dynamic_cast<const Frac&>(*target);
+        Expression newNum = insertAsVariable(fracObj.numerator, var);
+        Expression newDenom = insertAsVariable(fracObj.denomenator, var);
+        return *new Expression(new Frac(newNum,newDenom));
+    }
+    if(sourceType == EXPTYPE) {
+        const Exp& expObj = dynamic_cast<const Exp&>(*target);
+        Expression newBase = insertAsVariable(expObj.base, var);
+        Expression newExponent = insertAsVariable(expObj.exponent, var);
+        return *new Expression(new Exp(newBase,newExponent));
+    }
+    if(sourceType == SIGNTYPE) {
+        const Sign& signObj = dynamic_cast<const Sign&>(*target);
+        return -insertAsVariable(signObj.member, var);
+    }
+    if(sourceType == FUNCTYPE) {
+        const Func& funcObj = dynamic_cast<const Func&>(*target);
+        return funcObj.actingOn(var);
+    }
+    ExprVector elementsToModify;
+    ExprVector newElements = *new ExprVector();
+    if(sourceType == ADDTYPE) {
+        const Add& addObj = dynamic_cast<const Add&>(*target);
+        elementsToModify = addObj.members;
+    }
+    if(sourceType == MULTYPE) {
+        const Mul& mulObj = dynamic_cast<const Mul&>(*target);
+        elementsToModify = mulObj.members;
+    }
+    for(int i = 0; i< elementsToModify.size(); i++) {
+        Expression moddedEle = insertAsVariable(elementsToModify[i], var);
+        newElements.push_back(moddedEle);
+    }
+    if(sourceType == ADDTYPE) {
+        return *new Expression(new Add(newElements));
+    }
+    if(sourceType == MULTYPE) {
+        return *new Expression(new Mul(newElements));
+    }
+    return target;
+}
+
 Expression substitute(Expression source, Expression target, Expression value) {
     Expression valueExpr = *new Expression(value);
     if(source == target)
@@ -949,16 +1138,12 @@ Expression substitute(Expression source, Expression target, Expression value) {
                 if(elements[i][j] == target) {
                     elements[i][j] = valueExpr;
                     foundTarget = true;
-                    break;
                 }
                 if(-elements[i][j] == target || elements[i][j] == -target) {
                     elements[i][j] = -valueExpr;
                     foundTarget = true;
-                    break;
                 }
             }
-            if(foundTarget)
-                break;
         }
         if(!foundTarget)
             return *new Expression(new NullObject("No substitutions possible"));
@@ -1058,6 +1243,13 @@ Expression substitute(Expression source, Expression target, Expression value) {
     }
     return *new Expression(new NullObject("No substitutions possible"));
 };
+
 Expression substitute(Expression source, std::vector<std::pair<Expression,Expression>> substitutions) {
-    return *new Expression(new NullObject("WTF"));
+    Expression result = *new Expression(source);
+    for(int i = 0; substitutions.size(); i++) {
+        Expression temp = substitute(result, substitutions[i].first, substitutions[i].second);
+        if(temp.getTypeHash() != NULLTYPE)
+            result = temp;
+    }
+    return result;
 };

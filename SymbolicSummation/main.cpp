@@ -127,8 +127,10 @@ Expression spinIsospinSummation(std::vector<String> interactions, bool exchange 
 
 int main(int argc, const char * argv[]) {
     initializeDefaultSymbols();
+    initializeDefaultFunctions();
     std::vector<String> interactions = {};
-    Expression result = spinIsospinSummation(interactions, true);
+    //Expression result = spinIsospinSummation(interactions, true);
+    Expression result = parseString("transpose[x]");
     std::cout << result.print()+"\n";
     
     return 0;

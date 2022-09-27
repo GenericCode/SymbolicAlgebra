@@ -50,6 +50,9 @@ public:
     friend ExprVector getConstituentSymbols(Expression target);
     friend Expression removeElementAdditively(Expression source, Expression target, bool rightToLeft);
     friend Expression substitute(Expression source, Expression target, Expression value);
+    friend Expression performActions(Expression target);
+    friend Expression performActionsOn(Expression target, Expression var);
+    friend Expression insertAsVariable(Expression target, Expression var);
 };
 
 class Sign : public Container {
@@ -78,6 +81,9 @@ public:
     friend Expression removeElementMultiplicatively(Expression source, Expression target, bool rightToLeft);
     friend ExprVector getConstituentSymbols(Expression target);
     friend Expression substitute(Expression source, Expression target, Expression value);
+    friend Expression performActions(Expression target);
+    friend Expression performActionsOn(Expression target, Expression var);
+    friend Expression insertAsVariable(Expression target, Expression var);
     
 };
 
@@ -104,6 +110,9 @@ public:
     friend ExprVector getConstituentSymbols(Expression target);
     friend Expression removeElementMultiplicatively(Expression source, Expression target, bool rightToLeft);
     friend Expression substitute(Expression source, Expression target, Expression value);
+    friend Expression performActions(Expression target);
+    friend Expression performActionsOn(Expression target, Expression var);
+    friend Expression insertAsVariable(Expression target, Expression var);
 };
 
 class Frac : public Container {
@@ -130,6 +139,9 @@ public:
     friend ExprVector getConstituentSymbols(Expression target);
     friend Expression removeElementMultiplicatively(Expression source, Expression target, bool rightToLeft);
     friend Expression substitute(Expression source, Expression target, Expression value);
+    friend Expression performActions(Expression target);
+    friend Expression performActionsOn(Expression target, Expression var);
+    friend Expression insertAsVariable(Expression target, Expression var);
 };
 
 class Exp : public Container {
@@ -156,6 +168,9 @@ public:
     friend ExprVector getConstituentSymbols(Expression target);
     friend Expression removeElementMultiplicatively(Expression source, Expression target, bool rightToLeft);
     friend Expression substitute(Expression source, Expression target, Expression value);
+    friend Expression performActions(Expression target);
+    friend Expression performActionsOn(Expression target, Expression var);
+    friend Expression insertAsVariable(Expression target, Expression var);
 };
 
 class Func : public Container {
@@ -192,6 +207,9 @@ public:
     friend ExprVector getConstituentSymbols(Expression target);
     friend Expression removeElementMultiplicatively(Expression source, Expression target, bool rightToLeft);
     friend Expression substitute(Expression source, Expression target, Expression value);
+    friend Expression performActions(Expression target);
+    friend Expression performActionsOn(Expression target, Expression var);
+    friend Expression insertAsVariable(Expression target, Expression var);
 };
 
 class TransposeFunc : public Func {

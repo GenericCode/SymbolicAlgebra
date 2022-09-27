@@ -20,6 +20,9 @@
  */
 
 bool commutesWith(Expression left, Expression right);
+Expression performActions(Expression target);
+Expression performActionsOn(Expression target, Expression var);
+Expression insertAsVariable(Expression target, Expression var);
 Expression reciprocal(Expression self);
 Expression matMul(Expression left, Expression right);
 Expression determinant(Expression target);

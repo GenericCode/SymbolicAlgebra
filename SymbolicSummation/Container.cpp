@@ -351,15 +351,18 @@ Func& Func::operator=(const Func &target) {
 Func::Func(String name) {
     funcName = name;
     functionAction = [] (Expression var) -> Expression {return var;};
+    this->name = this->print();
 };
 Func::Func(String name, ExprAction action) {
     funcName = name;
     functionAction = action;
+    this->name = this->print();
 };
 
 Expression Func::actingOn(Expression variable) const {
     Func* thisFunc = new Func(*this);
     thisFunc->member = variable;
+    thisFunc->name = thisFunc->print();
     return *new Expression(thisFunc);
 };
 
@@ -378,4 +381,4 @@ String Func::print() const {
     return result;
 }
 
-TransposeFunc::TransposeFunc() : Func("transpose", [] (Expression var) -> Expression {return transpose(var);} ) {}
+TransposeFunc::TransposeFunc() : Func("transpose", transpose) {};//[] (Expression var) -> Expression {return transpose(var);} ) {}
