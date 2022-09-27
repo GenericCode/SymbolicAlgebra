@@ -54,7 +54,8 @@ Expression spinIsospinSummation(ExprVector interactions, bool exchange ) {
     //Expression qExchVector = p3Vec-p1Vec;
     //Expression first = (sigmaAVector*transpose(qVector));
     //Expression second = (sigmaBVector*transpose(qVector));
-    Expression potential = simplify(parseString("(sigmaAVector*qVector)*(sigmaBVector*qVector)"));//first*second;
+    Expression potential = simplify(parseString("(tauAVector*tauBVector)*(sigmaAVector*qVector)*(sigmaBVector*qVector)"));
+    //Expression potential = simplify(parseString("(sigmaAVector*qVector)*(sigmaBVector*qVector)"));//first*second;
     Expression exchangePotential = substitute(potential, qx, ZERO);
     exchangePotential = substitute(exchangePotential, qy, ZERO);
     exchangePotential = substitute(exchangePotential, qz, ZERO);

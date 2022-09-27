@@ -57,6 +57,8 @@ protected:
 typedef std::vector<Expression> ExprVector;
 typedef std::vector<ExprVector> ExprMatrix;
 typedef std::vector<bool> SignVector;
+typedef std::function<Expression(Expression)> ExprAction;
+typedef std::string String;
 
 
 Expression operator+(Expression self, Expression other);

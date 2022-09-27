@@ -15,11 +15,12 @@
 
 class Container : public ExpressionObject {
 protected:
-    std::string name = "";
+    String name = "";
     Expression add(Expression other) const;
     Expression multiply(Expression other) const;
     Expression divide(Expression other) const;
     Expression subtract(Expression other) const;
+    Expression negate() const;
 public:
 };
 
@@ -29,7 +30,7 @@ protected:
     //SignVector memberSigns = *new SignVector();
     Expression negate() const;
 public:
-    std::string print() const;
+    String print() const;
     Add(const Add& target);
     Add& operator=(const Add& target);
     Add(std::initializer_list<Expression> newMembers);
@@ -58,7 +59,7 @@ protected:
     Expression multiply(Expression other) const;
     Expression add(Expression other) const;
     Expression subtract(Expression other) const;
-    std::string print()  const;
+    String print()  const;
 public:
     Sign(const Sign& target);
     const Sign& operator=(const Sign& target);
@@ -85,7 +86,7 @@ protected:
     ExprVector members = *new ExprVector();
     Expression negate()  const;
 public:
-    std::string print() const;
+    String print() const;
     Mul(const Mul& target);
     Mul& operator=(const Mul& target);
     Mul(ExprVector newMembers);
@@ -111,7 +112,7 @@ protected:
     Expression denomenator;
     Expression negate() const;
 public:
-    std::string print() const;
+    String print() const;
     Frac& operator=(const Frac& target);
     Frac(const Frac& target);
     Frac(Expression denom);
@@ -138,7 +139,7 @@ protected:
     Expression negate() const;
     Expression multiply(Expression other) const;
 public:
-    std::string print() const;
+    String print() const;
     const Exp& operator=(const Exp& target);
     Exp(const Exp& target);
     Exp(Expression base, Expression exponent);
@@ -159,25 +160,37 @@ public:
 
 class Func : public Container {
 protected:
-    std::string funcName;
-    ExprVector members = *new ExprVector();
-    Expression add(Expression other) const;
-    Expression multiply (Expression other) const;
-    Expression divide (Expression other) const;
-    Expression subtract(Expression other) const;
-    Expression negate() const;
-    
+    String funcName;
+    ExprAction functionAction;
+    Expression member = *new Expression(new NullObject("stand-in for a generic variable"));
+    Expression act() const {
+        return functionAction(member);
+    };
+    //actingOn() guaranteed to be pointing at a Func object?
+    Expression actingOn(Expression variable) const;
+    Expression resultOfActingOn(Expression variable) const {
+        return functionAction(variable);
+    };
 public:
-    std::string print() const;
+    String print() const;
+    Func(const Func& target);
     Func& operator=(const Func& target);
+    //Should probably automatically register ANY generic (not containing structure i.e. no members) function that is created.
+    //need to add a helper function that will attempt to insert an expression as variable to any functions in another expression
+    //common functions like transpose, exp or whatever should probably have private/protected constructors? no need to make more
+    Func(String name);
+    Func(String name, ExprAction action);
     friend Expression distribute(Expression left, Expression right);
     friend ExprVector getFactors(Expression factee);
     friend Expression combineProducts(Expression left, Expression right);
     friend Expression combineSums(Expression left, Expression right);
+    friend Expression simplify(Expression target);
     friend bool areEqual(const ExpressionObject& left, const ExpressionObject& right);
     friend Expression getElementOfType(Expression source, size_t type, bool rightToLeft);
     friend Expression replaceElementOfType(Expression source, size_t type, Expression value, bool rightToLeft);
     friend ExprVector getConstituentSymbols(Expression target);
+    friend Expression removeElementMultiplicatively(Expression source, Expression target, bool rightToLeft);
+    friend Expression substitute(Expression source, Expression target, Expression value);
 };
 
 static const size_t OPERATORTYPE = typeid(Container).hash_code();
@@ -186,4 +199,5 @@ static const size_t SIGNTYPE = typeid(Sign).hash_code();
 static const size_t MULTYPE = typeid(Mul).hash_code();
 static const size_t FRACTYPE = typeid(Frac).hash_code();
 static const size_t EXPTYPE = typeid(Exp).hash_code();
+static const size_t FUNCTYPE = typeid(Func).hash_code();
 #endif /* Operator_hpp */

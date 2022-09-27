@@ -40,6 +40,10 @@ Expression Container::subtract(Expression other) const {
     Expression negativeOf = -other;
     return combineSums(thisExpr,negativeOf);
 };
+
+Expression Container::negate() const {
+    return *new Expression(new Sign(*new Expression(this)));
+};
 //Add
 Add::~Add() {
     delete &members;
@@ -85,8 +89,8 @@ Expression Add::negate() const {
     return result;
 };
 
-std::string Add::print() const {
-    std::string result = "";
+String Add::print() const {
+    String result = "";
     //std::cout << members.size();
     for(int i = 0; i<members.size(); i++) {
         Expression next = members[i];
@@ -138,8 +142,8 @@ Expression Sign::multiply(Expression other) const {
     return -(member*other);
 }
 
-std::string Sign::print() const {
-    std::string result = "-";
+String Sign::print() const {
+    String result = "-";
     result += member.print();
     return result;
 };
@@ -192,8 +196,8 @@ Expression Mul::negate() const {
     return result;
 };
 
-std::string Mul::print() const {
-    std::string result = "";
+String Mul::print() const {
+    String result = "";
     for(int i = 0; i<members.size(); i++) {
         if(i>0)
             result+="*";
@@ -240,8 +244,8 @@ Expression Frac::negate() const {
     return result;
 };
 
-std::string Frac::print() const {
-    std::string result = "(";
+String Frac::print() const {
+    String result = "(";
     result += numerator.print();
     result += ")/(";
     result += denomenator.print();
@@ -311,8 +315,8 @@ Expression Exp::multiply(Expression other) const {
     return distribute(*new Expression(this), other);
 }
 
-std::string Exp::print() const {
-    std::string result = "";
+String Exp::print() const {
+    String result = "";
     if(isSubtypeOf(base, OPERATORTYPE))
         result += "(";
     result += base.print();
@@ -327,3 +331,49 @@ std::string Exp::print() const {
     return result;
     
 };
+
+//Func
+Func::Func(const Func& target) {
+    functionAction = target.functionAction;
+    member = *new Expression(target.member);
+    funcName = target.funcName;
+}
+
+Func& Func::operator=(const Func &target) {
+    if(this == &target)
+        return *this;
+    functionAction = target.functionAction;
+    member = *new Expression(target.member);
+    funcName = target.funcName;
+    return *this;
+}
+
+Func::Func(String name) {
+    funcName = name;
+    functionAction = [] (Expression var) -> Expression {return var;};
+};
+Func::Func(String name, ExprAction action) {
+    funcName = name;
+    functionAction = action;
+};
+
+Expression Func::actingOn(Expression variable) const {
+    Func* thisFunc = new Func(*this);
+    thisFunc->member = variable;
+    return *new Expression(thisFunc);
+};
+
+String Func::print() const {
+    String result = "";
+    String varName = "";
+    if(member.getTypeHash() == NULLTYPE) {
+        varName = "var";
+    } else {
+        varName = member.print();
+    }
+    result += funcName;
+    result += "[";
+    result += varName;
+    result += "]";
+    return result;
+}
