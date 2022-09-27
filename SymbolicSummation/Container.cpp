@@ -367,7 +367,7 @@ Func::Func(String name, ExprActionObj actionObj) {
 
 Func::Func(String name, ExprAction action) {
     funcName = name;
-    functionAction = action;
+    functionAction = *new ExprAction(action);
     this->name = this->print();
 };
 
