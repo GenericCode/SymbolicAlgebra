@@ -13,6 +13,8 @@
  *This is the preferred object to deal with when performing symbolic algebra operations, as extracting the ExpressionObject
  an Expression points to may transfer ownership.
  */
+typedef std::string String;
+
 class Expression : public std::shared_ptr<const ExpressionObject> {
 protected:
     Expression add(Expression other) const;
@@ -35,7 +37,7 @@ protected:
      */
     Expression(const ExpressionObject* ptr) : std::shared_ptr<const ExpressionObject>(ptr) {};
     size_t getTypeHash() const;
-    std::string print() const;
+    String print() const;
     friend Expression operator+(Expression self, Expression other);
     friend Expression operator-(Expression self, Expression other);
     friend Expression operator-(Expression self);
@@ -58,7 +60,6 @@ typedef std::vector<Expression> ExprVector;
 typedef std::vector<ExprVector> ExprMatrix;
 typedef std::vector<bool> SignVector;
 typedef std::function<Expression(Expression)> ExprAction;
-typedef std::string String;
 
 
 Expression operator+(Expression self, Expression other);

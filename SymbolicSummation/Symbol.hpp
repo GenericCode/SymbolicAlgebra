@@ -16,7 +16,7 @@ class Expression;
 //typedef std::vector<Expression> ExprVector;
 class Symbol : public ExpressionObject {
 protected:
-    std::string name = "";
+    String name = "";
     
     Expression divide(Expression other) const;
     Expression add(Expression other) const;
@@ -24,12 +24,12 @@ protected:
     Expression subtract(Expression other) const;
     Expression multiply(Expression other) const;
 public:
-    std::string print() const {
+    String print() const {
         return name;
     };
     Symbol(const Symbol& target);
     Symbol& operator=(const Symbol& target);
-    Symbol(std::string newName) {
+    Symbol(String newName) {
         name = newName;
     };
     ~Symbol();
@@ -63,12 +63,12 @@ protected:
     Expression subtract(Expression other) const;
     Expression multiply(Expression other) const;
 public:
-    std::string print() const;
+    String print() const;
     Matrix(const Matrix& target);
     Matrix& operator=(const Matrix& target);
-    Matrix(std::string name, ExprMatrix newElements);
-    Matrix(std::string name, std::initializer_list<std::initializer_list<Expression>> newElements);
-    Matrix(std::string name, std::vector<int> newDimensions = {0,0});//empty matrix
+    Matrix(String name, ExprMatrix newElements);
+    Matrix(String name, std::initializer_list<std::initializer_list<Expression>> newElements);
+    Matrix(String name, std::vector<int> newDimensions = {0,0});//empty matrix
     Matrix(Expression diag, int newDim = 0);//Identity matrix times const expression
     ~Matrix();
     ExprMatrix getElements() const;

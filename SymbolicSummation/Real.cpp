@@ -101,8 +101,8 @@ Expression Real::divide(Expression other) const {
         return distribute(*new Expression(this), reciprocalOf);
     }
 };
-std::string Real::print() const {
-    std::string result;
+String Real::print() const {
+    String result;
     if(ceilf(value) == value)
         result = std::to_string((int)value);
     else

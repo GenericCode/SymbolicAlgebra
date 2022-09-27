@@ -180,6 +180,7 @@ public:
     //common functions like transpose, exp or whatever should probably have private/protected constructors? no need to make more
     Func(String name);
     Func(String name, ExprAction action);
+    friend Expression parseString(String expr);
     friend Expression distribute(Expression left, Expression right);
     friend ExprVector getFactors(Expression factee);
     friend Expression combineProducts(Expression left, Expression right);
@@ -192,6 +193,12 @@ public:
     friend Expression removeElementMultiplicatively(Expression source, Expression target, bool rightToLeft);
     friend Expression substitute(Expression source, Expression target, Expression value);
 };
+
+class TransposeFunc : public Func {
+public:
+    TransposeFunc();
+};
+static const Expression TRANSPOSE = *new Expression(new TransposeFunc());
 
 static const size_t OPERATORTYPE = typeid(Container).hash_code();
 static const size_t ADDTYPE = typeid(Add).hash_code();

@@ -21,7 +21,7 @@ protected:
     Expression multiply(Expression other) const;
     Expression divide(Expression other) const;
 public:
-    std::string print() const;
+    String print() const;
     Real(const Real& target);
     const Real& operator=(const Real& target);
     Real(float newVal);

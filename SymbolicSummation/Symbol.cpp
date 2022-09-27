@@ -106,14 +106,14 @@ Matrix& Matrix::operator=(const Matrix &target) {
     return *this;
 }
 
-Matrix::Matrix(std::string name, ExprMatrix newElements) : Symbol(name) {
+Matrix::Matrix(String name, ExprMatrix newElements) : Symbol(name) {
     elements = *new ExprMatrix(newElements);
     //dimensions = *new std::vector<int>();
     dimensions.first = (int)elements.size();
     dimensions.second = (int)elements[0].size();
 };
 
-Matrix::Matrix(std::string name, std::initializer_list<std::initializer_list<Expression>> newElements) : Symbol(name) {
+Matrix::Matrix(String name, std::initializer_list<std::initializer_list<Expression>> newElements) : Symbol(name) {
     elements = *new ExprMatrix();
     for(const std::initializer_list<Expression>& x : newElements) {
         ExprVector nextColumn = x;
@@ -123,7 +123,7 @@ Matrix::Matrix(std::string name, std::initializer_list<std::initializer_list<Exp
     dimensions.second = (int)elements[0].size();
 }
 
-Matrix::Matrix(std::string name, std::vector<int> newDimensions) : Symbol(name) {
+Matrix::Matrix(String name, std::vector<int> newDimensions) : Symbol(name) {
     
 };//empty matrix
 Matrix::Matrix(Expression diag, int newDim)  : Symbol("I*"+diag->print()) {
@@ -166,7 +166,7 @@ Expression Matrix::add(Expression other) const {
             newElements.push_back(column);
         }
         
-        std::string newName = this->print()+"+"+other->print();
+        String newName = this->print()+"+"+other->print();
         Expression result = *new Expression(new Matrix(newName,newElements));
         return result;
     }
@@ -225,8 +225,8 @@ ExprMatrix Matrix::getElements() const {
     return result;
 }
 
-std::string Matrix::print() const {
-    std::string result = "";
+String Matrix::print() const {
+    String result = "";
     result += "{";
     for(int i = 0; i<dimensions.first; i++)
     {

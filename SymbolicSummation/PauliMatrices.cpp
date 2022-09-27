@@ -18,14 +18,14 @@ PauliMatrix::~PauliMatrix() {
     //delete &dimensions;
 }
 
-PauliMatrix::PauliMatrix(std::string name, int index, std::string flavor, std::initializer_list<std::initializer_list<Expression>> newElements ) : Matrix(name,newElements) {
+PauliMatrix::PauliMatrix(String name, int index, String flavor, std::initializer_list<std::initializer_list<Expression>> newElements ) : Matrix(name,newElements) {
     (*this).index = index;
     (*this).flavor = flavor;
 }
 
 
 
-PauliMatrix::PauliMatrix(std::string name, int index, std::string flavor, ExprMatrix elements) : Matrix(name,elements) {
+PauliMatrix::PauliMatrix(String name, int index, String flavor, ExprMatrix elements) : Matrix(name,elements) {
     (*this).flavor = flavor;
     (*this).index = index;
 }
@@ -45,7 +45,7 @@ PauliMatrix& PauliMatrix::operator=(const PauliMatrix& target) {
     return *this;
 };
 
-PauliMatrix::PauliMatrix(int index, std::string flavor) :  Matrix(flavor+std::to_string(index)) {
+PauliMatrix::PauliMatrix(int index, String flavor) :  Matrix(flavor+std::to_string(index)) {
     (*this).index = index;
     (*this).flavor = flavor;
     dimensions = {2,2};

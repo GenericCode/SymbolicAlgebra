@@ -2,6 +2,7 @@
 //#include "Expression.hpp"
 #include <string>
 class Expression;
+typedef std::string String;
 /**
  *The abstract class from which all structures for the symbolic algebra library are derived. Like Expression objects, these also support algebraic operations (+, -, *, /, etc.)
  */
@@ -17,7 +18,7 @@ public:
     
     bool simplified = false;
 public:
-    virtual std::string print() const = 0;
+    virtual String print() const = 0;
     friend bool areEqual(Expression left, Expression right);
     friend Expression simplify(Expression target);
     friend void setSimplified(bool simpled);
@@ -49,8 +50,8 @@ public:
  */
 class NullObject : public ExpressionObject {
 public:
-    NullObject(std::string newOrigin);
-    std::string origin = "";
+    NullObject(String newOrigin);
+    String origin = "";
 protected:
     Expression add(Expression other) const ;
     Expression subtract(Expression other) const;
@@ -58,7 +59,7 @@ protected:
     Expression multiply(Expression other) const;
     Expression divide(Expression other) const;
 public:
-    std::string print() const;
+    String print() const;
 };
 
 const size_t NULLTYPE = typeid(NullObject).hash_code();

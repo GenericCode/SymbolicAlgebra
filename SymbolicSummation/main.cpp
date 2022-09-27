@@ -115,7 +115,7 @@ Expression spinIsospinSummation(ExprVector interactions, bool exchange ) {
     return result;
 }
 
-Expression spinIsospinSummation(std::vector<std::string> interactions, bool exchange ) {
+Expression spinIsospinSummation(std::vector<String> interactions, bool exchange ) {
     int numTerms = (int)interactions.size();
     ExprVector interactionExpressions = *new ExprVector();
     for(int i = 0; i<numTerms; i++) {
@@ -127,7 +127,7 @@ Expression spinIsospinSummation(std::vector<std::string> interactions, bool exch
 
 int main(int argc, const char * argv[]) {
     initializeDefaultSymbols();
-    std::vector<std::string> interactions = {};
+    std::vector<String> interactions = {};
     Expression result = spinIsospinSummation(interactions, true);
     std::cout << result.print()+"\n";
     

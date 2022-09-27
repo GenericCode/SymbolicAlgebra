@@ -11,7 +11,8 @@
 #include <stdio.h>
 #include "Expression.hpp"
 
-void initializeDefaultSymbols();
+void initializeDefaultSymbols(bool force = false);
+void initializeDefaultFunctions(bool force = false);
 //bool isSubtypeOf(size_t sub, size_t super);
 bool isSubtypeOf(Expression sub, Expression super);
 bool isSubtypeOf(Expression sub, size_t superType);
@@ -22,7 +23,7 @@ int positionOfType(ExprVector list, size_t type, bool rightToLeft = false);
 bool containsElement(ExprVector list, Expression target, bool rightToLeft = false);
 bool containsType(ExprVector list, size_t type, bool rightToLeft = false);
 bool intVectorContains(std::vector<int> container, int target);
-std::string printExprMatrix(ExprMatrix target);
+String printExprMatrix(ExprMatrix target);
 Expression getElementOfType(Expression source, size_t type, bool rightToLeft = false);
 Expression removeElementMultiplicatively(Expression source, Expression target, bool rightToLeft = false);
 Expression removeElementAdditively(Expression source, Expression target, bool rightToLeft = false);
@@ -35,15 +36,18 @@ ExprVector combineExprVectors(ExprVector left, ExprVector right);
 ExprVector generateExprVector(std::initializer_list<Expression> elements);
 ExprMatrix generateExprMatrix(std::initializer_list<std::initializer_list<Expression>> elements);
 
-Expression parseString(std::string exprString);
+Expression parseString(String exprString);
 
-Expression declareSymbol(std::string name);
-Expression declareSymbol(std::string name, Expression value);
+bool assignActionToFunction(String name, ExprAction action);
+Expression declareFunction(String name);
+Expression declareFunction(String name, ExprAction action);
+Expression declareSymbol(String name);
+Expression declareSymbol(String name, Expression value);
 Expression declareReal(float value);
-Expression declareMatrix(std::string matName, ExprMatrix elements);
-Expression declareMatrix(std::string matName, std::initializer_list<std::initializer_list<Expression>> elements);
-Expression declareMatrix(std::string matName, Expression value);
-Expression declarePauliMatrix(int index, std::string flavor);
+Expression declareMatrix(String matName, ExprMatrix elements);
+Expression declareMatrix(String matName, std::initializer_list<std::initializer_list<Expression>> elements);
+Expression declareMatrix(String matName, Expression value);
+Expression declarePauliMatrix(int index, String flavor);
 Expression declarePauliMatrix(Expression value);
-Expression declarePauliVector(bool up, std::string flavor);
+Expression declarePauliVector(bool up, String flavor);
 #endif /* AbstractHelpers_hpp */

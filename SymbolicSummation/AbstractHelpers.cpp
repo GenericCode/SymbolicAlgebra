@@ -15,7 +15,8 @@
 #include <iostream>
 #include <fstream>
 
-static std::unordered_map<std::string,Expression> declaredSymbols = *new std::unordered_map<std::string, Expression>();
+static std::unordered_map<String,Expression> declaredSymbols = *new std::unordered_map<String, Expression>();
+static std::unordered_map<String,Expression> declaredFunctions = *new std::unordered_map<String, Expression>();
 
 bool isSubtypeOf(Expression sub, Expression super) {
     size_t subType = sub->getTypeHash();
@@ -55,13 +56,13 @@ bool isSubtypeOf(Expression sub, size_t superType) {
     return result;
 }
 
-std::string getStringExpressionType(std::string exprString) {
+String getStringExpressionType(String exprString) {
     int parenthesisDepth = 0;
     bool containsOperator = false;
     bool containsLetter = false;
     bool containsNumber = false;
     bool containsNumberBeforeLetter = false;
-    std::string topLevelOperator = "";
+    String topLevelOperator = "";
     for(int i = (int)exprString.length()-1; i>=0; i--) {
         char currChar = exprString.at(i);
         switch (currChar) {
@@ -124,9 +125,9 @@ std::string getStringExpressionType(std::string exprString) {
     return "badformat";
 };
 
-std::vector<std::string> tokenize(std::string expr, std::string delimiters) {
-    std::vector<std::string> tokens = *new std::vector<std::string>();
-    std::string currentToken = "";
+std::vector<String> tokenize(String expr, String delimiters) {
+    std::vector<String> tokens = *new std::vector<String>();
+    String currentToken = "";
     int parenthesisDepth = 0;
     for(int i = 0; i<expr.length(); i++) {
         char currChar = expr[i];
@@ -137,7 +138,7 @@ std::vector<std::string> tokenize(std::string expr, std::string delimiters) {
             tokens.push_back(currentToken);
             continue;
         }
-        if(parenthesisDepth==0 && delimiters.find(currChar) != std::string::npos && currentToken != ""){
+        if(parenthesisDepth==0 && delimiters.find(currChar) != String::npos && currentToken != ""){
             tokens.push_back(currentToken);
             currentToken = "";
         } else
@@ -149,7 +150,7 @@ std::vector<std::string> tokenize(std::string expr, std::string delimiters) {
     return tokens;
 }
 
-SignVector getTokenSigns(std::string expr) {
+SignVector getTokenSigns(String expr) {
     SignVector memberSigns = *new SignVector();
     int parenthesisDepth = 0;
     memberSigns.push_back(expr[0] == '-');
@@ -176,8 +177,8 @@ SignVector getTokenSigns(std::string expr) {
     return memberSigns;
 }
 
-std::string sanitize(std::string expr) {
-    std::string result = expr;
+String sanitize(String expr) {
+    String result = expr;
     int i = 0;
     while(i<result.length()) {
         if(isspace(expr[i])) {//if(expr[i] == '(' || expr[i] == ')' || isspace(expr[i])) {
@@ -203,15 +204,15 @@ std::string sanitize(std::string expr) {
             
         }
         if(!parensActedUpon) {
-            result = result.substr(1,std::string::npos);
+            result = result.substr(1,String::npos);
             result = result.substr(0,result.size()-1);
         }
     }
     return result;
 }
 
-void initializeDefaultSymbols() {
-    if(declaredSymbols.empty()) {
+void initializeDefaultSymbols(bool force) {
+    if(declaredSymbols.empty() || force) {
         declaredSymbols["1"] = ONE;
         declaredSymbols["-1"] = MINUSONE;
         declaredSymbols["0"] = ZERO;
@@ -230,11 +231,55 @@ void initializeDefaultSymbols() {
     }
 }
 
+void initializeDefaultFunctions(bool force) {
+    if(declaredFunctions.empty() || force) {
+        declaredFunctions["TRANSPOSE"] = TRANSPOSE;
+        declaredFunctions["Transpose"] = TRANSPOSE;
+        declaredFunctions["transpose"] = TRANSPOSE;
+    }
+}
+
+bool assignActionToFunction(String name, ExprAction action) {
+    initializeDefaultFunctions();
+    if(!declaredFunctions.contains(name))
+        return false;
+    declaredFunctions[name] = *new Expression(new Func(name, action));
+    return true;
+};
+
+Expression declareFunction(String name) {
+    initializeDefaultFunctions();
+    if(declaredFunctions.contains(name))
+        return declaredFunctions[name];
+    Expression newFunc = *new Expression(new Func(name));
+    declaredFunctions[name] = newFunc;
+    return newFunc;
+}
+
+Expression declareFunction(String name, ExprAction action) {
+    initializeDefaultFunctions();
+    if(declaredFunctions.contains(name))
+        return declaredFunctions[name];
+    Expression newFunc = *new Expression(new Func(name,action));
+    declaredFunctions[name] = newFunc;
+    return newFunc;
+}
+
 Expression declareMatrix(Expression value) {
     return declareSymbol(value->print(),value);
 };
 
-Expression declarePauliMatrix(int index, std::string flavor) {
+Expression declarePauliVector(bool up, String flavor) {
+    if(up) {
+        Expression result = new PauliMatrix(flavor+"Up",0,flavor,{{ONE},{ZERO}});
+        return declareSymbol(flavor+"Up", result);
+    } else {
+        Expression result = new PauliMatrix(flavor+"Down",0,flavor,{{ZERO},{ONE}});
+        return declareSymbol(flavor+"Down", result);
+    }
+}
+
+Expression declarePauliMatrix(int index, String flavor) {
     Expression pMat = *new Expression(new PauliMatrix(index,flavor));
     return declareSymbol(flavor+std::to_string(index),pMat);
 }
@@ -243,7 +288,7 @@ Expression declarePauliMatrix(Expression value) {
     return declareSymbol(value->print(), value);
 }
 
-Expression declareMatrix(std::string matName, ExprMatrix elements) {
+Expression declareMatrix(String matName, ExprMatrix elements) {
     initializeDefaultSymbols();
     if(!declaredSymbols.contains(matName)) {
         Expression newMatrix = *new Expression(new Matrix(matName,elements));
@@ -252,7 +297,7 @@ Expression declareMatrix(std::string matName, ExprMatrix elements) {
     return declaredSymbols[matName];
 };
 
-Expression declareMatrix(std::string matName, std::initializer_list<std::initializer_list<Expression>> elements) {
+Expression declareMatrix(String matName, std::initializer_list<std::initializer_list<Expression>> elements) {
     initializeDefaultSymbols();
     if(!declaredSymbols.contains(matName)) {
         Expression newMatrix = *new Expression(new Matrix(matName,elements));
@@ -261,7 +306,7 @@ Expression declareMatrix(std::string matName, std::initializer_list<std::initial
     return declaredSymbols[matName];
 };
 
-Expression declareSymbol(std::string name) {
+Expression declareSymbol(String name) {
     Expression value = new NullObject("temp null obj to force creation of new symbol");
     return declareSymbol(name, value);
 }
@@ -269,16 +314,16 @@ Expression declareSymbol(std::string name) {
 Expression declareReal(float value) {
     if(value == ceil(value)) {
         int actualVal = (int)value;
-        std::string name = std::to_string(actualVal);
+        String name = std::to_string(actualVal);
         return declareSymbol(name, new Real(actualVal) );
     }
     else {
-        std::string name = std::to_string(value);
+        String name = std::to_string(value);
         return declareSymbol(name, new Real(value) );
     }
 }
 
-Expression declareSymbol(std::string name, Expression value) {
+Expression declareSymbol(String name, Expression value) {
     initializeDefaultSymbols();
     if(!declaredSymbols.contains(name)) {
         if(value->getTypeHash() != NULLTYPE) {
@@ -290,8 +335,8 @@ Expression declareSymbol(std::string name, Expression value) {
     return *new Expression(declaredSymbols[name].get());
 };
 
-Expression parseString(std::string exprString) {
-    std::string exprType = getStringExpressionType(sanitize(exprString));
+Expression parseString(String exprString) {
+    String exprType = getStringExpressionType(sanitize(exprString));
     if(exprType == "badformat") {
         Expression result = *new Expression( new NullObject("improper formatting in expression string"));
         return result;
@@ -299,9 +344,9 @@ Expression parseString(std::string exprString) {
     if(exprType == "add") {
         ExprVector members = *new ExprVector();
         SignVector memberSigns = getTokenSigns(exprString);
-        std::vector<std::string> tokens = tokenize(sanitize(exprString), "+-");
+        std::vector<String> tokens = tokenize(sanitize(exprString), "+-");
         for(int i = 0; i<tokens.size(); i++) {
-            std::string nextToken = tokens[i];
+            String nextToken = tokens[i];
             Expression next = parseString(nextToken);
             //declareSymbol(next.getNamePerform(),next);
             if(memberSigns[i])
@@ -315,7 +360,7 @@ Expression parseString(std::string exprString) {
     }
     if(exprType == "mul") {
         ExprVector members = *new ExprVector();
-        std::vector<std::string> tokens = tokenize(sanitize(exprString), "*()");
+        std::vector<String> tokens = tokenize(sanitize(exprString), "*()");
         for(int i = 0; i<tokens.size(); i++) {
             Expression next = parseString(tokens[i]);
             members.push_back(next);
@@ -324,21 +369,28 @@ Expression parseString(std::string exprString) {
         return result;
     }
     if(exprType == "frac") {
-        std::vector<std::string> tokens = tokenize(sanitize(exprString), "/()");
+        std::vector<String> tokens = tokenize(sanitize(exprString), "/()");
         Expression numerator = parseString(tokens[0]);
         Expression denominator = parseString(tokens[1]);
         Expression result = *new Expression(new Frac(numerator,denominator));
         return result;
     }
     if(exprType == "exp") {
-        std::vector<std::string> tokens = tokenize(sanitize(exprString), "^()");
+        std::vector<String> tokens = tokenize(sanitize(exprString), "^()");
         Expression base = parseString(tokens[0]);
         Expression exponent = parseString(tokens[1]);
         Expression result = *new Expression(new Exp(base,exponent));
         return result;
     }
+    if(exprType == "func") {
+        std::vector<String> tokens = tokenize(sanitize(exprString), "[]");
+        Expression funcParam = parseString(tokens[1]);
+        Expression bareFunc = declareFunction(tokens[0]);
+        const Func& bareFuncObj = dynamic_cast<const Func&>(*bareFunc);
+        return bareFuncObj.actingOn(funcParam);
+    }
     if(exprType == "real") {
-        std::string name = sanitize(exprString);
+        String name = sanitize(exprString);
         float value = std::stof(name);
         if(value == 1) {
             return ONE;
@@ -350,9 +402,9 @@ Expression parseString(std::string exprString) {
         return result;
     }
     if(exprType == "real+symbol") {
-        std::string expr = sanitize(exprString);
-        std::string realPart = "";
-        std::string symbolPart = "";
+        String expr = sanitize(exprString);
+        String realPart = "";
+        String symbolPart = "";
         int i = 0;
         while(i<expr.size()) {
             if(isdigit(expr[i]))
@@ -720,8 +772,8 @@ bool areEqual(const ExpressionObject& left, const ExpressionObject& right) {
     return areEqual;
 }
 
-std::string printExprMatrix(ExprMatrix target) {
-    std::string result = "{";
+String printExprMatrix(ExprMatrix target) {
+    String result = "{";
     for(int i = 0; i<target.size(); i++) {
         result+="{";
         if(i!=0)
@@ -735,16 +787,6 @@ std::string printExprMatrix(ExprMatrix target) {
     }
     result+="}";
     return result;
-}
-
-Expression declarePauliVector(bool up, std::string flavor) {
-    if(up) {
-        Expression result = new PauliMatrix(flavor+"Up",0,flavor,{{ONE},{ZERO}});
-        return declareSymbol(flavor+"Up", result);
-    } else {
-        Expression result = new PauliMatrix(flavor+"Down",0,flavor,{{ZERO},{ONE}});
-        return declareSymbol(flavor+"Down", result);
-    }
 }
 
 bool intVectorContains(std::vector<int> container, int target) {
@@ -813,20 +855,20 @@ ExprVector getConstituentSymbols(Expression target) {
     return symbols;
 };
 
-void lambdifyToFile(Expression func, std::string funcName = "foo", std::string filePath = "") {
+void lambdifyToFile(Expression func, String funcName = "foo", String filePath = "") {
     std::ofstream funcFile;
-    std::string fullPath = filePath+"/"+funcName+".cpp";
+    String fullPath = filePath+"/"+funcName+".cpp";
     funcFile.open(fullPath);
-    std::string funcToPrint  = func->print();
+    String funcToPrint  = func->print();
     ExprVector variables = getConstituentSymbols(func);
-    std::string variableList = "";
+    String variableList = "";
     for(int i = 0; i<variables.size(); i++) {
         variableList += "float "+variables[i].print();
         if(i != variables.size()-1)
             variableList += ",";
         
     }
-    std::string funcLine = "float "+funcName+"("+variableList+"){return "+funcToPrint+";}";
+    String funcLine = "float "+funcName+"("+variableList+"){return "+funcToPrint+";}";
     funcFile << funcLine;
     funcFile.close();
 }

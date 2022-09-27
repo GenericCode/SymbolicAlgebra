@@ -14,20 +14,20 @@
 class PauliMatrix : public Matrix {
 protected:
     int index = 0;
-    std::string flavor = "";
+    String flavor = "";
     Expression add(Expression other) const;
     Expression subtract(Expression other) const;
     Expression multiply(Expression other) const;
     Expression negate() const;
 public:
-    std::string print() {
+    String print() {
         return name;
     };
-    PauliMatrix(std::string name, int index, std::string flavor, std::initializer_list<std::initializer_list<Expression>> newElements );
-    PauliMatrix(std::string name, int index, std::string flavor, ExprMatrix elements);
+    PauliMatrix(String name, int index, String flavor, std::initializer_list<std::initializer_list<Expression>> newElements );
+    PauliMatrix(String name, int index, String flavor, ExprMatrix elements);
     PauliMatrix(const PauliMatrix& target);
     PauliMatrix& operator=(const PauliMatrix& target);
-    PauliMatrix(int index, std::string flavor = "");
+    PauliMatrix(int index, String flavor = "");
     ~PauliMatrix();
     friend Expression matMul(Expression left, Expression right);
     friend ExprVector getConstituentSymbols(Expression target);

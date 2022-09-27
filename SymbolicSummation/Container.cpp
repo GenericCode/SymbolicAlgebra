@@ -377,3 +377,5 @@ String Func::print() const {
     result += "]";
     return result;
 }
+
+TransposeFunc::TransposeFunc() : Func("transpose", [] (Expression var) -> Expression {return transpose(var);} ) {}

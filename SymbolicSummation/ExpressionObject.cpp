@@ -56,7 +56,7 @@ bool operator==(const ExpressionObject& left, const ExpressionObject& right) {
     return areEqual(left, right);
 };
 
-NullObject::NullObject(std::string newOrigin) {
+NullObject::NullObject(String newOrigin) {
     origin = newOrigin;
 }
 Expression NullObject::add(Expression other) const {
@@ -74,7 +74,7 @@ Expression NullObject::multiply(Expression other) const {
 Expression NullObject::divide(Expression other) const {
     throw std::logic_error("null object: "+origin);
 };
-std::string NullObject::print() const {
+String NullObject::print() const {
     throw std::logic_error("null object: "+origin);
     //return NULL;
 };

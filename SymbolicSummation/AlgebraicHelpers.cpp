@@ -70,7 +70,7 @@ Expression getMatrixMatchingPauliFlavor(Expression target, Expression matrixToMa
         return result;
     }
     const PauliMatrix& matrixObjToMatch = dynamic_cast<const PauliMatrix&>(*matrixToMatch);
-    std::string flavorToFind = matrixObjToMatch.flavor;
+    String flavorToFind = matrixObjToMatch.flavor;
     Expression matrixToCheck = getElementOfType(target, PAULIMATRIXTYPE);//target->getFirstInstanceOfType(PAULIMATRIXTYPE);
     bool sign = false;
     if(matrixToCheck.getTypeHash() == SIGNTYPE) {
@@ -107,7 +107,7 @@ Expression matMul(Expression left, Expression right) {
         std::pair<int, int> newDimensions = {leftMatrix.dimensions.first,rightMatrix.dimensions.second};
         
         ExprMatrix newElements = *new ExprMatrix();
-        std::string newName = "{";
+        String newName = "{";
         for(int i = 0; i<newDimensions.first; i++) {
             ExprVector currentRow = *new ExprVector();
             newName+="{";

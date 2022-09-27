@@ -24,7 +24,7 @@ Expression Expression::divide(Expression other) const {
     return (**this).divide(other);
 };
 
-std::string Expression::print() const {
+String Expression::print() const {
     return (**this).print();
 };
 
