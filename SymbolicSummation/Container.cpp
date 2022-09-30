@@ -46,8 +46,8 @@ Expression Container::negate() const {
 };
 //Add
 Add::~Add() {
-    delete &members;
-    delete &name;
+    //delete &members;
+    //delete &name;
 }
 
 Add& Add::operator=(const Add &target) {
@@ -162,8 +162,8 @@ Sign::Sign(Expression expr) {
 };
 //Mul
 Mul::~Mul() {
-    delete &members;
-    delete &name;
+    //delete &members;
+    //delete &name;
 }
 Mul& Mul::operator=(const Mul &target) {
     if(this == &target)
@@ -359,15 +359,16 @@ Func::Func(String name) {
     this->name = this->print();
 };
 
-Func::Func(String name, ExprActionObj actionObj) {
+/*Func::Func(String name, ExprActionObj actionObj) {
     funcName = name;
     functionAction = *new ExprAction(actionObj);
     this->name = this->print();
-};
+};*/
 
 Func::Func(String name, ExprAction action) {
     funcName = name;
-    functionAction = *new ExprAction(action);
+    //functionAction = *new ExprAction(action);
+    functionAction = action;
     this->name = this->print();
 };
 

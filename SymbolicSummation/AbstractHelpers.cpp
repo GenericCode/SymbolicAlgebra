@@ -107,8 +107,10 @@ String getStringExpressionType(String exprString) {
             case '[':
                 if(sqbracketDepth != 1)
                     return "badformat";
-                if(parenthesisDepth == 0 && topLevelOperator == "")
-                    return "func";
+                if(parenthesisDepth == 0 && topLevelOperator == "") {
+                    containsOperator |= true;
+                    topLevelOperator = "func";
+                }
                 break;
             case ']':
                 sqbracketDepth++;
@@ -371,9 +373,9 @@ Expression parseString(String exprString) {
     }
     if(exprType == "mul") {
         ExprVector members = *new ExprVector();
-        std::vector<String> tokens = tokenize(sanitize(exprString), "*()");
+        std::vector<String> tokens = tokenize(sanitize(exprString), "*");
         for(int i = 0; i<tokens.size(); i++) {
-            Expression next = parseString(tokens[i]);
+            Expression next = parseString(sanitize(tokens[i]));
             members.push_back(next);
         }
         Expression result = *new Expression(new Mul(members));

@@ -71,10 +71,17 @@ Expression Real::negate() const {
 };
 Expression Real::multiply(Expression other) const {
     if(isSubtypeOf(other, REALTYPE)) {
-        const Real& otherReal = dynamic_cast<const Real&>(*other);
-        float newVal = value*otherReal.value;
-        Expression result = declareReal(newVal);
-        return result;
+        if(other.getTypeHash() != SIGNTYPE) {
+            const Real& otherReal = dynamic_cast<const Real&>(*other);
+            float newVal = value*otherReal.value;
+            Expression result = declareReal(newVal);
+            return result;
+        } else {
+            const Real& otherReal = dynamic_cast<const Real&>(*-other);
+            float newVal = -value*otherReal.value;
+            Expression result = declareReal(newVal);
+            return result;
+        }
     } else if(other->getTypeHash() == MULTYPE) {
         return combineProducts(*new Expression(this),other);
     }

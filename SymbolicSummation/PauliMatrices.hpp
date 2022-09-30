@@ -20,7 +20,7 @@ protected:
     Expression multiply(Expression other) const;
     Expression negate() const;
 public:
-    String print() {
+    String print() const {
         return name;
     };
     PauliMatrix(String name, int index, String flavor, std::initializer_list<std::initializer_list<Expression>> newElements );

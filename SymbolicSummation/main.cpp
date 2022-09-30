@@ -54,7 +54,7 @@ Expression spinIsospinSummation(ExprVector interactions, bool exchange ) {
     //Expression qExchVector = p3Vec-p1Vec;
     //Expression first = (sigmaAVector*transpose(qVector));
     //Expression second = (sigmaBVector*transpose(qVector));
-    Expression potential = simplify(parseString("(tauAVector*tauBVector)*(sigmaAVector*qVector)*(sigmaBVector*qVector)"));
+    Expression potential = simplify(performActions(parseString("(tauAVector*transpose[tauBVector])*(sigmaAVector*qVector)*(sigmaBVector*qVector)")));
     //Expression potential = simplify(parseString("(sigmaAVector*qVector)*(sigmaBVector*qVector)"));//first*second;
     Expression exchangePotential = substitute(potential, qx, ZERO);
     exchangePotential = substitute(exchangePotential, qy, ZERO);
@@ -82,7 +82,8 @@ Expression spinIsospinSummation(ExprVector interactions, bool exchange ) {
                     //std::cout<<contribution.print()+"\n";
                     contribution = matrixElement(contribution, tauBStates[l], tauBStates[l]);
                     //std::cout<<"tauB\n";
-                    //std::cout<<contribution.print()+"\n";
+                    std::cout<<"Direct\n";
+                    std::cout<<contribution.print()+"\n";
                     Expression exchangeContribution;
                     if(exchange) {
                         exchangeContribution = matrixElement(exchangePotential, sigmaAStates[j], sigmaAStates[j]);
@@ -96,7 +97,8 @@ Expression spinIsospinSummation(ExprVector interactions, bool exchange ) {
                         //std::cout<<exchangeContribution.print()+"\n";
                         exchangeContribution = matrixElement(exchangeContribution, tauBStates[k], tauBStates[k]);
                         //std::cout<<"exchange TauB\n";
-                        //std::cout<<exchangeContribution.print()+"\n";
+                        std::cout<<"Exchange\n";
+                        std::cout<<exchangeContribution.print()+"\n";
                     } else {
                         exchangeContribution = ZERO;
                     }
@@ -129,8 +131,8 @@ int main(int argc, const char * argv[]) {
     initializeDefaultSymbols();
     initializeDefaultFunctions();
     std::vector<String> interactions = {};
-    //Expression result = spinIsospinSummation(interactions, true);
-    Expression result = parseString("transpose[x]");
+    Expression result = spinIsospinSummation(interactions, true);
+    //Expression result = parseString("transpose[x]");
     std::cout << result.print()+"\n";
     
     return 0;
