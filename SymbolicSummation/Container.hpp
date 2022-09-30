@@ -47,6 +47,7 @@ public:
     friend Expression combineSums(Expression left, Expression right);
     friend bool areEqual(const ExpressionObject& left, const ExpressionObject& right);
     friend Expression getElementOfType(Expression source, size_t type, bool rightToLeft);
+    friend Expression replaceElement(Expression source, Expression target, Expression value, bool rightToLeft);
     friend Expression replaceElementOfType(Expression source, size_t type, Expression value, bool rightToLeft);
     friend ExprVector getConstituentSymbols(Expression target);
     friend Expression removeElementAdditively(Expression source, Expression target, bool rightToLeft);
@@ -78,6 +79,7 @@ public:
     friend Expression combineSums(Expression left, Expression right);
     friend bool areEqual(const ExpressionObject& left, const ExpressionObject& right);
     friend Expression getElementOfType(Expression source, size_t type, bool rightToLeft);
+    friend Expression replaceElement(Expression source, Expression target, Expression value, bool rightToLeft);
     friend Expression replaceElementOfType(Expression source, size_t type, Expression value, bool rightToLeft);
     friend Expression removeElementMultiplicatively(Expression source, Expression target, bool rightToLeft);
     friend ExprVector getConstituentSymbols(Expression target);
@@ -107,6 +109,7 @@ public:
     friend Expression simplifyPauliMatrices(Expression target);
     friend bool areEqual(const ExpressionObject& left, const ExpressionObject& right);
     friend Expression getElementOfType(Expression source, size_t type, bool rightToLeft);
+    friend Expression replaceElement(Expression source, Expression target, Expression value, bool rightToLeft);
     friend Expression replaceElementOfType(Expression source, size_t type, Expression value, bool rightToLeft);
     friend ExprVector getConstituentSymbols(Expression target);
     friend Expression removeElementMultiplicatively(Expression source, Expression target, bool rightToLeft);
@@ -135,6 +138,7 @@ public:
     friend Expression simplify(Expression target);
     friend bool areEqual(const ExpressionObject& left, const ExpressionObject& right);
     friend Expression getElementOfType(Expression source, size_t type, bool rightToLeft);
+    friend Expression replaceElement(Expression source, Expression target, Expression value, bool rightToLeft);
     friend Expression replaceElementOfType(Expression source, size_t type, Expression value, bool rightToLeft);
     friend Expression reciprocal(Expression self);
     friend ExprVector getConstituentSymbols(Expression target);

@@ -97,7 +97,7 @@ Expression PauliMatrix::add(Expression other) const {
         return result;
     }
     const PauliMatrix& targetMatrix = dynamic_cast<const PauliMatrix&>(*pauliTarget);
-    if(targetMatrix.flavor != thisPauli.flavor) {
+    if(targetMatrix.flavor != thisPauli.flavor || rtype != MULTYPE) {
         Expression result = combineSums(thisExpr, other);
         return result;
     }
@@ -112,14 +112,9 @@ Expression PauliMatrix::add(Expression other) const {
         }
         distrElements.push_back(currentColumn);
     }
-    Expression distrMat = *new Expression(new Matrix("temp matrix",distrElements));
-    const Matrix& leftMat = dynamic_cast<const Matrix&>(*this);
-    Expression leftAsMatExpr = *new Expression(&leftMat);
-    const Matrix& resultingMatrix = dynamic_cast<const Matrix&>(*(leftAsMatExpr+distrMat));
-    Expression resultingPauli = *new Expression(new PauliMatrix(flavor+resultingMatrix.print(),0,thisPauli.flavor,resultingMatrix.getElements()));
-    Expression result;
-    result = replaceElementOfType(other, PAULIMATRIXTYPE, resultingPauli);
-    return result;
+    Expression distrMat = *new Expression(new PauliMatrix("temp",0,targetMatrix.flavor,distrElements));
+    Expression resultingMatrix = thisExpr+distrMat;
+    return resultingMatrix;
 };
 Expression PauliMatrix::subtract(Expression other) const {
     Expression thisExpr =  *new Expression(this);

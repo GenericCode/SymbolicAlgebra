@@ -358,6 +358,9 @@ Expression parseString(String exprString) {
         ExprVector members = *new ExprVector();
         SignVector memberSigns = getTokenSigns(exprString);
         std::vector<String> tokens = tokenize(sanitize(exprString), "+-");
+        if(tokens.size() == 1) {
+            return *new Expression(new Sign(parseString(tokens[0].substr(1))));
+        }
         for(int i = 0; i<tokens.size(); i++) {
             String nextToken = tokens[i];
             Expression next = parseString(nextToken);
@@ -676,6 +679,44 @@ ExprVector replaceElementInVector(ExprVector source, Expression target, Expressi
     return source;
 };
 
+Expression replaceElement(Expression source, Expression target, Expression value, bool rightToLeft) {
+    size_t sourceType = source->getTypeHash();
+    if(source == target)
+        return *new Expression(value);
+    ExprVector elementsToCheck;
+    if(sourceType == ADDTYPE) {
+        const Add& addObj = dynamic_cast<const Add&>(*source);
+        elementsToCheck = addObj.members;
+    }
+    if(sourceType == MULTYPE) {
+        const Mul& mulObj = dynamic_cast<const Mul&>(*source);
+        elementsToCheck = mulObj.members;
+    }
+    if(sourceType == FRACTYPE) {
+        const Frac& fracObj = dynamic_cast<const Frac&>(*source);
+        Expression result = replaceElement(fracObj.numerator, target, value, rightToLeft);
+        if(result == fracObj.numerator)
+            return *new Expression(source);
+        Expression finalResult = *new Expression(new Frac(result,fracObj.denomenator));
+        return finalResult;
+    }
+    elementsToCheck = replaceElementInVector(elementsToCheck, target, value, rightToLeft);
+    if(sourceType == ADDTYPE) {
+        const Add& addObj = dynamic_cast<const Add&>(*source);
+        if(elementsToCheck == addObj.members)
+            return source;
+        Expression result = *new Expression(new Add(elementsToCheck));
+        return result;
+    }
+    if(sourceType == MULTYPE) {
+        const Mul& mulObj = dynamic_cast<const Mul&>(*source);
+        if(elementsToCheck == mulObj.members)
+            return source;
+        Expression result = *new Expression(new Mul(elementsToCheck));
+        return result;
+    }
+    return *new Expression(source);
+};
 Expression replaceElementOfType(Expression source, size_t type, Expression value, bool rightToLeft) {
     size_t sourceType = source->getTypeHash();
     if(isSubtypeOf(source, type))
