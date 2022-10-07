@@ -62,40 +62,40 @@ Expression spinIsospinSummation(ExprVector interactions, bool exchange ) {
     directPotential = substitute(directPotential, qz, ZERO);
     std::cout << potential.print()+"\n";
     Expression total = ZERO;
-    for(int i = 1; i>=0; i--) {
-        for(int j = 1; j>=0; j--) {
-            for(int k = 1; k>=0; k--) {
-                for(int l = 1; l>=0; l--) {
-                    std::cout<<i;
-                    std::cout<<j;
-                    std::cout<<k;
-                    std::cout<<l;
+    for(int sigmaA = 1; sigmaA>=0; sigmaA--) {
+        for(int sigmaB = 1; sigmaB>=0; sigmaB--) {
+            for(int tauA = 1; tauA>=0; tauA--) {
+                for(int tauB = 1; tauB>=0; tauB--) {
+                    std::cout<<sigmaA;
+                    std::cout<<sigmaB;
+                    std::cout<<tauA;
+                    std::cout<<tauB;
                     std::cout<<"\n";
-                    Expression contribution = matrixElement(directPotential, sigmaAStates[i], sigmaAStates[i]);
+                    Expression directContribution = matrixElement(directPotential, sigmaAStates[sigmaA], sigmaAStates[sigmaA]);
                     std::cout<<"sigmaA\n";
-                    std::cout<<contribution.print()+"\n";
-                    contribution = matrixElement(contribution, sigmaBStates[j], sigmaBStates[j]);
+                    std::cout<<directContribution.print()+"\n";
+                    directContribution = matrixElement(directContribution, sigmaBStates[sigmaB], sigmaBStates[sigmaB]);
                     std::cout<<"sigmaB\n";
-                    std::cout<<contribution.print()+"\n";
-                    contribution = matrixElement(contribution, tauAStates[k], tauAStates[k]);
+                    std::cout<<directContribution.print()+"\n";
+                    directContribution = matrixElement(directContribution, tauAStates[tauA], tauAStates[tauA]);
                     std::cout<<"tauA\n";
-                    std::cout<<contribution.print()+"\n";
-                    contribution = matrixElement(contribution, tauBStates[l], tauBStates[l]);
+                    std::cout<<directContribution.print()+"\n";
+                    directContribution = matrixElement(directContribution, tauBStates[tauB], tauBStates[tauB]);
                     std::cout<<"tauB\n";
                     //std::cout<<"Direct\n";
-                    std::cout<<contribution.print()+"\n";
+                    std::cout<<directContribution.print()+"\n";
                     Expression exchangeContribution;
                     if(exchange) {
-                        exchangeContribution = matrixElement(exchangePotential, sigmaAStates[i], sigmaAStates[j]);
+                        exchangeContribution = matrixElement(exchangePotential, sigmaAStates[sigmaA], sigmaAStates[sigmaB]);
                         std::cout<<"exchange sigmaA\n";
                         std::cout<<exchangeContribution.print()+"\n";
-                        exchangeContribution = matrixElement(exchangeContribution, sigmaBStates[i], sigmaBStates[j]);
+                        exchangeContribution = matrixElement(exchangeContribution, sigmaBStates[sigmaB], sigmaBStates[sigmaA]);
                         std::cout<<"exchange sigmaB\n";
                         std::cout<<exchangeContribution.print()+"\n";
-                        exchangeContribution = matrixElement(exchangeContribution, tauAStates[k], tauAStates[l]);
+                        exchangeContribution = matrixElement(exchangeContribution, tauAStates[tauA], tauAStates[tauB]);
                         std::cout<<"exchange tauA\n";
                         std::cout<<exchangeContribution.print()+"\n";
-                        exchangeContribution = matrixElement(exchangeContribution, tauBStates[k], tauBStates[l]);
+                        exchangeContribution = matrixElement(exchangeContribution, tauBStates[tauB], tauBStates[tauA]);
                         std::cout<<"exchange TauB\n";
                         //std::cout<<"Exchange\n";
                         std::cout<<exchangeContribution.print()+"\n";
@@ -103,15 +103,15 @@ Expression spinIsospinSummation(ExprVector interactions, bool exchange ) {
                         exchangeContribution = ZERO;
                     }
                     Expression tempTotal = total;
-                    total = tempTotal + contribution + exchangeContribution;
+                    total = tempTotal + directContribution + exchangeContribution;
                     std::cout<<total.print()+"\n";
                     std::cout<<"running total:"+total.print()+"\n\n";
                 }
             }
         }
     }
-    Expression result = simplify(total);
-    result = cancelTerms(result);
+    Expression result = cancelTerms(total);
+    result = simplify(result);
     //result = simplify(result);
     //result = cancelTerms(result);
     return result;

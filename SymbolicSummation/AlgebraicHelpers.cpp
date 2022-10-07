@@ -454,10 +454,6 @@ Expression simplify(Expression target) {
     size_t targetType = target->getTypeHash();
     bool isAdd = (targetType == ADDTYPE);
     bool isMul = (targetType == MULTYPE);
-    //if(isAdd)
-    //    types.push_back(MULTYPE);
-    //if(isMul)
-    //    types.push_back(ADDTYPE);
     bool overallSign = false;
     if( targetType == FRACTYPE ) {
         const Frac& fracTarget = dynamic_cast<const Frac&>(*target);
@@ -517,6 +513,8 @@ Expression simplify(Expression target) {
         
     }
     for(size_t type : types) {
+        isAdd = (result.getTypeHash() == ADDTYPE);
+        isMul = (result.getTypeHash() == MULTYPE);
         if(type == PAULIMATRIXTYPE) {
             result = simplifyPauliMatrices(result);
         }

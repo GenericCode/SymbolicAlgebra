@@ -588,6 +588,8 @@ Expression removeElementAdditively(Expression source, Expression target, bool ri
     ExprVector newMembers = removeElementFromVector(sourceObj.members, target);
     if(newMembers == sourceObj.members)
         return *new Expression(new NullObject("could not find target to remove"));
+    if(newMembers.size() == 1)
+        return newMembers[0];
     if(newMembers.size() == 0)
         return ZERO;
     return *new Expression(new Add(*new ExprVector(newMembers)));
