@@ -83,8 +83,32 @@ public:
     friend Expression insertAsVariable(Expression target, Expression var);
 };
 
+class EuclidVector : public Matrix {
+protected:
+    Expression multiply(Expression other) const;
+public:
+    String print() const;
+    EuclidVector(const EuclidVector& target);
+    EuclidVector& operator=(const EuclidVector& target);
+    EuclidVector(String name, ExprVector newElements);
+    EuclidVector(String name, std::initializer_list<Expression> newElements);
+    EuclidVector(String name, int newDimension = 0);//empty matrix
+    EuclidVector(Expression diag, int newDim = 0);//Identity matrix times const expression
+    ~EuclidVector();
+    friend Expression matMul(Expression left, Expression right);
+    friend ExprVector getConstituentSymbols(Expression target);
+    friend Expression determinant(Expression target);
+    friend Expression transpose(Expression target);
+    friend Expression substitute(Expression source, Expression target, Expression value);
+    friend bool areEqual(const ExpressionObject& left, const ExpressionObject& right);
+    friend Expression performActions(Expression target);
+    friend Expression performActionsOn(Expression target, Expression var);
+    friend Expression insertAsVariable(Expression target, Expression var);
+};
+
 static const size_t SYMBOLTYPE = typeid(Symbol).hash_code();
 static const size_t MATRIXTYPE = typeid(Matrix).hash_code();
+static const size_t EUCLIDVECTORTYPE = typeid(EuclidVector).hash_code();
 static const size_t IMAGINARYUNITTYPE = typeid(ImaginaryUnit).hash_code();
 //static SymbolicObject* IUNIT = *new ImaginaryUnit();
 //static Expression iunit = *new Expression(&IUNIT);
@@ -93,8 +117,8 @@ static Expression IMAGUNIT = *new Expression(new ImaginaryUnit());
 //static SymbolicObject* IDENTITYMAT = *new Matrix("I",{{one,zero},{zero,one}});
 //static Expression identitymat = *new Expression(&IDENTITYMAT);
 static Expression IDENMAT = *new Expression(new Matrix("I",{{ONE,ZERO},{ZERO,ONE}}));
-static Expression XUNITVECTOR = *new Expression(new Matrix("xUnitVector",{{1,0,0}}));
-static Expression YUNITVECTOR = *new Expression(new Matrix("yUnitVector",{{0,1,0}}));
-static Expression ZUNITVECTOR = *new Expression(new Matrix("zUnitVector",{{0,0,1}}));
+static Expression XUNITVECTOR = *new Expression(new EuclidVector("xUnitVector",{ONE,ZERO,ZERO}));
+static Expression YUNITVECTOR = *new Expression(new EuclidVector("yUnitVector",{ZERO,ONE,ZERO}));
+static Expression ZUNITVECTOR = *new Expression(new EuclidVector("zUnitVector",{ZERO,ZERO,ONE}));
 #endif /* Symbol_hpp */
 
