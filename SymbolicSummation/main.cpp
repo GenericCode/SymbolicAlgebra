@@ -29,84 +29,143 @@ Expression matrixElement(Expression potential,Expression initialState, Expressio
 
 
 
-Expression spinIsospinSummation(ExprVector interactions, bool exchange ) {
-    //{sigA,sigB,tauA,tauB}
+Expression spinIsospinSummation(ExprVector interactions, bool threeBody = false ) {
+    //{sigA,sigB,tauOne,tauTwo}
     //int numTerms = (int)interactions.size();
-    ExprVector sigmaAStates = generateExprVector({declarePauliVector(false, "sigmaA"),declarePauliVector(true, "sigmaA")});
-    ExprVector sigmaBStates = generateExprVector({declarePauliVector(false, "sigmaB"),declarePauliVector(true, "sigmaB")});
-    ExprVector tauAStates   = generateExprVector({declarePauliVector(false, "tauA"),  declarePauliVector(true, "tauA")});
-    ExprVector tauBStates   = generateExprVector({declarePauliVector(false, "tauB"),  declarePauliVector(true, "tauB")});
-    ExprVector sigAMats = generateExprVector({declarePauliMatrix(1, "sigmaA"),declarePauliMatrix(2, "sigmaA"),declarePauliMatrix(3, "sigmaA")});
-    ExprVector sigBMats = generateExprVector({declarePauliMatrix(1, "sigmaB"),declarePauliMatrix(2, "sigmaB"),declarePauliMatrix(3, "sigmaB")});
-    ExprVector tauAMats = generateExprVector({declarePauliMatrix(1, "tauA"),declarePauliMatrix(2, "tauA"),declarePauliMatrix(3, "tauA")});
-    ExprVector tauBMats = generateExprVector({declarePauliMatrix(1, "tauB"),declarePauliMatrix(2, "tauB"),declarePauliMatrix(3, "tauB")});
-    Expression sigmaAVector = declareMatrix("sigmaAVector", {{sigAMats[0],sigAMats[1],sigAMats[2]}});
-    Expression sigmaBVector = declareMatrix("sigmaBVector", {{sigBMats[0],sigBMats[1],sigBMats[2]}});
-    Expression tauAVector = declareMatrix("tauAVector", {{tauAMats[0],tauAMats[1],tauAMats[2]}});
-    Expression tauBVector = declareMatrix("tauBVector", {{tauBMats[0],tauBMats[1],tauBMats[2]}});
-    Expression qx = declareSymbol("qx");
-    Expression qy = declareSymbol("qy");
-    Expression qz = declareSymbol("qz");
-    //Expression qVector = declareMatrix("qVector", {{declareSymbol("qx"),declareSymbol("qy"),declareSymbol("qz")}});
-    Expression qVector = declareMatrix("qVector", {{declareSymbol("qx")},{declareSymbol("qy")},{declareSymbol("qz")}});
-    //Expression p1Vec = declareMatrix("p1Vec", {{declareSymbol("p1x"),declareSymbol("p1y"),declareSymbol("p1z")}});
-    //Expression p3Vec = declareMatrix("p3Vec", {{declareSymbol("p3x"),declareSymbol("p3y"),declareSymbol("p3z")}});
-    //Expression qExchVector = p3Vec-p1Vec;
-    //Expression first = (sigmaAVector*transpose(qVector));
-    //Expression second = (sigmaBVector*transpose(qVector));
-    Expression potential = simplify(performActions(parseString("-(tauAVector*transpose[tauBVector])*(sigmaAVector*qVector)*(sigmaBVector*qVector)")));
-    //Expression potential = simplify(parseString("(sigmaAVector*qVector)*(sigmaBVector*qVector)"));//first*second;
+    ExprVector sigmaOneStates = generateExprVector({declarePauliVector(false, "sigmaOne"),declarePauliVector(true, "sigmaOne")});
+    ExprVector sigmaTwoStates = generateExprVector({declarePauliVector(false, "sigmaTwo"),declarePauliVector(true, "sigmaTwo")});
+    ExprVector sigmaThreeStates = generateExprVector({declarePauliVector(false, "sigmaThree"),declarePauliVector(true, "sigmaThree")});
+    ExprVector tauOneStates   = generateExprVector({declarePauliVector(false, "tauOne"),  declarePauliVector(true, "tauOne")});
+    ExprVector tauTwoStates   = generateExprVector({declarePauliVector(false, "tauTwo"),  declarePauliVector(true, "tauTwo")});
+    ExprVector tauThreeStates = generateExprVector({declarePauliVector(false, "tauTwo"),  declarePauliVector(true, "tauThree")});
+    ExprVector sigmaOneMatrices = generateExprVector({declarePauliMatrix(1, "sigmaOne"),declarePauliMatrix(2, "sigmaOne"),declarePauliMatrix(3, "sigmaOne")});
+    ExprVector sigmaTwoMatrices = generateExprVector({declarePauliMatrix(1, "sigmaTwo"),declarePauliMatrix(2, "sigmaTwo"),declarePauliMatrix(3, "sigmaTwo")});
+    ExprVector sigmaThreeMatrices = generateExprVector({declarePauliMatrix(1, "sigmaThree"),declarePauliMatrix(2, "sigmaThree"),declarePauliMatrix(3, "sigmaThree")});
+    ExprVector tauOneMatrices = generateExprVector({declarePauliMatrix(1, "tauOne"),declarePauliMatrix(2, "tauOne"),declarePauliMatrix(3, "tauOne")});
+    ExprVector tauTwoMatrices = generateExprVector({declarePauliMatrix(1, "tauTwo"),declarePauliMatrix(2, "tauTwo"),declarePauliMatrix(3, "tauTwo")});
+    ExprVector tauThreeMatrices = generateExprVector({declarePauliMatrix(1, "tauThree"),declarePauliMatrix(2, "tauThree"),declarePauliMatrix(3, "tauThree")});
+    Expression sigmaOneVector = declareMatrix("sigmaOneVector", {{sigmaOneMatrices[0],sigmaOneMatrices[1],sigmaOneMatrices[2]}});
+    Expression sigmaTwoVector = declareMatrix("sigmaTwoVector", {{sigmaTwoMatrices[0],sigmaTwoMatrices[1],sigmaTwoMatrices[2]}});
+    Expression sigmaThreeVector = declareMatrix("sigmaThreeVector", {{sigmaThreeMatrices[0],sigmaThreeMatrices[1],sigmaThreeMatrices[2]}});
+    Expression tauOneVector = declareMatrix("tauOneVector", {{tauOneMatrices[0],tauOneMatrices[1],tauOneMatrices[2]}});
+    Expression tauTwoVector = declareMatrix("tauTwoVector", {{tauTwoMatrices[0],tauTwoMatrices[1],tauTwoMatrices[2]}});
+    Expression tauThreeVector = declareMatrix("tauThreeVector", {{tauThreeMatrices[0],tauThreeMatrices[1],tauThreeMatrices[2]}});
+    Expression qOneX = declareSymbol("qOneX");
+    Expression qOneY = declareSymbol("qOneY");
+    Expression qOneZ = declareSymbol("qOneZ");
+    Expression qOneVector = declareMatrix("qOneVector", {{qOneX},{qOneY},{qOneZ}});
+    Expression qTwoX = declareSymbol("qTwoX");
+    Expression qTwoY = declareSymbol("qTwoY");
+    Expression qTwoZ = declareSymbol("qTwoZ");
+    Expression qTwoVector = declareMatrix("qTwoVector", {{qTwoX},{qTwoY},{qTwoZ}});
+    Expression qThreeX = declareSymbol("qThreeX");
+    Expression qThreeY = declareSymbol("qThreeY");
+    Expression qThreeZ = declareSymbol("qThreeZ");
+    Expression qThreeVector = declareMatrix("qThreeVector", {{qThreeX},{qThreeY},{qThreeZ}});
+    
+    Expression pOneX = declareSymbol("pOneX");
+    Expression pOneY = declareSymbol("pOneY");
+    Expression pOneZ = declareSymbol("pOneZ");
+    Expression pOneVector = declareMatrix("pOneVector", {{pOneX},{pOneY},{pOneZ}});
+    Expression pTwoX = declareSymbol("pTwoX");
+    Expression pTwoY = declareSymbol("pTwoY");
+    Expression pTwoZ = declareSymbol("pTwoZ");
+    Expression pTwoVector = declareMatrix("pTwoVector", {{pTwoX},{pTwoY},{pTwoZ}});
+    Expression pThreeX = declareSymbol("pThreeX");
+    Expression pThreeY = declareSymbol("pThreeY");
+    Expression pThreeZ = declareSymbol("pThreeZ");
+    Expression pThreeVector = declareMatrix("pThreeVector", {{pThreeX},{pThreeY},{pThreeZ}});
+    Expression potential = simplify(performActions(parseString("-(tauOneVector*transpose[tauTwoVector])*(sigmaOneVector*qVector)*(sigmaTwoVector*qVector)")));
+    //Expression potential = simplify(parseString("(sigmaOneVector*qVector)*(sigmaTwoVector*qVector)"));//first*second;
     Expression exchangePotential = -potential;
-    Expression directPotential = substitute(potential, qx, ZERO);
-    directPotential = substitute(directPotential, qy, ZERO);
-    directPotential = substitute(directPotential, qz, ZERO);
+    Expression directPotential = substitute(potential, qOneX, ZERO);
+    directPotential = substitute(directPotential, qOneY, ZERO);
+    directPotential = substitute(directPotential, qOneZ, ZERO);
     std::cout << potential.print()+"\n";
     Expression total = ZERO;
-    for(int sigmaA = 1; sigmaA>=0; sigmaA--) {
-        for(int sigmaB = 1; sigmaB>=0; sigmaB--) {
-            for(int tauA = 1; tauA>=0; tauA--) {
-                for(int tauB = 1; tauB>=0; tauB--) {
-                    std::cout<<sigmaA;
-                    std::cout<<sigmaB;
-                    std::cout<<tauA;
-                    std::cout<<tauB;
-                    std::cout<<"\n";
-                    Expression directContribution = matrixElement(directPotential, sigmaAStates[sigmaA], sigmaAStates[sigmaA]);
-                    std::cout<<"sigmaA\n";
-                    std::cout<<directContribution.print()+"\n";
-                    directContribution = matrixElement(directContribution, sigmaBStates[sigmaB], sigmaBStates[sigmaB]);
-                    std::cout<<"sigmaB\n";
-                    std::cout<<directContribution.print()+"\n";
-                    directContribution = matrixElement(directContribution, tauAStates[tauA], tauAStates[tauA]);
-                    std::cout<<"tauA\n";
-                    std::cout<<directContribution.print()+"\n";
-                    directContribution = matrixElement(directContribution, tauBStates[tauB], tauBStates[tauB]);
-                    std::cout<<"tauB\n";
-                    //std::cout<<"Direct\n";
-                    std::cout<<directContribution.print()+"\n";
-                    Expression exchangeContribution;
-                    if(exchange) {
-                        exchangeContribution = matrixElement(exchangePotential, sigmaAStates[sigmaA], sigmaAStates[sigmaB]);
-                        std::cout<<"exchange sigmaA\n";
-                        std::cout<<exchangeContribution.print()+"\n";
-                        exchangeContribution = matrixElement(exchangeContribution, sigmaBStates[sigmaB], sigmaBStates[sigmaA]);
-                        std::cout<<"exchange sigmaB\n";
-                        std::cout<<exchangeContribution.print()+"\n";
-                        exchangeContribution = matrixElement(exchangeContribution, tauAStates[tauA], tauAStates[tauB]);
-                        std::cout<<"exchange tauA\n";
-                        std::cout<<exchangeContribution.print()+"\n";
-                        exchangeContribution = matrixElement(exchangeContribution, tauBStates[tauB], tauBStates[tauA]);
-                        std::cout<<"exchange TauB\n";
-                        //std::cout<<"Exchange\n";
-                        std::cout<<exchangeContribution.print()+"\n";
-                    } else {
-                        exchangeContribution = ZERO;
+    for(int sigmaOne = 1; sigmaOne>=0; sigmaOne--) {
+        for(int sigmaTwo = 1; sigmaTwo>=0; sigmaTwo--) {
+            for(int sigmaThree = 1; sigmaThree>=0; sigmaThree--) {
+                for(int tauOne = 1; tauOne>=0; tauOne--) {
+                    for(int tauTwo = 1; tauTwo>=0; tauTwo--) {
+                        for(int tauThree = 1; tauThree>=0; tauThree--) {
+                            std::vector<std::pair<int, int>> finalStates = {{sigmaOne,tauOne},{sigmaTwo,tauTwo},{sigmaThree,tauThree}};
+                            ExprVector momentumVectors = {pOneVector,pTwoVector,pThreeVector};
+                            int sigmaOneFinal, tauOneFinal, sigmaTwoFinal, tauTwoFinal, sigmaThreeFinal, tauThreeFinal;
+                            Expression qOneVectorActual, qTwoVectorActual, qThreeVectorActual;
+                            int numParticles = threeBody? 3 : 2;
+                            for(int first = 0; first<numParticles; first++) {
+                                for(int second = 0; second<numParticles; second++) {
+                                    if(first==second)
+                                        continue;
+                                    sigmaOneFinal = finalStates[first].first;
+                                    tauOneFinal = finalStates[first].second;
+                                    sigmaTwoFinal = finalStates[second].first;
+                                    tauTwoFinal = finalStates[second].second;
+                                    qOneVectorActual = pOneVector - momentumVectors[first];
+                                    qTwoVectorActual = pTwoVector - momentumVectors[second];
+                                    if(threeBody) {
+                                        for(int third = 0; third<numParticles; third++) {
+                                            if(first==third||second==third)
+                                                continue;
+                                            sigmaThreeFinal = finalStates[third].first;
+                                            tauThreeFinal = finalStates[third].second;
+                                            qThreeVectorActual = pThreeVector - momentumVectors[third];
+                                        }
+                                    }
+                                    else {
+                                        
+                                    }
+                                }
+                            }
+                            
+                            
+                            
+                            
+                            std::cout<<sigmaOne;
+                            std::cout<<sigmaTwo;
+                            std::cout<<tauOne;
+                            std::cout<<tauTwo;
+                            std::cout<<"\n";
+                            Expression directContribution = matrixElement(directPotential, sigmaOneStates[sigmaOne], sigmaOneStates[sigmaOne]);
+                            std::cout<<"sigmaOne\n";
+                            std::cout<<directContribution.print()+"\n";
+                            directContribution = matrixElement(directContribution, sigmaTwoStates[sigmaTwo], sigmaTwoStates[sigmaTwo]);
+                            std::cout<<"sigmaTwo\n";
+                            std::cout<<directContribution.print()+"\n";
+                            directContribution = matrixElement(directContribution, tauOneStates[tauOne], tauOneStates[tauOne]);
+                            std::cout<<"tauOne\n";
+                            std::cout<<directContribution.print()+"\n";
+                            directContribution = matrixElement(directContribution, tauTwoStates[tauTwo], tauTwoStates[tauTwo]);
+                            std::cout<<"tauTwo\n";
+                            //std::cout<<"Direct\n";
+                            std::cout<<directContribution.print()+"\n";
+                            Expression exchangeContribution;
+                            exchangeContribution = matrixElement(exchangePotential, sigmaOneStates[sigmaOne], sigmaOneStates[sigmaTwo]);
+                            std::cout<<"exchange sigmaOne\n";
+                            std::cout<<exchangeContribution.print()+"\n";
+                            exchangeContribution = matrixElement(exchangeContribution, sigmaTwoStates[sigmaTwo], sigmaTwoStates[sigmaOne]);
+                            std::cout<<"exchange sigmaTwo\n";
+                            std::cout<<exchangeContribution.print()+"\n";
+                            exchangeContribution = matrixElement(exchangeContribution, tauOneStates[tauOne], tauOneStates[tauTwo]);
+                            std::cout<<"exchange tauOne\n";
+                            std::cout<<exchangeContribution.print()+"\n";
+                            exchangeContribution = matrixElement(exchangeContribution, tauTwoStates[tauTwo], tauTwoStates[tauOne]);
+                            std::cout<<"exchange TauB\n";
+                            //std::cout<<"Exchange\n";
+                            std::cout<<exchangeContribution.print()+"\n";
+                            Expression tempTotal = total;
+                            total = tempTotal + directContribution + exchangeContribution;
+                            std::cout<<total.print()+"\n";
+                            std::cout<<"running total:"+total.print()+"\n\n";
+                            
+                            if(!threeBody)
+                                break;
+                        }
                     }
-                    Expression tempTotal = total;
-                    total = tempTotal + directContribution + exchangeContribution;
-                    std::cout<<total.print()+"\n";
-                    std::cout<<"running total:"+total.print()+"\n\n";
                 }
+            if(!threeBody)
+                break;
             }
         }
     }

@@ -152,6 +152,7 @@ Expression Matrix::add(Expression other) const {
     }
     if(other->getTypeHash() == MATRIXTYPE) {
         const Matrix& otherMat = dynamic_cast<const Matrix&>(*other);
+        bool zeroMat = true;
         if(dimensions != otherMat.dimensions) {
             Expression result = *new Expression(new NullObject("mismatch between dimensions for adding MATRIXTYPE"));
             return result;
@@ -161,11 +162,13 @@ Expression Matrix::add(Expression other) const {
             ExprVector column = *new ExprVector();
             for(int j = 0; j<dimensions.second; j++) {
                 Expression currentElement = (elements[i][j]+otherMat.elements[i][j]);
+                zeroMat &= currentElement == ZERO;
                 column.push_back(currentElement);
             }
             newElements.push_back(column);
         }
-        
+        if(zeroMat)
+            return ZERO;
         String newName = this->print()+"+"+other->print();
         Expression result = *new Expression(new Matrix(newName,newElements));
         return result;

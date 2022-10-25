@@ -93,5 +93,8 @@ static Expression IMAGUNIT = *new Expression(new ImaginaryUnit());
 //static SymbolicObject* IDENTITYMAT = *new Matrix("I",{{one,zero},{zero,one}});
 //static Expression identitymat = *new Expression(&IDENTITYMAT);
 static Expression IDENMAT = *new Expression(new Matrix("I",{{ONE,ZERO},{ZERO,ONE}}));
+static Expression XUNITVECTOR = *new Expression(new Matrix("xUnitVector",{{1,0,0}}));
+static Expression YUNITVECTOR = *new Expression(new Matrix("yUnitVector",{{0,1,0}}));
+static Expression ZUNITVECTOR = *new Expression(new Matrix("zUnitVector",{{0,0,1}}));
 #endif /* Symbol_hpp */
 
