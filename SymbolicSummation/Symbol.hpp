@@ -85,6 +85,7 @@ public:
 
 class EuclidVector : public Matrix {
 protected:
+    Expression add(Expression other) const;
     Expression multiply(Expression other) const;
 public:
     String print() const;

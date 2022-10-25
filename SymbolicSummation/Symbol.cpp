@@ -246,3 +246,42 @@ String Matrix::print() const {
     result += "}";
     return result;
 }
+
+Expression EuclidVector::add(Expression other) const {
+    Expression temp = Matrix::add(other);
+    if(isSubtypeOf(temp, MATRIXTYPE)) {
+        const Matrix& tempMat = dynamic_cast<const Matrix&>(*temp);
+        Expression result = *new Expression(new EuclidVector(tempMat.print(),tempMat.getElements()[0]));
+        return result;
+    }
+    return temp;
+};
+Expression EuclidVector::multiply(Expression other) const {
+    if(other.getTypeHash() == EUCLIDVECTORTYPE) {
+        Expression thisExpr = *new Expression(this);
+        return matMul(thisExpr, transpose(other));
+    }
+    return Matrix::multiply(other);
+};
+String EuclidVector::print() const {
+    String result = "{";
+    for(int i = 0; i<elements[0].size(); i++) {
+        result += elements[0][i].print();
+    }
+    result += "}";
+    return result;
+};
+EuclidVector::EuclidVector(const EuclidVector& target) : Matrix(target) {
+    
+};
+EuclidVector& EuclidVector::operator=(const EuclidVector& target) {
+    elements = *new ExprMatrix(target.elements);
+    dimensions = *new std::pair<int,int>(target.dimensions);
+    return *this;
+};
+EuclidVector::EuclidVector(String name, ExprVector newElements) : Matrix(name,{newElements}) {};
+EuclidVector::EuclidVector(String name, std::initializer_list<Expression> newElements) : Matrix(name,{newElements}) {};
+EuclidVector::EuclidVector(String name, int newDimension) : Matrix(name, {1,newDimension}) {};//empty matrix
+EuclidVector::~EuclidVector() {
+    
+};

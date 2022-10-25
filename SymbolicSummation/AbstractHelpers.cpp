@@ -49,7 +49,7 @@ bool isSubtypeOf(Expression sub, size_t superType) {
         result = true;
     if(superType == REALTYPE && (subType == ONETYPE || subType == ZEROTYPE) )
         result = true;
-    if(superType == MATRIXTYPE && subType == PAULIMATRIXTYPE)
+    if(superType == MATRIXTYPE && (subType == PAULIMATRIXTYPE || subType == EUCLIDVECTORTYPE))
         result = true;
     if(superType == typeid(Container).hash_code() && (subType == ADDTYPE || subType == MULTYPE || subType == FRACTYPE || subType == EXPTYPE || subType == SIGNTYPE))
         result = true;
