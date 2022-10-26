@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VariablesViewState
+   version = "1.0">
+   <ContextStates>
+      <ContextState
+         contextName = "spinIsospinSummation(ExprVector, bool):main.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "areEqual(SymbolicObject&amp;, SymbolicObject&amp;):AbstractHelpers.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "Expression::~Expression():Expression.h">
+      </ContextState>
+      <ContextState
+         contextName = "combineTermsDifferingByCoefficientsAdditively(SymbolicObject*, SymbolicObject*):ExpressionHelpers.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "spinIsospinSummation(std::__1::vector&lt;Expression, std::__1::allocator&lt;Expression&gt; &gt;, bool):main.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "cancelTerms(SymbolicObject*):ExpressionHelpers.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "substitute(SymbolicObject*, SymbolicObject*, SymbolicObject*):ExpressionHelpers.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "removeElementMultiplicatively(SymbolicObject*, SymbolicObject*, bool):AbstractHelpers.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "Exp::~Exp():ExpressionContainer.cpp">
+      </ContextState>
+   </ContextStates>
+</VariablesViewState>
