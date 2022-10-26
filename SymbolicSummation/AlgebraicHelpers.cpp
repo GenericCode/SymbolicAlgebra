@@ -449,7 +449,7 @@ Expression simplifyPauliMatrices(Expression target) {
 
 Expression simplify(Expression target) {
     //std::vector<size_t> types = {REALTYPE,IMAGINARYUNITTYPE,SYMBOLTYPE,MATRIXTYPE,PAULIMATRIXTYPE,FRACTYPE};
-    std::vector<size_t> types = {FRACTYPE,EXPTYPE,SYMBOLTYPE,PAULIMATRIXTYPE,MATRIXTYPE,IMAGINARYUNITTYPE,REALTYPE};
+    std::vector<size_t> types = {FRACTYPE,EXPTYPE,SYMBOLTYPE,EUCLIDVECTORTYPE,PAULIMATRIXTYPE,MATRIXTYPE,IMAGINARYUNITTYPE,REALTYPE};
     Expression result = *new Expression(target.get());
     size_t targetType = target->getTypeHash();
     bool isAdd = (targetType == ADDTYPE);

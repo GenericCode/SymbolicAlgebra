@@ -27,7 +27,31 @@ Expression matrixElement(Expression potential,Expression initialState, Expressio
  
  */
 
-
+Expression insertProperQVectors(Expression potential,Expression qOne, Expression qTwo, Expression qThree = *new Expression(new NullObject("two body calc"))) {
+    Expression qOneX =      declareSymbol("qOneX");
+    Expression qOneY =      declareSymbol("qOneY");
+    Expression qOneZ =      declareSymbol("qOneZ");
+    Expression qTwoX =      declareSymbol("qTwoX");
+    Expression qTwoY =      declareSymbol("qTwoY");
+    Expression qTwoZ =      declareSymbol("qTwoZ");
+    Expression qThreeX =    declareSymbol("qThreeX");
+    Expression qThreeY =    declareSymbol("qThreeY");
+    Expression qThreeZ =    declareSymbol("qThreeZ");
+    
+    Expression modifiedPotential = substitute(potential, qOneX, XUNITVECTOR*qOne);
+    modifiedPotential = substitute(modifiedPotential, qOneY, YUNITVECTOR*qOne);
+    modifiedPotential = substitute(modifiedPotential, qOneZ, ZUNITVECTOR*qOne);
+    modifiedPotential = substitute(modifiedPotential, qTwoX, XUNITVECTOR*qTwo);
+    modifiedPotential = substitute(modifiedPotential, qTwoY, YUNITVECTOR*qTwo);
+    modifiedPotential = substitute(modifiedPotential, qTwoZ, ZUNITVECTOR*qTwo);
+    if(qThree.getTypeHash() != NULLTYPE) {
+        modifiedPotential = substitute(modifiedPotential, qThreeX, XUNITVECTOR*qThree);
+        modifiedPotential = substitute(modifiedPotential, qThreeY, YUNITVECTOR*qThree);
+        modifiedPotential = substitute(modifiedPotential, qThreeZ, ZUNITVECTOR*qThree);
+    }
+    
+    return modifiedPotential;
+}
 
 Expression spinIsospinSummation(ExprVector interactions, bool threeBody = false ) {
     //{sigA,sigB,tauOne,tauTwo}
@@ -75,12 +99,12 @@ Expression spinIsospinSummation(ExprVector interactions, bool threeBody = false 
     Expression pThreeY = declareSymbol("pThreeY");
     Expression pThreeZ = declareSymbol("pThreeZ");
     Expression pThreeVector = declareMatrix("pThreeVector", {{pThreeX},{pThreeY},{pThreeZ}});
-    Expression potential = simplify(performActions(parseString("-(tauOneVector*transpose[tauTwoVector])*(sigmaOneVector*qVector)*(sigmaTwoVector*qVector)")));
+    Expression potential = simplify(performActions(parseString("-(tauOneVector*transpose[tauTwoVector])*(sigmaOneVector*qOneVector)*(sigmaTwoVector*qOneVector)")));
     //Expression potential = simplify(parseString("(sigmaOneVector*qVector)*(sigmaTwoVector*qVector)"));//first*second;
-    Expression exchangePotential = -potential;
+    /*Expression exchangePotential = -potential;
     Expression directPotential = substitute(potential, qOneX, ZERO);
     directPotential = substitute(directPotential, qOneY, ZERO);
-    directPotential = substitute(directPotential, qOneZ, ZERO);
+    directPotential = substitute(directPotential, qOneZ, ZERO);*/
     std::cout << potential.print()+"\n";
     Expression total = ZERO;
     for(int sigmaOne = 1; sigmaOne>=0; sigmaOne--) {
@@ -89,6 +113,12 @@ Expression spinIsospinSummation(ExprVector interactions, bool threeBody = false 
                 for(int tauOne = 1; tauOne>=0; tauOne--) {
                     for(int tauTwo = 1; tauTwo>=0; tauTwo--) {
                         for(int tauThree = 1; tauThree>=0; tauThree--) {
+                            std::cout<<sigmaOne;
+                            std::cout<<sigmaTwo;
+                            std::cout<<tauOne;
+                            std::cout<<tauTwo;
+                            std::cout<<"\n";
+                            Expression totalForCurrentStates = ZERO;
                             std::vector<std::pair<int, int>> finalStates = {{sigmaOne,tauOne},{sigmaTwo,tauTwo},{sigmaThree,tauThree}};
                             ExprVector momentumVectors = {pOneVector,pTwoVector,pThreeVector};
                             int sigmaOneFinal, tauOneFinal, sigmaTwoFinal, tauTwoFinal, sigmaThreeFinal, tauThreeFinal;
@@ -111,10 +141,24 @@ Expression spinIsospinSummation(ExprVector interactions, bool threeBody = false 
                                             sigmaThreeFinal = finalStates[third].first;
                                             tauThreeFinal = finalStates[third].second;
                                             qThreeVectorActual = pThreeVector - momentumVectors[third];
+                                            
+                                            Expression currentPotential = insertProperQVectors(potential, qOneVectorActual, qTwoVectorActual, qThreeVectorActual);
+                                            Expression contribution = matrixElement(currentPotential, sigmaOneStates[sigmaOne], sigmaOneStates[sigmaOneFinal]);
+                                            contribution = matrixElement(contribution, sigmaTwoStates[sigmaTwo], sigmaTwoStates[sigmaTwoFinal]);
+                                            contribution = matrixElement(contribution, sigmaThreeStates[sigmaThree], sigmaThreeStates[sigmaThreeFinal]);
+                                            contribution = matrixElement(contribution, tauOneStates[tauOne], tauOneStates[tauOneFinal]);
+                                            contribution = matrixElement(contribution, tauTwoStates[tauTwo], tauTwoStates[tauTwoFinal]);
+                                            contribution = matrixElement(contribution, tauThreeStates[tauThree], tauThreeStates[tauThreeFinal]);
+                                            totalForCurrentStates = totalForCurrentStates + contribution;
                                         }
                                     }
                                     else {
-                                        
+                                        Expression currentPotential = insertProperQVectors(potential, qOneVectorActual, qTwoVectorActual);
+                                        Expression contribution = matrixElement(currentPotential, sigmaOneStates[sigmaOne], sigmaOneStates[sigmaOneFinal]);
+                                        contribution = matrixElement(contribution, sigmaTwoStates[sigmaTwo], sigmaTwoStates[sigmaTwoFinal]);
+                                        contribution = matrixElement(contribution, tauOneStates[tauOne], tauOneStates[tauOneFinal]);
+                                        contribution = matrixElement(contribution, tauTwoStates[tauTwo], tauTwoStates[tauTwoFinal]);
+                                        totalForCurrentStates = totalForCurrentStates + contribution;
                                     }
                                 }
                             }
@@ -122,12 +166,8 @@ Expression spinIsospinSummation(ExprVector interactions, bool threeBody = false 
                             
                             
                             
-                            std::cout<<sigmaOne;
-                            std::cout<<sigmaTwo;
-                            std::cout<<tauOne;
-                            std::cout<<tauTwo;
-                            std::cout<<"\n";
-                            Expression directContribution = matrixElement(directPotential, sigmaOneStates[sigmaOne], sigmaOneStates[sigmaOne]);
+                            
+                            /*Expression directContribution = matrixElement(directPotential, sigmaOneStates[sigmaOne], sigmaOneStates[sigmaOne]);
                             std::cout<<"sigmaOne\n";
                             std::cout<<directContribution.print()+"\n";
                             directContribution = matrixElement(directContribution, sigmaTwoStates[sigmaTwo], sigmaTwoStates[sigmaTwo]);
@@ -153,9 +193,10 @@ Expression spinIsospinSummation(ExprVector interactions, bool threeBody = false 
                             exchangeContribution = matrixElement(exchangeContribution, tauTwoStates[tauTwo], tauTwoStates[tauOne]);
                             std::cout<<"exchange TauB\n";
                             //std::cout<<"Exchange\n";
-                            std::cout<<exchangeContribution.print()+"\n";
+                            std::cout<<exchangeContribution.print()+"\n";*/
                             Expression tempTotal = total;
-                            total = tempTotal + directContribution + exchangeContribution;
+                            //total = tempTotal + directContribution + exchangeContribution;
+                            total = tempTotal + totalForCurrentStates;
                             std::cout<<total.print()+"\n";
                             std::cout<<"running total:"+total.print()+"\n\n";
                             
@@ -190,7 +231,7 @@ int main(int argc, const char * argv[]) {
     initializeDefaultSymbols();
     initializeDefaultFunctions();
     std::vector<String> interactions = {};
-    Expression result = spinIsospinSummation(interactions, true);
+    Expression result = spinIsospinSummation(interactions, false);
     //Expression result = parseString("transpose[x]");
     std::cout << result.print()+"\n";
     
