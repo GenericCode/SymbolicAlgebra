@@ -278,6 +278,16 @@ Expression declareFunction(String name, ExprAction action) {
     return newFunc;
 }
 
+Expression declareEuclidVector(std::string name, ExprVector components) {
+    Expression vector = *new Expression(new EuclidVector(name,components));
+    return declareSymbol(name, vector);
+}
+
+Expression declareEuclidVector(std::string name, std::initializer_list<Expression> components) {
+    Expression vector = *new Expression(new EuclidVector(name,components));
+    return declareSymbol(name, vector);
+}
+
 Expression declareMatrix(Expression value) {
     return declareSymbol(value->print(),value);
 };

@@ -30,9 +30,9 @@
             filePath = "SymbolicSummation/main.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "205"
-            endingLineNumber = "205"
-            landmarkName = "insertProperQVectors(potential, qOne, qTwo)"
+            startingLineNumber = "207"
+            endingLineNumber = "207"
+            landmarkName = "spinIsospinSummation(interactions)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -191,8 +191,8 @@
             filePath = "SymbolicSummation/AbstractHelpers.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "762"
-            endingLineNumber = "762"
+            startingLineNumber = "772"
+            endingLineNumber = "772"
             landmarkName = "areEqual(left, right)"
             landmarkType = "9">
          </BreakpointContent>
@@ -207,8 +207,8 @@
             filePath = "SymbolicSummation/AbstractHelpers.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "833"
-            endingLineNumber = "833"
+            startingLineNumber = "843"
+            endingLineNumber = "843"
             landmarkName = "areEqual(left, right)"
             landmarkType = "9">
          </BreakpointContent>
@@ -594,8 +594,8 @@
             filePath = "SymbolicSummation/AbstractHelpers.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "580"
-            endingLineNumber = "580"
+            startingLineNumber = "590"
+            endingLineNumber = "590"
             landmarkName = "removeElementMultiplicatively(source, target, rightToLeft)"
             landmarkType = "9">
          </BreakpointContent>
@@ -610,8 +610,8 @@
             filePath = "SymbolicSummation/AbstractHelpers.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "784"
-            endingLineNumber = "784"
+            startingLineNumber = "794"
+            endingLineNumber = "794"
             landmarkName = "areEqual(left, right)"
             landmarkType = "9">
          </BreakpointContent>
@@ -626,8 +626,8 @@
             filePath = "SymbolicSummation/AbstractHelpers.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "792"
-            endingLineNumber = "792"
+            startingLineNumber = "802"
+            endingLineNumber = "802"
             landmarkName = "areEqual(left, right)"
             landmarkType = "9">
          </BreakpointContent>
@@ -674,9 +674,9 @@
             filePath = "SymbolicSummation/main.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "214"
-            endingLineNumber = "214"
-            landmarkName = "insertProperQVectors(potential, qOne, qTwo)"
+            startingLineNumber = "216"
+            endingLineNumber = "216"
+            landmarkName = "spinIsospinSummation(interactions)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -722,9 +722,9 @@
             filePath = "SymbolicSummation/main.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "236"
-            endingLineNumber = "236"
-            landmarkName = "insertProperQVectors(potential, qOne, qTwo)"
+            startingLineNumber = "238"
+            endingLineNumber = "238"
+            landmarkName = "main(argc, argv)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -754,8 +754,8 @@
             filePath = "SymbolicSummation/AbstractHelpers.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "769"
-            endingLineNumber = "769"
+            startingLineNumber = "779"
+            endingLineNumber = "779"
             landmarkName = "areEqual(left, right)"
             landmarkType = "9">
          </BreakpointContent>
@@ -898,8 +898,8 @@
             filePath = "SymbolicSummation/AbstractHelpers.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "529"
-            endingLineNumber = "529"
+            startingLineNumber = "539"
+            endingLineNumber = "539"
             landmarkName = "removeElementMultiplicatively(source, target, rightToLeft)"
             landmarkType = "9">
          </BreakpointContent>
@@ -914,8 +914,8 @@
             filePath = "SymbolicSummation/AbstractHelpers.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "566"
-            endingLineNumber = "566"
+            startingLineNumber = "576"
+            endingLineNumber = "576"
             landmarkName = "removeElementMultiplicatively(source, target, rightToLeft)"
             landmarkType = "9">
          </BreakpointContent>
@@ -930,9 +930,9 @@
             filePath = "SymbolicSummation/main.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "190"
-            endingLineNumber = "190"
-            landmarkName = "insertProperQVectors(potential, qOne, qTwo)"
+            startingLineNumber = "192"
+            endingLineNumber = "192"
+            landmarkName = "spinIsospinSummation(interactions)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -1155,9 +1155,9 @@
             filePath = "SymbolicSummation/main.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "170"
-            endingLineNumber = "170"
-            landmarkName = "insertProperQVectors(potential, qOne, qTwo)"
+            startingLineNumber = "172"
+            endingLineNumber = "172"
+            landmarkName = "spinIsospinSummation(interactions)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -1284,8 +1284,8 @@
             filePath = "SymbolicSummation/AbstractHelpers.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "388"
-            endingLineNumber = "388"
+            startingLineNumber = "398"
+            endingLineNumber = "398"
             landmarkName = "parseString(exprString)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1380,8 +1380,8 @@
             filePath = "SymbolicSummation/AbstractHelpers.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "395"
-            endingLineNumber = "395"
+            startingLineNumber = "405"
+            endingLineNumber = "405"
             landmarkName = "parseString(exprString)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1396,8 +1396,8 @@
             filePath = "SymbolicSummation/AbstractHelpers.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "442"
-            endingLineNumber = "442"
+            startingLineNumber = "452"
+            endingLineNumber = "452"
             landmarkName = "parseString(exprString)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1406,14 +1406,14 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "E155154D-F928-440F-9D93-C50EC4FD5CA5"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "SymbolicSummation/AbstractHelpers.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "354"
-            endingLineNumber = "354"
+            startingLineNumber = "364"
+            endingLineNumber = "364"
             landmarkName = "parseString(exprString)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1604,8 +1604,8 @@
             filePath = "SymbolicSummation/AbstractHelpers.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "378"
-            endingLineNumber = "378"
+            startingLineNumber = "388"
+            endingLineNumber = "388"
             landmarkName = "parseString(exprString)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1620,8 +1620,8 @@
             filePath = "SymbolicSummation/AbstractHelpers.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "402"
-            endingLineNumber = "402"
+            startingLineNumber = "412"
+            endingLineNumber = "412"
             landmarkName = "parseString(exprString)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1700,9 +1700,121 @@
             filePath = "SymbolicSummation/main.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "145"
-            endingLineNumber = "145"
-            landmarkName = "insertProperQVectors(potential, qOne, qTwo)"
+            startingLineNumber = "147"
+            endingLineNumber = "147"
+            landmarkName = "spinIsospinSummation(interactions)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "E3F9457E-DD7B-4F59-9984-B7A0CF161E6A"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SymbolicSummation/Symbol.cpp"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "261"
+            endingLineNumber = "261"
+            landmarkName = "EuclidVector::multiply(other)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "4B8A162E-66B5-42BB-80AA-42F423D61692"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SymbolicSummation/main.cpp"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "104"
+            endingLineNumber = "104"
+            landmarkName = "spinIsospinSummation(interactions)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "F6705787-7200-4F9E-A622-955053C66946"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SymbolicSummation/AbstractHelpers.cpp"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "450"
+            endingLineNumber = "450"
+            landmarkName = "parseString(exprString)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "928DF898-75DB-45A5-9241-C5562450E781"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SymbolicSummation/AlgebraicHelpers.cpp"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "523"
+            endingLineNumber = "523"
+            landmarkName = "simplify(target)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "E5DC8DA2-13ED-47EC-B44C-C7785B3C0DB8"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SymbolicSummation/Symbol.cpp"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "252"
+            endingLineNumber = "252"
+            landmarkName = "EuclidVector::add(other)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "F9A83AD9-D4B6-43C8-B7D4-30FC30EADF46"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SymbolicSummation/AlgebraicHelpers.cpp"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "466"
+            endingLineNumber = "466"
+            landmarkName = "simplify(target)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "0AF5DF0B-326E-44F5-82E4-6D9F0D239E5E"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SymbolicSummation/AlgebraicHelpers.cpp"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "452"
+            endingLineNumber = "452"
+            landmarkName = "simplify(target)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>

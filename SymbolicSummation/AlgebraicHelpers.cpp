@@ -466,7 +466,7 @@ Expression simplify(Expression target) {
         return -simplify(-target);
     }
     if(!isMul && !isAdd) {// !isSubclassOf(target, typeid(Operator).hash_code())) {
-        return *new Expression(target.get());
+        return target;
     }
     if(isMul) {
         const Mul& mulObj = dynamic_cast<const Mul&>(*target);
@@ -1143,8 +1143,10 @@ Expression substitute(Expression source, Expression target, Expression value) {
                 }
             }
         }
-        if(!foundTarget)
+        if(!foundTarget) {
+            return source;
             return *new Expression(new NullObject("No substitutions possible"));
+        }
         if(sourceType == PAULIMATRIXTYPE) {
             const PauliMatrix& pauliSource = dynamic_cast<const PauliMatrix&>(*source);
             Expression newMat = declarePauliMatrix(new PauliMatrix(printExprMatrix(elements),0,pauliSource.flavor,elements));

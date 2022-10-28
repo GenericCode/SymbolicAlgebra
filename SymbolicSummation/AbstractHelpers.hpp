@@ -45,6 +45,8 @@ Expression declareFunction(String name, ExprAction action);
 Expression declareSymbol(String name);
 Expression declareSymbol(String name, Expression value);
 Expression declareReal(float value);
+Expression declareEuclidVector(std::string name, ExprVector components);
+Expression declareEuclidVector(std::string name, std::initializer_list<Expression> components);
 Expression declareMatrix(String matName, ExprMatrix elements);
 Expression declareMatrix(String matName, std::initializer_list<std::initializer_list<Expression>> elements);
 Expression declareMatrix(String matName, Expression value);

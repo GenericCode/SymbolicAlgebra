@@ -257,18 +257,19 @@ Expression EuclidVector::add(Expression other) const {
     return temp;
 };
 Expression EuclidVector::multiply(Expression other) const {
+    Expression thisExpr = *new Expression(this);
     if(other.getTypeHash() == EUCLIDVECTORTYPE) {
-        Expression thisExpr = *new Expression(this);
         return matMul(thisExpr, transpose(other));
     }
-    return Matrix::multiply(other);
+    return distribute(thisExpr, other);
 };
 String EuclidVector::print() const {
-    String result = "{";
+    /*String result = "{";
     for(int i = 0; i<elements[0].size(); i++) {
         result += elements[0][i].print();
     }
-    result += "}";
+    result += "}";*/
+    String result = name;
     return result;
 };
 EuclidVector::EuclidVector(const EuclidVector& target) : Matrix(target) {
