@@ -100,7 +100,7 @@ Expression spinIsospinSummation(ExprVector interactions, bool threeBody = false 
     Expression pThreeZ = declareSymbol("pThreeZ");
     Expression pThreeVector = declareEuclidVector("pThreeVector", {pThreeX,pThreeY,pThreeZ});
     Expression test = qOneVector*qTwoVector;
-    Expression potential = parseString("-(tauOneVector*tauTwoVector)*(sigmaOneVector*qOneVector)*(sigmaTwoVector*qOneVector)");
+    Expression potential = parseString("-((tauOneVector*tauTwoVector)*(sigmaOneVector*qOneVector)*(sigmaTwoVector*qOneVector))");
     potential = simplify(potential);
     //Expression potential = simplify(parseString("(sigmaOneVector*qVector)*(sigmaTwoVector*qVector)"));//first*second;
     /*Expression exchangePotential = -potential;
@@ -155,8 +155,8 @@ Expression spinIsospinSummation(ExprVector interactions, bool threeBody = false 
                                         }
                                     }
                                     else {
-                                        Expression currentPotential = insertProperQVectors(potential, qOneVectorActual, qTwoVectorActual);
-                                        Expression contribution = matrixElement(currentPotential, sigmaOneStates[sigmaOne], sigmaOneStates[sigmaOneFinal]);
+                                        //Expression currentPotential = insertProperQVectors(potential, qOneVectorActual, qTwoVectorActual);
+                                        Expression contribution = matrixElement(potential, sigmaOneStates[sigmaOne], sigmaOneStates[sigmaOneFinal]);
                                         contribution = matrixElement(contribution, sigmaTwoStates[sigmaTwo], sigmaTwoStates[sigmaTwoFinal]);
                                         contribution = matrixElement(contribution, tauOneStates[tauOne], tauOneStates[tauOneFinal]);
                                         contribution = matrixElement(contribution, tauTwoStates[tauTwo], tauTwoStates[tauTwoFinal]);

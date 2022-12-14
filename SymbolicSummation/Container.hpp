@@ -32,6 +32,9 @@ protected:
     Expression negate() const;
 public:
     String print() const;
+    Expression simplify() const;
+    Expression distribute(Expression other) const;
+    Expression factor() const;
     Add(const Add& target);
     Add& operator=(const Add& target);
     Add(std::initializer_list<Expression> newMembers);
@@ -64,8 +67,11 @@ protected:
     Expression multiply(Expression other) const;
     Expression add(Expression other) const;
     Expression subtract(Expression other) const;
-    String print()  const;
 public:
+    String print()  const;
+    Expression simplify() const;
+    Expression distribute(Expression other) const;
+    Expression factor() const;
     Sign(const Sign& target);
     const Sign& operator=(const Sign& target);
     Sign(Expression member);
@@ -96,6 +102,9 @@ protected:
     Expression negate()  const;
 public:
     String print() const;
+    Expression simplify() const;
+    Expression distribute(Expression other) const;
+    Expression factor() const;
     Mul(const Mul& target);
     Mul& operator=(const Mul& target);
     Mul(ExprVector newMembers);
@@ -126,6 +135,9 @@ protected:
     Expression negate() const;
 public:
     String print() const;
+    Expression simplify() const;
+    Expression distribute(Expression other) const;
+    Expression factor() const;
     Frac& operator=(const Frac& target);
     Frac(const Frac& target);
     Frac(Expression denom);
@@ -157,6 +169,9 @@ protected:
     Expression multiply(Expression other) const;
 public:
     String print() const;
+    Expression simplify() const;
+    Expression distribute(Expression other) const;
+    Expression factor() const;
     const Exp& operator=(const Exp& target);
     Exp(const Exp& target);
     Exp(Expression base, Expression exponent);
@@ -206,6 +221,9 @@ protected:
     };
 public:
     String print() const;
+    Expression simplify() const;
+    Expression distribute(Expression other) const;
+    Expression factor() const;
     Func(const Func& target);
     Func& operator=(const Func& target);
     //Should probably automatically register ANY generic (not containing structure i.e. no members) function that is created.

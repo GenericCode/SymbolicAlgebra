@@ -27,6 +27,9 @@ public:
     String print() const {
         return name;
     };
+    Expression simplify() const;
+    Expression distribute(Expression other) const;
+    Expression factor() const;
     Symbol(const Symbol& target);
     Symbol& operator=(const Symbol& target);
     Symbol(String newName) {
@@ -64,6 +67,9 @@ protected:
     Expression multiply(Expression other) const;
 public:
     String print() const;
+    Expression simplify() const;
+    Expression distribute(Expression other) const;
+    Expression factor() const;
     Matrix(const Matrix& target);
     Matrix& operator=(const Matrix& target);
     Matrix(String name, ExprMatrix newElements);
@@ -89,6 +95,9 @@ protected:
     Expression multiply(Expression other) const;
 public:
     String print() const;
+    Expression simplify() const;
+    Expression distribute(Expression other) const;
+    Expression factor() const;
     EuclidVector(const EuclidVector& target);
     EuclidVector& operator=(const EuclidVector& target);
     EuclidVector(String name, ExprVector newElements);

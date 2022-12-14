@@ -28,6 +28,16 @@ String Expression::print() const {
     return (**this).print();
 };
 
+Expression Expression::simplify() const {
+    return (**this).simplify();
+};
+Expression Expression::distribute(Expression other) const {
+    return (**this).distribute(other);
+};
+Expression Expression::factor() const {
+    return (**this).factor();
+};
+
 Expression operator+(Expression self, Expression other) {
     return self.add(other);
 };

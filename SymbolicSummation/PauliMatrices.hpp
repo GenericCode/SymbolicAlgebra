@@ -23,6 +23,9 @@ public:
     String print() const {
         return name;
     };
+    Expression simplify() const;
+    Expression distribute(Expression other) const;
+    Expression factor() const;
     PauliMatrix(String name, int index, String flavor, std::initializer_list<std::initializer_list<Expression>> newElements );
     PauliMatrix(String name, int index, String flavor, ExprMatrix elements);
     PauliMatrix(const PauliMatrix& target);

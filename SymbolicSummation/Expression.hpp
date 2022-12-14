@@ -38,6 +38,9 @@ protected:
     Expression(const ExpressionObject* ptr) : std::shared_ptr<const ExpressionObject>(ptr) {};
     size_t getTypeHash() const;
     String print() const;
+    Expression simplify() const;
+    Expression distribute(Expression other) const;
+    Expression factor() const;
     friend Expression operator+(Expression self, Expression other);
     friend Expression operator-(Expression self, Expression other);
     friend Expression operator-(Expression self);

@@ -15,6 +15,9 @@ public:
     virtual Expression negate() const = 0;
     virtual Expression multiply(Expression other) const = 0;
     virtual Expression divide(Expression other) const = 0;
+    virtual Expression simplify() const = 0;
+    virtual Expression distribute(Expression other) const = 0;
+    virtual Expression factor() const = 0;
     
     bool simplified = false;
 public:
@@ -60,6 +63,9 @@ protected:
     Expression divide(Expression other) const;
 public:
     String print() const;
+    Expression simplify() const;
+    Expression distribute(Expression other) const;
+    Expression factor() const;
 };
 
 const size_t NULLTYPE = typeid(NullObject).hash_code();
