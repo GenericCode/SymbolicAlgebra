@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include <vector>
+#include <functional>
 #include "Expression.hpp"
 #include "AlgebraicHelpers.hpp"
 //typedef std::vector<Expression> ExprVector;

@@ -9,6 +9,7 @@
 #include "Container.hpp"
 #include "AlgebraicHelpers.hpp"
 #include "AbstractHelpers.hpp"
+#include <cmath>
 
 
 Real::Real( const Real& target) {
@@ -70,6 +71,7 @@ Expression Real::negate() const {
     return result;
 };
 Expression Real::multiply(Expression other) const {
+    Expression thisExpr = *new Expression(this);
     if(isSubtypeOf(other, REALTYPE)) {
         if(other.getTypeHash() != SIGNTYPE) {
             const Real& otherReal = dynamic_cast<const Real&>(*other);
@@ -85,11 +87,9 @@ Expression Real::multiply(Expression other) const {
     } else if(other->getTypeHash() == MULTYPE) {
         return combineProducts(*new Expression(this),other);
     }
-    else  {
-        return distribute(*new Expression(this), other);
-    }
 };
 Expression Real::divide(Expression other) const {
+    Expression thisExpr = *new Expression(this);
     if(isSubtypeOf(other, REALTYPE)) {
         bool sign = other->getTypeHash() == SIGNTYPE;
         Expression temp = NULL;
@@ -105,7 +105,7 @@ Expression Real::divide(Expression other) const {
         return result;
     } else  {
         Expression reciprocalOf = new Frac(other);
-        return distribute(*new Expression(this), reciprocalOf);
+        return combineProducts(thisExpr,reciprocalOf);
     }
 };
 String Real::print() const {
@@ -117,12 +117,22 @@ String Real::print() const {
     return result;
 }
 
+Expression Real::simplify() const {
+
+};
+Expression Real::distribute(Expression other) const {
+
+};
+Expression Real::factor() const {
+
+};
+
 Expression Zero::add(Expression other) const {
     return *new Expression(other);
 };
 
 Expression Zero::subtract(Expression other) const {
-    return -*other;
+    return -other;
 };
 
 Expression Zero::multiply(Expression other) const {

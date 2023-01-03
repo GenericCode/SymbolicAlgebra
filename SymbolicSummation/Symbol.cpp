@@ -29,7 +29,7 @@ Expression Symbol::divide(Expression other) const {
     }
     
     Expression reciprocalOf = reciprocal(other);
-    return distribute(thisExpr, reciprocalOf);
+    return combineProducts(thisExpr,other);
 };
 Expression Symbol::add(Expression other) const {
     Expression thisExpr = *new Expression(this);
@@ -53,17 +53,27 @@ Expression Symbol::subtract(Expression other) const {
     return combineSums(thisExpr, negativeOf);
 };
 Expression Symbol::multiply(Expression other) const {
-    Expression thisSymbol = *new Expression(this);
+    Expression thisExpr = *new Expression(this);
     if(other->getTypeHash() == ZEROTYPE)
         return ZERO;
     if(other->getTypeHash() == ONETYPE)
         return *new Expression(this);
     if(other->getTypeHash() == SYMBOLTYPE) {
-        if(thisSymbol == other) {
-            return *new Expression(new Exp(thisSymbol,2));
+        if(thisExpr == other) {
+            return *new Expression(new Exp(thisExpr,2));
         }
     }
-    return distribute(thisSymbol, other);
+    return combineProducts(thisExpr, other);
+}; 
+
+Expression Symbol::simplify() const {
+    return *new Expression(this);
+};
+Expression Symbol::distribute(Expression other) const {
+
+};
+Expression Symbol::factor() const {
+    return *new Expression(this);
 };
 
 //ImaginaryUnit
@@ -76,10 +86,10 @@ ImaginaryUnit& ImaginaryUnit::operator=(const ImaginaryUnit &target) {
 
 Expression ImaginaryUnit::multiply(Expression other) const {
     Expression thisExpr = *new Expression(this);
-    if(other == thisExpr) {;
+    if(other == thisExpr) {
         return MINUSONE;
     }
-    return distribute(thisExpr, other);
+    return combineProducts(thisExpr, other);
 };
 
 Expression ImaginaryUnit::negate() const {
@@ -217,7 +227,7 @@ Expression Matrix::multiply(Expression other) const {
     Expression matTarget = getElementOfType(other,MATRIXTYPE);
     
     if(matTarget.getTypeHash() == NULLTYPE)
-        return distribute(thisExpr, other);
+        return combineProducts(thisExpr,other);
     Expression result = matMul(thisExpr, matTarget);
     Expression finalResult = replaceElementOfType(other,MATRIXTYPE,result);
     return finalResult;
@@ -261,7 +271,7 @@ Expression EuclidVector::multiply(Expression other) const {
     if(other.getTypeHash() == EUCLIDVECTORTYPE) {
         return matMul(thisExpr, transpose(other));
     }
-    return distribute(thisExpr, other);
+    return combineProducts(thisExpr,other);
 };
 String EuclidVector::print() const {
     /*String result = "{";

@@ -23,7 +23,7 @@ Expression Container::multiply(Expression other) const {
         return ZERO;
     if(other->getTypeHash() == ONETYPE)
         return *new Expression(this);
-    return distribute(*new Expression(this), other);
+    return distribute(other);
 };
 Expression Container::divide(Expression other) const {
     Expression thisExpr = *new Expression(this);
@@ -31,7 +31,8 @@ Expression Container::divide(Expression other) const {
         return ONE;
     }
     Expression reciprocalOf = reciprocal(other);
-    return distribute(thisExpr, reciprocalOf);
+    //return distribute(thisExpr, reciprocalOf);
+    return distribute(reciprocalOf);
 };
 Expression Container::subtract(Expression other) const {
     Expression thisExpr = *new Expression(this);
@@ -100,6 +101,17 @@ String Add::print() const {
     }
     return result;
 };
+
+Expression Add::simplify() const {
+
+};
+Expression Add::distribute(Expression other) const {
+
+};
+Expression Add::factor() const {
+
+};
+
 //Sign
 
 Sign::~Sign() {
@@ -147,6 +159,19 @@ String Sign::print() const {
     result += member.print();
     return result;
 };
+
+Expression Sign::simplify() const {
+
+};
+
+Expression Sign::distribute(Expression other) const {
+
+};
+
+Expression Sign::factor() const {
+
+};
+
 Sign::Sign(const Sign& target) {
     member = *new Expression(target.member);
 };
@@ -209,6 +234,16 @@ String Mul::print() const {
     }
     return result;
 };
+
+Expression Mul::simplify() const {
+
+};
+Expression Mul::distribute(Expression other) const {
+
+};
+Expression Mul::factor() const {
+
+};
 //Frac
 Frac::~Frac() {
     delete &numerator;
@@ -251,6 +286,16 @@ String Frac::print() const {
     result += denomenator.print();
     result += ")";
     return result;
+};
+
+Expression Frac::simplify() const {
+
+};
+Expression Frac::distribute(Expression other) const {
+
+};
+Expression Frac::factor() const {
+
 };
 
 //Exp
@@ -306,13 +351,13 @@ Expression Exp::multiply(Expression other) const {
     }
     if(other == base || -other == base) {
         Expression expUpOne = exponent+ONE;
-        expUpOne = simplify(expUpOne);
+        expUpOne = simplify();
         Expression result = *new Expression(new Exp(base,expUpOne));
         if(-other == base)
             return -result;
         return result;
     }
-    return distribute(*new Expression(this), other);
+    return distribute(other);
 }
 
 String Exp::print() const {
@@ -330,6 +375,16 @@ String Exp::print() const {
         result += ")";
     return result;
     
+};
+
+Expression Exp::simplify() const {
+
+};
+Expression Exp::distribute(Expression other) const {
+
+};
+Expression Exp::factor() const {
+
 };
 
 //Func
@@ -393,3 +448,13 @@ String Func::print() const {
     result += "]";
     return result;
 }
+
+Expression Func::simplify() const {
+
+};
+Expression Func::distribute(Expression other) const {
+
+};
+Expression Func::factor() const {
+
+};

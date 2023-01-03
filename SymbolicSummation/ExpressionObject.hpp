@@ -39,7 +39,7 @@ public:
     friend Expression operator*(float self, ExpressionObject& other);
     friend Expression operator/(float self, ExpressionObject& other);
     
-    virtual ~ExpressionObject() = 0;
+    //virtual ~ExpressionObject() = 0;
     
     bool isSimplified(){return simplified;}
     size_t getTypeHash() const {
@@ -49,7 +49,7 @@ public:
 };
 
 /**
- *The null object for ExpressionObjects. Created whenever it makes sense to have an 'unitialized' ExpressionObject. Cannot be safely used, as they will throw std::logic_error, and so the output of many functions must be tested with getTypeHash() for NULLTYPE. Contains a public origin string, describing why the object was created.
+ *The null object for ExpressionObjects. Created whenever it makes sense to have an 'uninitialized' ExpressionObject. Cannot be safely used, as they will throw std::logic_error, and so the output of many functions must be tested with getTypeHash() for NULLTYPE. Contains a public origin string, describing why the object was created.
  */
 class NullObject : public ExpressionObject {
 public:

@@ -22,6 +22,9 @@ protected:
     Expression divide(Expression other) const;
 public:
     String print() const;
+    Expression simplify() const;
+    Expression distribute(Expression other) const;
+    Expression factor() const;
     Real(const Real& target);
     const Real& operator=(const Real& target);
     Real(float newVal);

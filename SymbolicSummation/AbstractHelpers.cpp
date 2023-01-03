@@ -14,6 +14,7 @@
 #include <unordered_map>
 #include <iostream>
 #include <fstream>
+#include <cmath>
 
 static std::unordered_map<String,Expression> declaredSymbols = *new std::unordered_map<String, Expression>();
 static std::unordered_map<String,Expression> declaredFunctions = *new std::unordered_map<String, Expression>();

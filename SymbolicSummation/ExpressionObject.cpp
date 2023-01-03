@@ -1,7 +1,7 @@
 #include "ExpressionObject.hpp"
 #include "Expression.hpp"
 #include "AbstractHelpers.hpp"
-ExpressionObject::~ExpressionObject(){};
+//ExpressionObject::~ExpressionObject(){};
 
 Expression operator+(const ExpressionObject& self, const ExpressionObject& other) {
     return self.add(&other);
@@ -76,5 +76,13 @@ Expression NullObject::divide(Expression other) const {
 };
 String NullObject::print() const {
     throw std::logic_error("null object: "+origin);
-    //return NULL;
+};
+Expression NullObject::simplify() const {
+    throw std::logic_error("null object: "+origin);
+};
+Expression NullObject::distribute(Expression other) const {
+    throw std::logic_error("null object: "+origin);
+};
+Expression NullObject::factor() const {
+    throw std::logic_error("null object: "+origin);
 };

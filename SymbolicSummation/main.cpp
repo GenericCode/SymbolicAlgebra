@@ -14,13 +14,13 @@
 #include "PauliMatrices.hpp"
 Expression matrixElement(Expression potential,Expression initialState, Expression finalState) {
     Expression temp = transpose(initialState)*potential*finalState;
-    Expression result = simplify(temp);
+    Expression result = temp.simplify();
     return result;
 }
 
 /*
  TODO:
- Need to restructure Add object so that it no longer needs to track signage; instead, only Sign will be used to track signage.
+ move all the functions to member functions
  
  
  
@@ -101,7 +101,7 @@ Expression spinIsospinSummation(ExprVector interactions, bool threeBody = false 
     Expression pThreeVector = declareEuclidVector("pThreeVector", {pThreeX,pThreeY,pThreeZ});
     Expression test = qOneVector*qTwoVector;
     Expression potential = parseString("-((tauOneVector*tauTwoVector)*(sigmaOneVector*qOneVector)*(sigmaTwoVector*qOneVector))");
-    potential = simplify(potential);
+    potential = potential.simplify();
     //Expression potential = simplify(parseString("(sigmaOneVector*qVector)*(sigmaTwoVector*qVector)"));//first*second;
     /*Expression exchangePotential = -potential;
     Expression directPotential = substitute(potential, qOneX, ZERO);
@@ -213,7 +213,7 @@ Expression spinIsospinSummation(ExprVector interactions, bool threeBody = false 
         }
     }
     Expression result = cancelTerms(total);
-    result = simplify(result);
+    result = result.simplify();
     //result = simplify(result);
     //result = cancelTerms(result);
     return result;

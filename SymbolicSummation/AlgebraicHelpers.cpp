@@ -11,6 +11,7 @@
 #include "Container.hpp"
 #include "PauliMatrices.hpp"
 #include "AbstractHelpers.hpp"
+#include <cmath>
 Expression reciprocal(Expression self) {
     if(self->getTypeHash() == FRACTYPE) {
         const Frac& selfFrac = dynamic_cast<const Frac&>(*self);
