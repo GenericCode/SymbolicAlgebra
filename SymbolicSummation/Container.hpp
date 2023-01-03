@@ -5,9 +5,6 @@
 //  Created by Laina Stahulak on 1/29/22.
 //
 #pragma once
-#ifndef Operator_hpp
-#define Operator_hpp
-
 #include <stdio.h>
 #include <vector>
 #include <functional>
@@ -258,4 +255,3 @@ static const size_t MULTYPE = typeid(Mul).hash_code();
 static const size_t FRACTYPE = typeid(Frac).hash_code();
 static const size_t EXPTYPE = typeid(Exp).hash_code();
 static const size_t FUNCTYPE = typeid(Func).hash_code();
-#endif /* Operator_hpp */
