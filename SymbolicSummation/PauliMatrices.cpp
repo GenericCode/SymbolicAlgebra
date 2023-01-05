@@ -142,6 +142,6 @@ Expression PauliMatrix::multiply(Expression other) const {
         return resultingPauli;
     }
     
-    Expression result = distribute(*new Expression(this), other);
+    Expression result = distribute(other);
     return result;
 };

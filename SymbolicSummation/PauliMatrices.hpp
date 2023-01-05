@@ -26,6 +26,12 @@ public:
     Expression simplify() const;
     Expression distribute(Expression other) const;
     Expression factor() const;
+    Expression reciprocal() const;
+    Expression determinant() const;
+    Expression transpose() const;
+    Expression cancelTerms() const;
+    ExprVector getFactors() const;
+    ExprVector getCommonFactors(ExprVector terms) const;
     PauliMatrix(String name, int index, String flavor, std::initializer_list<std::initializer_list<Expression>> newElements );
     PauliMatrix(String name, int index, String flavor, ExprMatrix elements);
     PauliMatrix(const PauliMatrix& target);

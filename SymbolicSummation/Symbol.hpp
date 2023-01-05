@@ -30,6 +30,12 @@ public:
     Expression simplify() const;
     Expression distribute(Expression other) const;
     Expression factor() const;
+    Expression reciprocal() const;
+    Expression determinant() const;
+    Expression transpose() const;
+    Expression cancelTerms() const;
+    ExprVector getFactors() const;
+    ExprVector getCommonFactors(ExprVector terms) const;
     Symbol(const Symbol& target);
     Symbol& operator=(const Symbol& target);
     Symbol(String newName) {
@@ -70,6 +76,12 @@ public:
     Expression simplify() const;
     Expression distribute(Expression other) const;
     Expression factor() const;
+    Expression reciprocal() const;
+    Expression determinant() const;
+    Expression transpose() const;
+    Expression cancelTerms() const;
+    ExprVector getFactors() const;
+    ExprVector getCommonFactors(ExprVector terms) const;
     Matrix(const Matrix& target);
     Matrix& operator=(const Matrix& target);
     Matrix(String name, ExprMatrix newElements);
@@ -98,6 +110,12 @@ public:
     Expression simplify() const;
     Expression distribute(Expression other) const;
     Expression factor() const;
+    Expression reciprocal() const;
+    Expression determinant() const;
+    Expression transpose() const;
+    Expression cancelTerms() const;
+    ExprVector getFactors() const;
+    ExprVector getCommonFactors(ExprVector terms) const;
     EuclidVector(const EuclidVector& target);
     EuclidVector& operator=(const EuclidVector& target);
     EuclidVector(String name, ExprVector newElements);

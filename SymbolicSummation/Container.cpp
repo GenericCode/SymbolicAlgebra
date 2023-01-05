@@ -161,15 +161,15 @@ String Sign::print() const {
 };
 
 Expression Sign::simplify() const {
-
+    return -member.simplify();
 };
 
 Expression Sign::distribute(Expression other) const {
-
+    return -member.distribute(other);
 };
 
 Expression Sign::factor() const {
-
+    return -member.factor();
 };
 
 Sign::Sign(const Sign& target) {
@@ -236,13 +236,26 @@ String Mul::print() const {
 };
 
 Expression Mul::simplify() const {
-
+    ExprVector newMembers = *new ExprVector();
+    for(int i = 0; i< members.size(); i++)
+        newMembers.push_back(members[i].simplify());
+    Expression newMul = *new Expression(new Mul(newMembers));
+    return newMul;
 };
 Expression Mul::distribute(Expression other) const {
 
 };
 Expression Mul::factor() const {
-
+    ExprVector newMembers = *new ExprVector();
+    for(int i = 0; i< members.size(); i++) {
+        ExprVector memberFactors = members[i].factor();
+        for(int j = 0; j<memberFactors.size(); j++) {
+            newMembers.push_back(<#const_reference __x#>)
+        }
+        newMembers.push_back(members[i].simplify());
+    }
+    Expression newMul = *new Expression(new Mul(newMembers));
+    return newMul;
 };
 //Frac
 Frac::~Frac() {
@@ -287,7 +300,7 @@ String Frac::print() const {
     result += ")";
     return result;
 };
-
+return -member.simplify();
 Expression Frac::simplify() const {
 
 };

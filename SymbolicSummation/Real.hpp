@@ -25,6 +25,12 @@ public:
     Expression simplify() const;
     Expression distribute(Expression other) const;
     Expression factor() const;
+    Expression reciprocal() const;
+    Expression determinant() const;
+    Expression transpose();
+    Expression cancelTerms() const;
+    ExprVector getFactors() const;
+    ExprVector getCommonFactors(ExprVector terms) const;
     Real(const Real& target);
     const Real& operator=(const Real& target);
     Real(float newVal);

@@ -3,6 +3,7 @@
 #include <string>
 class Expression;
 typedef std::string String;
+typedef std::vector<Expression> ExprVector;
 /**
  *The abstract class from which all structures for the symbolic algebra library are derived. Like Expression objects, these also support algebraic operations (+, -, *, /, etc.)
  */
@@ -18,13 +19,18 @@ public:
     virtual Expression simplify() const = 0;
     virtual Expression distribute(Expression other) const = 0;
     virtual Expression factor() const = 0;
+    virtual Expression reciprocal(Expression self) const = 0;
+    virtual Expression determinant(Expression target) const = 0;
+    virtual Expression transpose(Expression target) const = 0;
+    virtual Expression cancelTerms(Expression target) const = 0;
+    virtual ExprVector getFactors(Expression factee) const = 0;
+    virtual ExprVector getCommonFactors(ExprVector terms) const = 0;
     
     bool simplified = false;
 public:
     virtual String print() const = 0;
     friend bool areEqual(Expression left, Expression right);
     friend Expression simplify(Expression target);
-    friend void setSimplified(bool simpled);
     friend Expression operator+(ExpressionObject& self, ExpressionObject& other);
     friend Expression operator-(ExpressionObject& self, ExpressionObject& other);
     friend Expression operator-(ExpressionObject& self);
@@ -66,6 +72,12 @@ public:
     Expression simplify() const;
     Expression distribute(Expression other) const;
     Expression factor() const;
+    Expression reciprocal() const;
+    Expression determinant() const;
+    Expression transpose();
+    Expression cancelTerms() const;
+    ExprVector getFactors() const;
+    ExprVector getCommonFactors(ExprVector terms) const;
 };
 
 const size_t NULLTYPE = typeid(NullObject).hash_code();

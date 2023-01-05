@@ -33,6 +33,12 @@ public:
     Expression simplify() const;
     Expression distribute(Expression other) const;
     Expression factor() const;
+    Expression reciprocal() const;
+    Expression determinant() const;
+    Expression transpose() const;
+    Expression cancelTerms() const;
+    ExprVector getFactors() const;
+    ExprVector getCommonFactors(ExprVector terms) const;
     Add(const Add& target);
     Add& operator=(const Add& target);
     Add(std::initializer_list<Expression> newMembers);
@@ -70,6 +76,12 @@ public:
     Expression simplify() const;
     Expression distribute(Expression other) const;
     Expression factor() const;
+    Expression reciprocal() const;
+    Expression determinant() const;
+    Expression transpose() const;
+    Expression cancelTerms() const;
+    ExprVector getFactors() const;
+    ExprVector getCommonFactors(ExprVector terms) const;
     Sign(const Sign& target);
     const Sign& operator=(const Sign& target);
     Sign(Expression member);
@@ -103,6 +115,12 @@ public:
     Expression simplify() const;
     Expression distribute(Expression other) const;
     Expression factor() const;
+    Expression reciprocal() const;
+    Expression determinant() const;
+    Expression transpose() const;
+    Expression cancelTerms() const;
+    ExprVector getFactors() const;
+    ExprVector getCommonFactors(ExprVector terms) const;
     Mul(const Mul& target);
     Mul& operator=(const Mul& target);
     Mul(ExprVector newMembers);
@@ -136,6 +154,12 @@ public:
     Expression simplify() const;
     Expression distribute(Expression other) const;
     Expression factor() const;
+    Expression reciprocal() const;
+    Expression determinant() const;
+    Expression transpose() const;
+    Expression cancelTerms() const;
+    ExprVector getFactors() const;
+    ExprVector getCommonFactors(ExprVector terms) const;
     Frac& operator=(const Frac& target);
     Frac(const Frac& target);
     Frac(Expression denom);
@@ -170,6 +194,12 @@ public:
     Expression simplify() const;
     Expression distribute(Expression other) const;
     Expression factor() const;
+    Expression reciprocal() const;
+    Expression determinant() const;
+    Expression transpose() const;
+    Expression cancelTerms() const;
+    ExprVector getFactors() const;
+    ExprVector getCommonFactors(ExprVector terms) const;
     const Exp& operator=(const Exp& target);
     Exp(const Exp& target);
     Exp(Expression base, Expression exponent);
@@ -222,6 +252,12 @@ public:
     Expression simplify() const;
     Expression distribute(Expression other) const;
     Expression factor() const;
+    Expression reciprocal() const;
+    Expression determinant() const;
+    Expression transpose() const;
+    Expression cancelTerms() const;
+    ExprVector getFactors() const;
+    ExprVector getCommonFactors(ExprVector terms) const;
     Func(const Func& target);
     Func& operator=(const Func& target);
     //Should probably automatically register ANY generic (not containing structure i.e. no members) function that is created.
