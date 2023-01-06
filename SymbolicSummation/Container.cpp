@@ -30,9 +30,7 @@ Expression Container::divide(Expression other) const {
     if(other == thisExpr) {
         return ONE;
     }
-    Expression reciprocalOf = reciprocal(other);
-    //return distribute(thisExpr, reciprocalOf);
-    return distribute(reciprocalOf);
+    return reciprocal().distribute(other);
 };
 Expression Container::subtract(Expression other) const {
     Expression thisExpr = *new Expression(this);
@@ -111,6 +109,18 @@ Expression Add::distribute(Expression other) const {
 Expression Add::factor() const {
 
 };
+Expression Add::reciprocal() const {
+};
+Expression Add::determinant() const {
+};
+Expression Add::transpose() const {
+};
+Expression Add::cancelTerms() const {
+};
+ExprVector Add::getFactors() const {
+};
+ExprVector Add::getCommonFactors(ExprVector terms) const {
+};
 
 //Sign
 
@@ -170,6 +180,19 @@ Expression Sign::distribute(Expression other) const {
 
 Expression Sign::factor() const {
     return -member.factor();
+};
+
+Expression Sign::reciprocal() const {
+};
+Expression Sign::determinant() const {
+};
+Expression Sign::transpose() const {
+};
+Expression Sign::cancelTerms() const {
+};
+ExprVector Sign::getFactors() const {
+};
+ExprVector Sign::getCommonFactors(ExprVector terms) const {
 };
 
 Sign::Sign(const Sign& target) {
@@ -248,7 +271,7 @@ Expression Mul::distribute(Expression other) const {
 Expression Mul::factor() const {
     ExprVector newMembers = *new ExprVector();
     for(int i = 0; i< members.size(); i++) {
-        ExprVector memberFactors = members[i].factor();
+        Expression memberFactored = members[i].factor();
         for(int j = 0; j<memberFactors.size(); j++) {
             newMembers.push_back(<#const_reference __x#>)
         }
@@ -256,6 +279,18 @@ Expression Mul::factor() const {
     }
     Expression newMul = *new Expression(new Mul(newMembers));
     return newMul;
+};
+Expression Mul::reciprocal() const {
+};
+Expression Mul::determinant() const {
+};
+Expression Mul::transpose() const {
+};
+Expression Mul::cancelTerms() const {
+};
+ExprVector Mul::getFactors() const {
+};
+ExprVector Mul::getCommonFactors(ExprVector terms) const {
 };
 //Frac
 Frac::~Frac() {
@@ -300,7 +335,6 @@ String Frac::print() const {
     result += ")";
     return result;
 };
-return -member.simplify();
 Expression Frac::simplify() const {
 
 };
@@ -309,6 +343,18 @@ Expression Frac::distribute(Expression other) const {
 };
 Expression Frac::factor() const {
 
+};
+Expression Frac::reciprocal() const {
+};
+Expression Frac::determinant() const {
+};
+Expression Frac::transpose() const {
+};
+Expression Frac::cancelTerms() const {
+};
+ExprVector Frac::getFactors() const {
+};
+ExprVector Frac::getCommonFactors(ExprVector terms) const {
 };
 
 //Exp
@@ -391,13 +437,22 @@ String Exp::print() const {
 };
 
 Expression Exp::simplify() const {
-
 };
 Expression Exp::distribute(Expression other) const {
-
 };
 Expression Exp::factor() const {
-
+};
+Expression Exp::reciprocal() const {
+};
+Expression Exp::determinant() const {
+};
+Expression Exp::transpose() const {
+};
+Expression Exp::cancelTerms() const {
+};
+ExprVector Exp::getFactors() const {
+};
+ExprVector Exp::getCommonFactors(ExprVector terms) const {
 };
 
 //Func
@@ -470,4 +525,16 @@ Expression Func::distribute(Expression other) const {
 };
 Expression Func::factor() const {
 
+};
+Expression Func::reciprocal() const {
+};
+Expression Func::determinant() const {
+};
+Expression Func:transpose() const {
+};
+Expression Func::cancelTerms() const {
+};
+ExprVector Func::getFactors() const {
+};
+ExprVector Func::getCommonFactors(ExprVector terms) const {
 };

@@ -19,11 +19,12 @@ public:
     virtual Expression simplify() const = 0;
     virtual Expression distribute(Expression other) const = 0;
     virtual Expression factor() const = 0;
-    virtual Expression reciprocal(Expression self) const = 0;
-    virtual Expression determinant(Expression target) const = 0;
-    virtual Expression transpose(Expression target) const = 0;
-    virtual Expression cancelTerms(Expression target) const = 0;
-    virtual ExprVector getFactors(Expression factee) const = 0;
+    virtual Expression reciprocal() const = 0;
+    virtual Expression determinant() const = 0;
+    virtual Expression transpose() const = 0;
+    virtual Expression cancelTerms() const = 0;
+    virtual ExprVector getFactors() const = 0;
+    virtual ExprVector getCommonFactors(Expression other) const = 0;
     virtual ExprVector getCommonFactors(ExprVector terms) const = 0;
     
     bool simplified = false;
@@ -74,9 +75,10 @@ public:
     Expression factor() const;
     Expression reciprocal() const;
     Expression determinant() const;
-    Expression transpose();
+    Expression transpose() const;
     Expression cancelTerms() const;
     ExprVector getFactors() const;
+    ExprVector getCommonFactors(Expression other) const;
     ExprVector getCommonFactors(ExprVector terms) const;
 };
 

@@ -126,6 +126,18 @@ Expression Real::distribute(Expression other) const {
 Expression Real::factor() const {
 
 };
+Expression Real::reciprocal() const {
+};
+Expression Real::determinant() const {
+};
+Expression Real::transpose() const {
+};
+Expression Real::cancelTerms() const {
+};
+ExprVector Real::getFactors() const {
+};
+ExprVector Real::getCommonFactors(ExprVector terms) const {
+};
 
 Expression Zero::add(Expression other) const {
     return *new Expression(other);

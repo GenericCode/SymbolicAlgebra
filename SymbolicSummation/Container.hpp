@@ -38,6 +38,7 @@ public:
     Expression transpose() const;
     Expression cancelTerms() const;
     ExprVector getFactors() const;
+    ExprVector getCommonFactors(Expression other) const;
     ExprVector getCommonFactors(ExprVector terms) const;
     Add(const Add& target);
     Add& operator=(const Add& target);
@@ -72,7 +73,7 @@ protected:
     Expression add(Expression other) const;
     Expression subtract(Expression other) const;
 public:
-    String print()  const;
+    String print() const;
     Expression simplify() const;
     Expression distribute(Expression other) const;
     Expression factor() const;
@@ -81,6 +82,7 @@ public:
     Expression transpose() const;
     Expression cancelTerms() const;
     ExprVector getFactors() const;
+    ExprVector getCommonFactors(Expression other) const;
     ExprVector getCommonFactors(ExprVector terms) const;
     Sign(const Sign& target);
     const Sign& operator=(const Sign& target);
@@ -120,6 +122,7 @@ public:
     Expression transpose() const;
     Expression cancelTerms() const;
     ExprVector getFactors() const;
+    ExprVector getCommonFactors(Expression other) const;
     ExprVector getCommonFactors(ExprVector terms) const;
     Mul(const Mul& target);
     Mul& operator=(const Mul& target);
@@ -159,6 +162,7 @@ public:
     Expression transpose() const;
     Expression cancelTerms() const;
     ExprVector getFactors() const;
+    ExprVector getCommonFactors(Expression other) const;
     ExprVector getCommonFactors(ExprVector terms) const;
     Frac& operator=(const Frac& target);
     Frac(const Frac& target);
@@ -199,6 +203,7 @@ public:
     Expression transpose() const;
     Expression cancelTerms() const;
     ExprVector getFactors() const;
+    ExprVector getCommonFactors(Expression other) const;
     ExprVector getCommonFactors(ExprVector terms) const;
     const Exp& operator=(const Exp& target);
     Exp(const Exp& target);
@@ -257,6 +262,7 @@ public:
     Expression transpose() const;
     Expression cancelTerms() const;
     ExprVector getFactors() const;
+    ExprVector getCommonFactors(Expression other) const;
     ExprVector getCommonFactors(ExprVector terms) const;
     Func(const Func& target);
     Func& operator=(const Func& target);

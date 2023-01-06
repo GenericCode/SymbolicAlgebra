@@ -86,3 +86,24 @@ Expression NullObject::distribute(Expression other) const {
 Expression NullObject::factor() const {
     throw std::logic_error("null object: "+origin);
 };
+Expression NullObject::reciprocal() const {
+    throw std::logic_error("null object: "+origin);
+};
+Expression NullObject::determinant() const {
+    throw std::logic_error("null object: "+origin);
+};
+Expression NullObject::transpose() const {
+    throw std::logic_error("null object: "+origin);
+};
+Expression NullObject::cancelTerms() const {
+    throw std::logic_error("null object: "+origin);
+};
+ExprVector NullObject::getFactors() const {
+    throw std::logic_error("null object: "+origin);
+};
+ExprVector NullObject::getCommonFactors(ExprVector terms) const {
+    throw std::logic_error("null object: "+origin);
+};
+ExprVector NullObject::getCommonFactors(Expression other) const {
+    throw std::logic_error("null object: "+origin);
+};

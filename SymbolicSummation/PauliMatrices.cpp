@@ -145,3 +145,22 @@ Expression PauliMatrix::multiply(Expression other) const {
     Expression result = distribute(other);
     return result;
 };
+
+Expression EuclidVector::simplify() const {
+};
+Expression EuclidVector::distribute(Expression other) const {
+};
+Expression EuclidVector::factor() const {
+};
+Expression EuclidVector::reciprocal() const {
+};
+Expression EuclidVector::determinant() const {
+};
+Expression EuclidVector::transpose() const {
+};
+Expression EuclidVector::cancelTerms() const {
+};
+ExprVector EuclidVector::getFactors() const {
+};
+ExprVector EuclidVector::getCommonFactors(ExprVector terms) const {
+};

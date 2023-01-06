@@ -35,6 +35,7 @@ public:
     Expression transpose() const;
     Expression cancelTerms() const;
     ExprVector getFactors() const;
+    ExprVector getCommonFactors(Expression other) const;
     ExprVector getCommonFactors(ExprVector terms) const;
     Symbol(const Symbol& target);
     Symbol& operator=(const Symbol& target);
@@ -81,6 +82,7 @@ public:
     Expression transpose() const;
     Expression cancelTerms() const;
     ExprVector getFactors() const;
+    ExprVector getCommonFactors(Expression other) const;
     ExprVector getCommonFactors(ExprVector terms) const;
     Matrix(const Matrix& target);
     Matrix& operator=(const Matrix& target);
@@ -115,6 +117,7 @@ public:
     Expression transpose() const;
     Expression cancelTerms() const;
     ExprVector getFactors() const;
+    ExprVector getCommonFactors(Expression other) const;
     ExprVector getCommonFactors(ExprVector terms) const;
     EuclidVector(const EuclidVector& target);
     EuclidVector& operator=(const EuclidVector& target);

@@ -27,9 +27,7 @@ Expression Symbol::divide(Expression other) const {
     if(other == thisExpr) {
         return ONE;
     }
-    
-    Expression reciprocalOf = reciprocal(other);
-    return combineProducts(thisExpr,other);
+    return combineProducts(thisExpr,reciprocal());
 };
 Expression Symbol::add(Expression other) const {
     Expression thisExpr = *new Expression(this);
@@ -74,6 +72,18 @@ Expression Symbol::distribute(Expression other) const {
 };
 Expression Symbol::factor() const {
     return *new Expression(this);
+};
+Expression Symbol::reciprocal() const {
+};
+Expression Symbol::determinant() const {
+};
+Expression Symbol::transpose() const {
+};
+Expression Symbol::cancelTerms() const {
+};
+ExprVector Symbol::getFactors() const {
+};
+ExprVector Symbol::getCommonFactors(ExprVector terms) const {
 };
 
 //ImaginaryUnit
@@ -257,6 +267,30 @@ String Matrix::print() const {
     return result;
 }
 
+Expression Matrix::simplify() const {
+    
+};
+Expression Matrix::distribute(Expression other) const {
+    
+};
+Expression Matrix::factor() const {
+    
+};
+
+Expression Matrix::reciprocal() const {
+};
+Expression Matrix::determinant() const {
+};
+Expression Matrix::transpose() const {
+};
+Expression Matrix::cancelTerms() const {
+};
+ExprVector Matrix::getFactors() const {
+};
+ExprVector Matrix::getCommonFactors(ExprVector terms) const {
+};
+
+//EuclidVector
 Expression EuclidVector::add(Expression other) const {
     Expression temp = Matrix::add(other);
     if(isSubtypeOf(temp, MATRIXTYPE)) {
@@ -295,4 +329,23 @@ EuclidVector::EuclidVector(String name, std::initializer_list<Expression> newEle
 EuclidVector::EuclidVector(String name, int newDimension) : Matrix(name, {1,newDimension}) {};//empty matrix
 EuclidVector::~EuclidVector() {
     
+};
+
+Expression EuclidVector::simplify() const {
+};
+Expression EuclidVector::distribute(Expression other) const {
+};
+Expression EuclidVector::factor() const {
+};
+Expression EuclidVector::reciprocal() const {
+};
+Expression EuclidVector::determinant() const {
+};
+Expression EuclidVector::transpose() const {
+};
+Expression EuclidVector::cancelTerms() const {
+};
+ExprVector EuclidVector::getFactors() const {
+};
+ExprVector EuclidVector::getCommonFactors(ExprVector terms) const {
 };
