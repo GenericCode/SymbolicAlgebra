@@ -24,8 +24,6 @@ public:
     virtual Expression transpose() const = 0;
     virtual Expression cancelTerms() const = 0;
     virtual ExprVector getFactors() const = 0;
-    virtual ExprVector getCommonFactors(Expression other) const = 0;
-    virtual ExprVector getCommonFactors(ExprVector terms) const = 0;
     
     bool simplified = false;
 public:
@@ -78,8 +76,6 @@ public:
     Expression transpose() const;
     Expression cancelTerms() const;
     ExprVector getFactors() const;
-    ExprVector getCommonFactors(Expression other) const;
-    ExprVector getCommonFactors(ExprVector terms) const;
 };
 
 const size_t NULLTYPE = typeid(NullObject).hash_code();

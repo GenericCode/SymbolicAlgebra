@@ -19,14 +19,14 @@
 static std::unordered_map<String,Expression> declaredSymbols = *new std::unordered_map<String, Expression>();
 static std::unordered_map<String,Expression> declaredFunctions = *new std::unordered_map<String, Expression>();
 
-bool isSubtypeOf(Expression sub, Expression super) {
-    size_t subType = sub->getTypeHash();
+bool areSimilarTypes(Expression exprA, Expression exprB) {
+    size_t subType = exprA->getTypeHash();
     if(subType == SIGNTYPE) {
-        subType = (-sub).getTypeHash();
+        subType = (-exprA).getTypeHash();
     }
-    size_t superType = super->getTypeHash();
+    size_t superType = exprB->getTypeHash();
     if(superType == SIGNTYPE) {
-        superType = (-super).getTypeHash();
+        superType = (-exprB).getTypeHash();
     }
     bool result = false;
     if(subType == superType)
@@ -40,19 +40,19 @@ bool isSubtypeOf(Expression sub, Expression super) {
     return result;
 }
 
-bool isSubtypeOf(Expression sub, size_t superType) {
-    size_t subType = sub->getTypeHash();
+bool isTypeSimilarTo(Expression subject, size_t type) {
+    size_t subType = subject->getTypeHash();
     if(subType == SIGNTYPE) {
-        subType = (-sub).getTypeHash();
+        subType = (-subject).getTypeHash();
     }
     bool result = false;
-    if(subType == superType)
+    if(subType == type)
         result = true;
-    if(superType == REALTYPE && (subType == ONETYPE || subType == ZEROTYPE) )
+    if(type == REALTYPE && (subType == ONETYPE || subType == ZEROTYPE) )
         result = true;
-    if(superType == MATRIXTYPE && (subType == PAULIMATRIXTYPE || subType == EUCLIDVECTORTYPE))
+    if(type == MATRIXTYPE && (subType == PAULIMATRIXTYPE || subType == EUCLIDVECTORTYPE))
         result = true;
-    if(superType == typeid(Container).hash_code() && (subType == ADDTYPE || subType == MULTYPE || subType == FRACTYPE || subType == EXPTYPE || subType == SIGNTYPE))
+    if(type == typeid(Container).hash_code() && (subType == ADDTYPE || subType == MULTYPE || subType == FRACTYPE || subType == EXPTYPE || subType == SIGNTYPE))
         result = true;
     return result;
 }
@@ -496,7 +496,7 @@ int positionOfType(ExprVector list, size_t type, bool rightToLeft) {
     int i = 0;
     if(!rightToLeft) {
         while(i<(int)list.size()) {
-            if(isSubtypeOf(list[i], type)) {
+            if(isTypeSimilarTo(list[i], type)) {
                 return i;
             }
             i++;
@@ -504,7 +504,7 @@ int positionOfType(ExprVector list, size_t type, bool rightToLeft) {
     } else {
         i = (int)list.size()-1;
         while(i>=0) {
-            if(isSubtypeOf(list[i], type)) {
+            if(isTypeSimilarTo(list[i], type)) {
                 return i;
             }
             i--;
@@ -513,11 +513,11 @@ int positionOfType(ExprVector list, size_t type, bool rightToLeft) {
     return -1;
 };
 
-bool containsType(ExprVector list, size_t type, bool rightToLeft) {
+bool exprVectorContainsType(ExprVector list, size_t type, bool rightToLeft) {
     return positionOfType(list, type, rightToLeft) >= 0;
 }
 
-bool containsElement(ExprVector list, Expression target, bool rightToLeft) {
+bool exprVectorContains(ExprVector list, Expression target, bool rightToLeft) {
     return positionOfElement(list, target, rightToLeft) >= 0;
 }
 
@@ -616,7 +616,7 @@ Expression getElementOfType(Expression source, size_t type, bool rightToLeft) {
     size_t sourceType = source->getTypeHash();
     if(sourceType == NULLTYPE)
         return source;
-    if(isSubtypeOf(source, type))
+    if(isTypeSimilarTo(source, type))
         return *new Expression(source);
     ExprVector elementsToCheck = *new ExprVector();
     if(sourceType == ADDTYPE) {
@@ -634,14 +634,14 @@ Expression getElementOfType(Expression source, size_t type, bool rightToLeft) {
     
     if(!rightToLeft) {
         for(int i = 0; i<elementsToCheck.size(); i++) {
-            if(isSubtypeOf(elementsToCheck[i], type) )
+            if(isTypeSimilarTo(elementsToCheck[i], type) )
                 return *new Expression(elementsToCheck[i]);
         }
         Expression result = *new Expression(new NullObject("could not find element of specified type"));
         return result;
     } else {
         for(int i = (int)elementsToCheck.size()-1; i>=0; i--) {
-            if(isSubtypeOf(elementsToCheck[i], type) ) {
+            if(isTypeSimilarTo(elementsToCheck[i], type) ) {
                 return *new Expression(elementsToCheck[i]);
             }
         }
@@ -732,7 +732,7 @@ Expression replaceElement(Expression source, Expression target, Expression value
 };
 Expression replaceElementOfType(Expression source, size_t type, Expression value, bool rightToLeft) {
     size_t sourceType = source->getTypeHash();
-    if(isSubtypeOf(source, type))
+    if(isTypeSimilarTo(source, type))
         return *new Expression(value);
     ExprVector elementsToCheck;
     if(sourceType == ADDTYPE) {
@@ -788,7 +788,7 @@ bool areEqual(const ExpressionObject& left, const ExpressionObject& right) {
         const Add& leftObj = dynamic_cast<const Add&>(left);
         const Add& rightObj = dynamic_cast<const Add&>(right);
         for(int i = 0; i<leftObj.members.size(); i++) {
-            areEqual &= containsElement(rightObj.members, leftObj.members[i]);
+            areEqual &= exprVectorContains(rightObj.members, leftObj.members[i]);
         }
     }
     if(leftType == SIGNTYPE) {
@@ -801,7 +801,7 @@ bool areEqual(const ExpressionObject& left, const ExpressionObject& right) {
         const Mul& rightObj = dynamic_cast<const Mul&>(right);
         areEqual &= leftObj.members.size() == rightObj.members.size();
         for(int i = 0; i<leftObj.members.size(); i++) {
-            areEqual &= containsElement(rightObj.members, leftObj.members[i]);
+            areEqual &= exprVectorContains(rightObj.members, leftObj.members[i]);
         }
     }
     if(leftType == FRACTYPE) {

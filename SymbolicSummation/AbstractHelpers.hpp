@@ -15,14 +15,14 @@
 void initializeDefaultSymbols(bool force = false);
 void initializeDefaultFunctions(bool force = false);
 //bool isSubtypeOf(size_t sub, size_t super);
-bool isSubtypeOf(Expression sub, Expression super);
-bool isSubtypeOf(Expression sub, size_t superType);
+bool areSimilarTypes(Expression sub, Expression super);
+bool isTypeSimilarTo(Expression sub, size_t superType);
 bool areEqual(const ExpressionObject& left, const ExpressionObject& right);
 int positionOfElement(ExprVector list, Expression target, bool rightToLeft = false);
 int positionOfElementIgnoringSign(ExprVector list, Expression target, bool rightToLeft = false);
 int positionOfType(ExprVector list, size_t type, bool rightToLeft = false);
-bool containsElement(ExprVector list, Expression target, bool rightToLeft = false);
-bool containsType(ExprVector list, size_t type, bool rightToLeft = false);
+bool exprVectorContains(ExprVector list, Expression target, bool rightToLeft = false);
+bool exprVectorContainsType(ExprVector list, size_t type, bool rightToLeft = false);
 bool intVectorContains(std::vector<int> container, int target);
 String printExprMatrix(ExprMatrix target);
 Expression getElementOfType(Expression source, size_t type, bool rightToLeft = false);
@@ -33,6 +33,8 @@ Expression replaceElement(Expression source, Expression target, Expression value
 ExprVector replaceElementInVector(ExprVector source, Expression target, Expression value, bool rightToLeft = false);
 Expression replaceElementOfType(Expression source, size_t type, Expression value, bool rightToLeft = false);
 ExprVector replaceElementOfTypeInVector(ExprVector source, size_t type, Expression value, bool rightToLeft = false);
+ExprVector setUnion(ExprVector setA, ExprVector setB);
+ExprVector setIntersect(ExprVector setA, ExprVector setB);
 ExprVector combineExprVectors(ExprVector left, ExprVector right);
 ExprVector generateExprVector(std::initializer_list<Expression> elements);
 ExprMatrix generateExprMatrix(std::initializer_list<std::initializer_list<Expression>> elements);

@@ -38,6 +38,22 @@ Expression Expression::factor() const {
     return (**this).factor();
 };
 
+Expression Expression::reciprocal() const {
+    return (**this).reciprocal();
+};
+Expression Expression::determinant() const {
+    return (**this).determinant();
+};
+Expression Expression::transpose() const {
+    return (**this).transpose();
+};
+Expression Expression::cancelTerms() const {
+    return (**this).cancelTerms();
+};
+ExprVector Expression::getFactors() const {
+    return (**this).getFactors();
+};
+
 Expression operator+(Expression self, Expression other) {
     return self.add(other);
 };

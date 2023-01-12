@@ -101,9 +101,3 @@ Expression NullObject::cancelTerms() const {
 ExprVector NullObject::getFactors() const {
     throw std::logic_error("null object: "+origin);
 };
-ExprVector NullObject::getCommonFactors(ExprVector terms) const {
-    throw std::logic_error("null object: "+origin);
-};
-ExprVector NullObject::getCommonFactors(Expression other) const {
-    throw std::logic_error("null object: "+origin);
-};

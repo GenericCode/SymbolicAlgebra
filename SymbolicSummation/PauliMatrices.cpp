@@ -146,21 +146,19 @@ Expression PauliMatrix::multiply(Expression other) const {
     return result;
 };
 
-Expression EuclidVector::simplify() const {
+Expression PauliMatrix::simplify() const {
 };
-Expression EuclidVector::distribute(Expression other) const {
+Expression PauliMatrix::distribute(Expression other) const {
 };
-Expression EuclidVector::factor() const {
+Expression PauliMatrix::factor() const {
 };
-Expression EuclidVector::reciprocal() const {
+Expression PauliMatrix::reciprocal() const {
 };
-Expression EuclidVector::determinant() const {
+Expression PauliMatrix::determinant() const {
 };
-Expression EuclidVector::transpose() const {
+Expression PauliMatrix::transpose() const {
 };
-Expression EuclidVector::cancelTerms() const {
+Expression PauliMatrix::cancelTerms() const {
 };
-ExprVector EuclidVector::getFactors() const {
-};
-ExprVector EuclidVector::getCommonFactors(ExprVector terms) const {
+ExprVector PauliMatrix::getFactors() const {
 };

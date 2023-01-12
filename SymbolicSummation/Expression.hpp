@@ -47,7 +47,6 @@ protected:
     Expression cancelTerms() const;
     ExprVector getFactors() const;
     ExprVector getCommonFactors(Expression other) const;
-    ExprVector getCommonFactors(ExprVector terms) const;
     friend Expression operator+(Expression self, Expression other);
     friend Expression operator-(Expression self, Expression other);
     friend Expression operator-(Expression self);

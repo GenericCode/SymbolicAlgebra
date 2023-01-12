@@ -28,7 +28,7 @@ const Real& Real::operator=(const Real& target) {
     return *this;
 };
 Expression Real::add(Expression other) const {
-    if(isSubtypeOf(other, REALTYPE)) {
+    if(isTypeSimilarTo(other, REALTYPE)) {
         const Real& thisObj = *this;
         bool sign = other->getTypeHash() == SIGNTYPE;
         float otherVal;
@@ -52,7 +52,7 @@ Expression Real::add(Expression other) const {
     }
 };
 Expression Real::subtract(Expression other) const {
-    if(isSubtypeOf(other, REALTYPE)) {
+    if(isTypeSimilarTo(other, REALTYPE)) {
         const Real& otherReal = dynamic_cast<const Real&>(*other);
         float newVal = value-otherReal.value;
         Expression result = declareReal(newVal);
@@ -72,7 +72,7 @@ Expression Real::negate() const {
 };
 Expression Real::multiply(Expression other) const {
     Expression thisExpr = *new Expression(this);
-    if(isSubtypeOf(other, REALTYPE)) {
+    if(isTypeSimilarTo(other, REALTYPE)) {
         if(other.getTypeHash() != SIGNTYPE) {
             const Real& otherReal = dynamic_cast<const Real&>(*other);
             float newVal = value*otherReal.value;
@@ -90,7 +90,7 @@ Expression Real::multiply(Expression other) const {
 };
 Expression Real::divide(Expression other) const {
     Expression thisExpr = *new Expression(this);
-    if(isSubtypeOf(other, REALTYPE)) {
+    if(isTypeSimilarTo(other, REALTYPE)) {
         bool sign = other->getTypeHash() == SIGNTYPE;
         Expression temp = NULL;
         if(sign)
@@ -118,25 +118,47 @@ String Real::print() const {
 }
 
 Expression Real::simplify() const {
-
+    return *new Expression(this);
 };
 Expression Real::distribute(Expression other) const {
-
+    if(other.getTypeHash() == MULTYPE) {
+        const Mul& otherMul = dynamic_cast<const Mul&>(*other);
+        ExprVector newMembers = *new ExprVector();
+        for(int i = 0; i< otherMul.members.size(); i++) {
+            newMembers.push_back(otherMul.members[i]);
+        }
+        return *new Expression(new Mul(newMembers));
+    }
+    if(other.getTypeHash() == ADDTYPE) {
+        const Add& otherAdd= dynamic_cast<const Add&>(*other);
+        ExprVector newMembers = *new ExprVector();
+        for(int i = 0; i< otherAdd.members.size(); i++) {
+            newMembers.push_back(distribute(otherAdd.members[i]));
+        }
+        return *new Expression(new Add(newMembers));
+    }
+    ExprVector newMembers = *new ExprVector();
+    newMembers.push_back(*new Expression(this));
+    newMembers.push_back(other);
+    return *new Expression(new Mul(newMembers));
 };
 Expression Real::factor() const {
-
+    return *new Expression(new Mul(getFactorsOfInt(*new Expression(this))));
 };
 Expression Real::reciprocal() const {
+    return *new Expression(new Frac(*new Expression(this)));
 };
 Expression Real::determinant() const {
+    return *new Expression(this);
 };
 Expression Real::transpose() const {
+    return *new Expression(this);
 };
 Expression Real::cancelTerms() const {
+    return *new Expression(this);
 };
 ExprVector Real::getFactors() const {
-};
-ExprVector Real::getCommonFactors(ExprVector terms) const {
+    return getFactorsOfInt(*new Expression(this));
 };
 
 Expression Zero::add(Expression other) const {

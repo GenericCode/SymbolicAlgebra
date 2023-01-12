@@ -83,8 +83,6 @@ Expression Symbol::cancelTerms() const {
 };
 ExprVector Symbol::getFactors() const {
 };
-ExprVector Symbol::getCommonFactors(ExprVector terms) const {
-};
 
 //ImaginaryUnit
 ImaginaryUnit::ImaginaryUnit(const ImaginaryUnit& target) : Symbol("i") {
@@ -287,13 +285,11 @@ Expression Matrix::cancelTerms() const {
 };
 ExprVector Matrix::getFactors() const {
 };
-ExprVector Matrix::getCommonFactors(ExprVector terms) const {
-};
 
 //EuclidVector
 Expression EuclidVector::add(Expression other) const {
     Expression temp = Matrix::add(other);
-    if(isSubtypeOf(temp, MATRIXTYPE)) {
+    if(isTypeSimilarTo(temp, MATRIXTYPE)) {
         const Matrix& tempMat = dynamic_cast<const Matrix&>(*temp);
         Expression result = *new Expression(new EuclidVector(tempMat.print(),tempMat.getElements()[0]));
         return result;
@@ -346,6 +342,4 @@ Expression EuclidVector::transpose() const {
 Expression EuclidVector::cancelTerms() const {
 };
 ExprVector EuclidVector::getFactors() const {
-};
-ExprVector EuclidVector::getCommonFactors(ExprVector terms) const {
 };

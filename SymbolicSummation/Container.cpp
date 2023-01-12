@@ -101,25 +101,86 @@ String Add::print() const {
 };
 
 Expression Add::simplify() const {
-
+    ExprVector simplifiedMembers = *new ExprVector();
+    for(int i = 0; i< members.size(); i++) {
+        simplifiedMembers.push_back(members[i].simplify());
+    }
+    Expression newAdd = *new Expression(new Add(simplifiedMembers));
+    return newAdd.cancelTerms();
 };
 Expression Add::distribute(Expression other) const {
-
+    ExprVector newMembers = *new ExprVector();
+    for(int i = 0; i< members.size(); i++)
+        newMembers.push_back(members[i].distribute(other));
+    return *new Expression(new Add(newMembers));
 };
 Expression Add::factor() const {
+    ExprVector factors = getFactors();
+    if(factors.size() == 1)
+        return *new Expression(this);
+    return *new Expression(new Mul(factors));
 
 };
 Expression Add::reciprocal() const {
+    Expression thisExpression = *new Expression(this);
+    return *new Expression(new Frac(thisExpression));
 };
 Expression Add::determinant() const {
+    Expression simpled = simplify();
+    if(simpled.getTypeHash() == ADDTYPE)
+        throw std::logic_error("no general formula for determinant of uncombined sum");
+    return simpled.determinant();
 };
 Expression Add::transpose() const {
+    ExprVector newMembers = *new ExprVector();
+    for(int i = 0; i<members.size(); i++) {
+        newMembers.push_back(members[i].transpose());
+    }
+    return *new Expression(new Add(newMembers));
 };
 Expression Add::cancelTerms() const {
+    std::vector<int> accountedFor = *new std::vector<int>();
+    ExprVector newMembers = *new ExprVector();
+    for(int i = 0; i<members.size(); i++) {
+        if(intVectorContains(accountedFor, i))
+            continue;
+        Expression runningSum = members[i];
+        for(int j = i; j<members.size(); j++) {
+            if(intVectorContains(accountedFor, j))
+                continue;
+            Expression currExpr = members[j];
+            if(currExpr == runningSum) {
+                runningSum = 2*runningSum;
+                accountedFor.push_back(j);
+                continue;
+            }
+            ExprVector currCommonFactors = runningSum.getCommonFactors(currExpr);
+            if(currCommonFactors.size() == 0)
+                continue;
+            Expression inCommon = ONE;
+            Expression sumNotInCommon = runningSum;
+            Expression otherNotInCommon = currExpr;
+            for(int k = 0; k<currCommonFactors.size(); k++) {
+                inCommon = inCommon*currCommonFactors[k];
+                sumNotInCommon = removeElementMultiplicatively(sumNotInCommon, currCommonFactors[k]);
+                otherNotInCommon = removeElementMultiplicatively(otherNotInCommon, currCommonFactors[k]);
+            }
+            if(isTypeSimilarTo(sumNotInCommon, CONTAINERTYPE) || isTypeSimilarTo(otherNotInCommon, CONTAINERTYPE) || !areSimilarTypes(sumNotInCommon, otherNotInCommon))
+                continue;
+            //There are no cases I can think of where this will break commutators,
+            //lack of evidence is not evidence of lack however.
+            Expression testCombine = sumNotInCommon+otherNotInCommon;
+            if(isTypeSimilarTo(testCombine, CONTAINERTYPE))
+                continue;
+            runningSum = testCombine*inCommon;
+        }
+        accountedFor.push_back(i);
+        newMembers.push_back(runningSum);
+    }
+    return *new Expression(new Add(newMembers));
 };
 ExprVector Add::getFactors() const {
-};
-ExprVector Add::getCommonFactors(ExprVector terms) const {
+    return commonFactors(members);
 };
 
 //Sign
@@ -183,16 +244,22 @@ Expression Sign::factor() const {
 };
 
 Expression Sign::reciprocal() const {
+    return -member.reciprocal();
 };
 Expression Sign::determinant() const {
+    return -member.determinant();
 };
 Expression Sign::transpose() const {
+    return -member.transpose();
 };
 Expression Sign::cancelTerms() const {
+    return -member.cancelTerms();
 };
 ExprVector Sign::getFactors() const {
-};
-ExprVector Sign::getCommonFactors(ExprVector terms) const {
+    ExprVector memFactors = member.getFactors();
+    if(!exprVectorContains(memFactors, MINUSONE))
+        memFactors.push_back(MINUSONE);
+    return memFactors;
 };
 
 Sign::Sign(const Sign& target) {
@@ -266,31 +333,67 @@ Expression Mul::simplify() const {
     return newMul;
 };
 Expression Mul::distribute(Expression other) const {
-
+    if(other.getTypeHash() == MULTYPE) {
+        const Mul& otherMul = dynamic_cast<const Mul&>(*other);
+        return *new Expression(new Mul(setUnion(members, otherMul.members)));
+    }
+    if(other.getTypeHash() == ADDTYPE) {
+        const Add& otherAdd= dynamic_cast<const Add&>(*other);
+        ExprVector newMembers = *new ExprVector();
+        for(int i = 0; i< otherAdd.members.size(); i++) {
+            newMembers.push_back(distribute(otherAdd.members[i]));
+        }
+        return *new Expression(new Add(newMembers));
+    }
+    ExprVector newMembers = *new ExprVector(members);
+    newMembers.push_back(other);
+    return *new Expression(new Mul(newMembers));
 };
 Expression Mul::factor() const {
     ExprVector newMembers = *new ExprVector();
     for(int i = 0; i< members.size(); i++) {
         Expression memberFactored = members[i].factor();
-        for(int j = 0; j<memberFactors.size(); j++) {
-            newMembers.push_back(<#const_reference __x#>)
-        }
-        newMembers.push_back(members[i].simplify());
+        newMembers.push_back(memberFactored);
     }
     Expression newMul = *new Expression(new Mul(newMembers));
     return newMul;
 };
 Expression Mul::reciprocal() const {
+    ExprVector newMembers = *new ExprVector();
+    for(int i = (int)members.size()-1; i>=0; i--) {
+        newMembers.push_back(members[i].reciprocal());
+    }
+    Expression newMul = *new Expression(new Mul(newMembers));
+    return newMul;
 };
 Expression Mul::determinant() const {
+    ExprVector newMembers = *new ExprVector();
+    for(int i = 0; i<members.size(); i++) {
+        newMembers.push_back(members[i].determinant());
+    }
+    Expression newMul = *new Expression(new Mul(newMembers));
+    return newMul;
 };
 Expression Mul::transpose() const {
+    ExprVector newMembers = *new ExprVector();
+    for(int i = (int)members.size()-1; i>=0; i--) {
+        newMembers.push_back(members[i].transpose());
+    }
+    Expression newMul = *new Expression(new Mul(newMembers));
+    return newMul;
 };
 Expression Mul::cancelTerms() const {
+    Expression simpledSelf = simplify();
+    if(simpledSelf.getTypeHash() != ADDTYPE)
+        return *new Expression(this);
+    return simpledSelf.cancelTerms();
 };
 ExprVector Mul::getFactors() const {
-};
-ExprVector Mul::getCommonFactors(ExprVector terms) const {
+    ExprVector factors = *new ExprVector();
+    for(int i = 0; i<members.size(); i++) {
+        factors = setUnion(factors, members[i].getFactors());
+    }
+    return factors;
 };
 //Frac
 Frac::~Frac() {
@@ -336,25 +439,42 @@ String Frac::print() const {
     return result;
 };
 Expression Frac::simplify() const {
-
+    return *new Expression(new Frac(numerator.simplify(),denomenator.simplify()));
 };
 Expression Frac::distribute(Expression other) const {
-
+    if(other.getTypeHash() != FRACTYPE)
+        return *new Expression(new Frac(numerator.distribute(other),denomenator));
+    const Frac& otherFrac = dynamic_cast<const Frac&>(*other);
+    return *new Expression(new Frac(numerator.distribute(otherFrac.numerator),denomenator.distribute(otherFrac.denomenator)));
 };
 Expression Frac::factor() const {
+    return *new Expression(new Frac(numerator.factor(),denomenator.factor()));
 
 };
 Expression Frac::reciprocal() const {
+    if(numerator == ONE)
+        return denomenator;
+    return *new Expression(new Frac(denomenator,numerator));
 };
 Expression Frac::determinant() const {
+    return *new Expression(new Frac(numerator.determinant(),denomenator.transpose()));
 };
 Expression Frac::transpose() const {
+    return *new Expression(new Mul(denomenator.transpose().reciprocal(),numerator.transpose()));
 };
 Expression Frac::cancelTerms() const {
+    Expression simpledSelf = simplify();
+    if(simpledSelf.getTypeHash() != ADDTYPE)
+        return *new Expression(this);
+    return simpledSelf.cancelTerms();
 };
 ExprVector Frac::getFactors() const {
-};
-ExprVector Frac::getCommonFactors(ExprVector terms) const {
+    ExprVector numFactors = numerator.getFactors();
+    ExprVector denomFactors = denomenator.getFactors();
+    for(int i = 0; i<denomFactors.size(); i++) {
+        denomFactors[i] = denomFactors[i].reciprocal();
+    }
+    return setUnion(numFactors, denomFactors);
 };
 
 //Exp
@@ -421,16 +541,16 @@ Expression Exp::multiply(Expression other) const {
 
 String Exp::print() const {
     String result = "";
-    if(isSubtypeOf(base, OPERATORTYPE))
+    if(isTypeSimilarTo(base, CONTAINERTYPE))
         result += "(";
     result += base.print();
-    if(isSubtypeOf(base, OPERATORTYPE))
+    if(isTypeSimilarTo(base, CONTAINERTYPE))
         result += ")";
     result += "^";
-    if(isSubtypeOf(exponent, OPERATORTYPE))
+    if(isTypeSimilarTo(exponent, CONTAINERTYPE))
         result += "(";
     result += exponent.print();
-    if(isSubtypeOf(exponent, OPERATORTYPE))
+    if(isTypeSimilarTo(exponent, CONTAINERTYPE))
         result += ")";
     return result;
     
@@ -451,8 +571,6 @@ Expression Exp::transpose() const {
 Expression Exp::cancelTerms() const {
 };
 ExprVector Exp::getFactors() const {
-};
-ExprVector Exp::getCommonFactors(ExprVector terms) const {
 };
 
 //Func
@@ -530,11 +648,9 @@ Expression Func::reciprocal() const {
 };
 Expression Func::determinant() const {
 };
-Expression Func:transpose() const {
+Expression Func::transpose() const {
 };
 Expression Func::cancelTerms() const {
 };
 ExprVector Func::getFactors() const {
-};
-ExprVector Func::getCommonFactors(ExprVector terms) const {
 };

@@ -30,7 +30,7 @@ Expression complexConjugate(Expression target) {
 }
 
 Expression determinant(Expression target) {
-    if(!isSubtypeOf(target, MATRIXTYPE)) {
+    if(!isTypeSimilarTo(target, MATRIXTYPE)) {
         return *new Expression(target.get());
     }
     const Matrix& matTarget = dynamic_cast<const Matrix&>(*target);
@@ -98,7 +98,7 @@ Expression getMatrixMatchingPauliFlavor(Expression target, Expression matrixToMa
 }
 
 Expression matMul(Expression left, Expression right) {
-    if( isSubtypeOf(right, MATRIXTYPE) && isSubtypeOf(left, MATRIXTYPE)) {
+    if( isTypeSimilarTo(right, MATRIXTYPE) && isTypeSimilarTo(left, MATRIXTYPE)) {
         const Matrix& leftMatrix = dynamic_cast<const Matrix&>(*left);
         const Matrix& rightMatrix = dynamic_cast<const Matrix&>(*right);
         if(leftMatrix.dimensions.second != rightMatrix.dimensions.first) {
@@ -140,7 +140,7 @@ Expression matMul(Expression left, Expression right) {
 };
 
 Expression transpose(Expression target) {
-    if(!isSubtypeOf(target, MATRIXTYPE))
+    if(!isTypeSimilarTo(target, MATRIXTYPE))
         return *new Expression(target.get());
     const Matrix& matTarget = dynamic_cast<const Matrix&>(*target);
     std::pair<int,int> dimensions = *new std::pair<int,int>();
@@ -177,7 +177,7 @@ Expression combineProducts(Expression left, Expression right) {
         return *new Expression(right.get());
     if(rightType == ONETYPE)
         return *new Expression(left.get());
-    if(isSubtypeOf(left, REALTYPE) && isSubtypeOf(right, REALTYPE))
+    if(isTypeSimilarTo(left, REALTYPE) && isTypeSimilarTo(right, REALTYPE))
         return left*right;
     if(leftType == MULTYPE) {
         const Mul& lMul = dynamic_cast<const Mul&>(*left);
@@ -218,10 +218,10 @@ Expression combineSums(Expression left, Expression right) {
         right*left;
     if(leftType == NULLTYPE)
         left*right;
-    if(isSubtypeOf(left, ADDTYPE)) {
+    if(isTypeSimilarTo(left, ADDTYPE)) {
         const Add& lAdd = dynamic_cast<const Add&>(*left);
         ExprVector newMembers(lAdd.members);//copyExprVector(lAdd.members);
-        if(isSubtypeOf(right, ADDTYPE)) {
+        if(isTypeSimilarTo(right, ADDTYPE)) {
             const Add& rAdd = dynamic_cast<const Add&>(*right);
             ExprVector rightMembers(rAdd.members);//copyExprVector(rAdd.members);
             if(lAdd.members.size() == 1 && rAdd.members.size() == 1) {
@@ -243,7 +243,7 @@ Expression combineSums(Expression left, Expression right) {
         Expression result = *new Expression(new Add(newMembers));//cancelTerms(new Add(newMembers,newSigns));
         return result;
     }
-    if(isSubtypeOf(right, ADDTYPE)) {
+    if(isTypeSimilarTo(right, ADDTYPE)) {
         const Add& rAdd = dynamic_cast<const Add&>(*right);
         ExprVector newMembers = *new ExprVector();
         newMembers.push_back(*new Expression(left));
@@ -746,7 +746,7 @@ Expression factor(Expression factee) {
 }
 
 ExprVector getFactorsOfInt(Expression factee) {
-    if(!isSubtypeOf(factee, REALTYPE))
+    if(!isTypeSimilarTo(factee, REALTYPE))
         return {*new Expression(factee)};
     const Real& realObj = dynamic_cast<const Real&>(*factee);
     if(!(realObj.value == trunc(realObj.value)))
@@ -813,7 +813,7 @@ ExprVector getFactors(Expression factee) {
             }
         }
     }
-    if(isSubtypeOf(factee, REALTYPE))
+    if(isTypeSimilarTo(factee, REALTYPE))
         return getFactorsOfInt(factee);
     return generateExprVector({*new Expression(factee)});
 }
@@ -849,13 +849,24 @@ ExprVector getSimpleCommonFactors(ExprVector terms) {
                 break;
             //isCommonFactor &= containsElement(ithTermFactors[j], firstTermFactors[i]);
         }
-        if(isCommonFactor && !isSubtypeOf(firstTermFactors[i], MATRIXTYPE) && firstTermFactors[i].getTypeHash() != SYMBOLTYPE)
+        if(isCommonFactor && !isTypeSimilarTo(firstTermFactors[i], MATRIXTYPE) && firstTermFactors[i].getTypeHash() != SYMBOLTYPE)
             commonFactors.push_back(firstTermFactors[i]);
     }
     return commonFactors;
 }
 
-ExprVector getCommonFactors(ExprVector terms) {
+ExprVector commonFactors(ExprVector terms) {
+    
+    ExprVector firstTermFactors = terms[0].getFactors();
+    ExprVector commonFactors = firstTermFactors;
+    if(terms.size() == 1)
+        return firstTermFactors;
+    for(int i = 1; i< terms.size(); i++) {
+        ExprVector nextFactors = terms[i].getFactors();
+        commonFactors = setIntersect(commonFactors, nextFactors);
+    }
+    return commonFactors;
+    /*
     ExprVector commonFactors = *new ExprVector();
     ExprMatrix ithTermFactors = *new ExprMatrix();
     ExprVector firstTermFactors = getFactors(terms[0]);
@@ -894,7 +905,7 @@ ExprVector getCommonFactors(ExprVector terms) {
         if(isCommonFactor)
             commonFactors.push_back(firstTermFactors[i]);
     }
-    return commonFactors;
+    return commonFactors;*/
 }
 
 //DOES NOT RESPECT COMMUTATION PROPERTIES... probably
@@ -903,7 +914,7 @@ Expression combineTermsDifferingByCoefficientsAdditively(Expression left, Expres
         return *new Expression(right.get());
     if(right->getTypeHash() == ZEROTYPE)
         return *new Expression(left.get());
-    if(isSubtypeOf(left, REALTYPE) && isSubtypeOf(right, REALTYPE))
+    if(isTypeSimilarTo(left, REALTYPE) && isTypeSimilarTo(right, REALTYPE))
         return left+right;
     if(left->getTypeHash() == SIGNTYPE) {
         const Sign& signObj = dynamic_cast<const Sign&>(*left);
@@ -936,7 +947,7 @@ Expression combineTermsDifferingByCoefficientsAdditively(Expression left, Expres
 
 Expression performActions(Expression target) {
     size_t sourceType = target->getTypeHash();
-    if(isSubtypeOf(target, MATRIXTYPE)) {
+    if(isTypeSimilarTo(target, MATRIXTYPE)) {
         const Matrix& matObj = dynamic_cast<const Matrix&>(*target);
         ExprMatrix elements = *new ExprMatrix(matObj.elements);
         for(int i = 0; i<matObj.dimensions.first; i++) {
@@ -970,7 +981,7 @@ Expression performActions(Expression target) {
         const Sign& signObj = dynamic_cast<const Sign&>(*target);
         return -performActions(signObj.member);
     }
-    if(isSubtypeOf(target, FUNCTYPE)) {
+    if(isTypeSimilarTo(target, FUNCTYPE)) {
         const Func& funcObj = dynamic_cast<const Func&>(*target);
         return funcObj.act();
     }
@@ -999,7 +1010,7 @@ Expression performActions(Expression target) {
 
 Expression performActionsOn(Expression target, Expression var) {
     size_t sourceType = target->getTypeHash();
-    if(isSubtypeOf(target, MATRIXTYPE)) {
+    if(isTypeSimilarTo(target, MATRIXTYPE)) {
         const Matrix& matObj = dynamic_cast<const Matrix&>(*target);
         ExprMatrix elements = *new ExprMatrix(matObj.elements);
         for(int i = 0; i<matObj.dimensions.first; i++) {
@@ -1033,7 +1044,7 @@ Expression performActionsOn(Expression target, Expression var) {
         const Sign& signObj = dynamic_cast<const Sign&>(*target);
         return -performActionsOn(signObj.member, var);
     }
-    if(isSubtypeOf(target, FUNCTYPE)) {
+    if(isTypeSimilarTo(target, FUNCTYPE)) {
         const Func& funcObj = dynamic_cast<const Func&>(*target);
         return funcObj.resultOfActingOn(var);
     }
@@ -1062,7 +1073,7 @@ Expression performActionsOn(Expression target, Expression var) {
 
 Expression insertAsVariable(Expression target, Expression var) {
     size_t sourceType = target->getTypeHash();
-    if(isSubtypeOf(target, MATRIXTYPE)) {
+    if(isTypeSimilarTo(target, MATRIXTYPE)) {
         const Matrix& matObj = dynamic_cast<const Matrix&>(*target);
         ExprMatrix elements = *new ExprMatrix(matObj.elements);
         for(int i = 0; i<matObj.dimensions.first; i++) {
@@ -1096,7 +1107,7 @@ Expression insertAsVariable(Expression target, Expression var) {
         const Sign& signObj = dynamic_cast<const Sign&>(*target);
         return -insertAsVariable(signObj.member, var);
     }
-    if(isSubtypeOf(target, FUNCTYPE)) {
+    if(isTypeSimilarTo(target, FUNCTYPE)) {
         const Func& funcObj = dynamic_cast<const Func&>(*target);
         return funcObj.actingOn(var);
     }
@@ -1128,7 +1139,7 @@ Expression substitute(Expression source, Expression target, Expression value) {
     if(source == target)
         return valueExpr;
     size_t sourceType = source->getTypeHash();
-    if(isSubtypeOf(source, MATRIXTYPE)) {
+    if(isTypeSimilarTo(source, MATRIXTYPE)) {
         const Matrix& matObj = dynamic_cast<const Matrix&>(*source);
         ExprMatrix elements = *new ExprMatrix(matObj.elements);
         bool foundTarget = false;

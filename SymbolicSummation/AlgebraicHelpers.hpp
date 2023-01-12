@@ -31,12 +31,13 @@ Expression combineProducts(Expression left, Expression right);
 Expression combineSums(Expression left, Expression right);
 Expression cancelTerms(Expression target);
 Expression simplify(Expression target);
-Expression distribute(Expression left, Expression right);
-ExprVector getFactors(Expression factee);
-ExprVector getCommonFactors(ExprVector terms);
+//Expression distribute(Expression left, Expression right);
+//ExprVector getFactors(Expression factee);
+ExprVector commonFactors(ExprVector terms);
 ExprVector getSimpleCommonFactors(ExprVector terms);
 Expression combineTermsDifferingByCoefficientsAdditively(Expression left, Expression right);
 Expression factor(Expression factee);
+ExprVector getFactorsOfInt(Expression factee);
 Expression substitute(Expression source, Expression target, Expression value);
 Expression substitute(Expression source, std::vector<std::pair<Expression,Expression>> substitutions);
 

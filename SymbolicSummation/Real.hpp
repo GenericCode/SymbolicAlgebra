@@ -30,8 +30,6 @@ public:
     Expression transpose() const;
     Expression cancelTerms() const;
     ExprVector getFactors() const;
-    ExprVector getCommonFactors(Expression other) const;
-    ExprVector getCommonFactors(ExprVector terms) const;
     Real(const Real& target);
     const Real& operator=(const Real& target);
     Real(float newVal);
