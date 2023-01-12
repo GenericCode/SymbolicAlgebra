@@ -650,6 +650,76 @@ Expression getElementOfType(Expression source, size_t type, bool rightToLeft) {
     }
 };
 
+Expression getElementMatchingCondition(Expression source, std::function<bool(Expression)> condition, bool rightToLeft) {
+    size_t sourceType = source->getTypeHash();
+    if(sourceType == NULLTYPE)
+        return source;
+    if(condition(source))
+        return *new Expression(source);
+    ExprVector elementsToCheck = *new ExprVector();
+    if(sourceType == ADDTYPE) {
+        const Add& addObj = dynamic_cast<const Add&>(*source);
+        elementsToCheck = addObj.members;
+    }
+    if(sourceType == MULTYPE) {
+        const Mul& mulObj = dynamic_cast<const Mul&>(*source);
+        elementsToCheck = mulObj.members;
+    }
+    if(sourceType == FRACTYPE) {
+        const Frac& fracObj = dynamic_cast<const Frac&>(*source);
+        return getElementMatchingCondition(fracObj.numerator, condition, rightToLeft);
+    }
+    
+    if(!rightToLeft) {
+        for(int i = 0; i<elementsToCheck.size(); i++) {
+            if(condition(elementsToCheck[i]) )
+                return *new Expression(elementsToCheck[i]);
+        }
+        Expression result = *new Expression(new NullObject("could not find element matching condition"));
+        return result;
+    } else {
+        for(int i = (int)elementsToCheck.size()-1; i>=0; i--) {
+            if(condition(elementsToCheck[i]) ) {
+                return *new Expression(elementsToCheck[i]);
+            }
+        }
+        Expression result = *new Expression(new NullObject("could not find element matching condition"));
+        return result;
+    }
+}
+
+Expression getMatrixMatchingPauliFlavor(Expression target, Expression matrixToMatch) {
+    Expression result = *new Expression(new NullObject("could not find PAULIMATRIXTYPE of matching flavor"));
+    if(matrixToMatch->getTypeHash() != PAULIMATRIXTYPE) {
+        return result;
+    }
+    const PauliMatrix& matrixObjToMatch = dynamic_cast<const PauliMatrix&>(*matrixToMatch);
+    String flavorToFind = matrixObjToMatch.flavor;
+    Expression matrixToCheck = getElementOfType(target, PAULIMATRIXTYPE);//target->getFirstInstanceOfType(PAULIMATRIXTYPE);
+    bool sign = false;
+    if(matrixToCheck.getTypeHash() == SIGNTYPE) {
+        sign = true;
+        matrixToCheck = -matrixToCheck;
+    }
+    Expression remainder = *new Expression(target.get());//removeElementAbsolutely(target, matrixToCheck);//target->remove(matrixToCheck);
+    while(result.getTypeHash() == NULLTYPE && matrixToCheck.getTypeHash() != NULLTYPE) {
+        remainder = removeElementAbsolutely(remainder, matrixToCheck);//remainder.remove(matrixToCheck);
+        const PauliMatrix& matrixObjToCheck = dynamic_cast<const PauliMatrix&>(*matrixToCheck);
+        if(matrixObjToCheck.flavor == flavorToFind ) {//&& *matrixToCheck != matrixToMatch) {
+            if(sign)
+                result = *new Expression(new Sign(matrixToCheck));
+            else
+                result = matrixToCheck;
+        }
+        matrixToCheck = getElementOfType(remainder, PAULIMATRIXTYPE);//remainder.getFirstInstanceOfType(PAULIMATRIXTYPE);
+        if(matrixToCheck.getTypeHash() == SIGNTYPE) {
+            sign = true;
+            matrixToCheck = -matrixToCheck;
+        }
+    }
+    return result;
+}
+
 ExprVector replaceElementOfTypeInVector(ExprVector source, size_t type, Expression value, bool rightToLeft) {
     ExprVector result = *new ExprVector();
     int location = positionOfType(source, type, rightToLeft);

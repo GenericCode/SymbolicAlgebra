@@ -26,6 +26,8 @@ bool exprVectorContainsType(ExprVector list, size_t type, bool rightToLeft = fal
 bool intVectorContains(std::vector<int> container, int target);
 String printExprMatrix(ExprMatrix target);
 Expression getElementOfType(Expression source, size_t type, bool rightToLeft = false);
+Expression getElementMatchingCondition(Expression source, std::function<bool(Expression)>, bool rightToLeft = false);
+Expression getMatrixMatchingPauliFlavor(Expression target, Expression matrixToMatch);
 Expression removeElementMultiplicatively(Expression source, Expression target, bool rightToLeft = false);
 Expression removeElementAdditively(Expression source, Expression target, bool rightToLeft = false);
 Expression removeElementAbsolutely(Expression source, Expression target, bool rightToLeft = false);

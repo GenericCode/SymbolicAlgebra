@@ -45,6 +45,12 @@ public:
     Add(ExprVector newMembers);
     Add(Expression left, Expression right);
     ~Add();
+    friend class Add;
+    friend class Sign;
+    friend class Mul;
+    friend class Frac;
+    friend class Exp;
+    friend class Func;
     friend Expression distribute(Expression left, Expression right);
     friend ExprVector getFactors(Expression factee);
     friend Expression combineProducts(Expression left, Expression right);
@@ -62,6 +68,7 @@ public:
     friend Expression performActions(Expression target);
     friend Expression performActionsOn(Expression target, Expression var);
     friend Expression insertAsVariable(Expression target, Expression var);
+    friend Expression getElementMatchingCondition(Expression source, std::function<bool(Expression)> condition, bool rightToLeft);
 };
 
 class Sign : public Container {
@@ -86,6 +93,12 @@ public:
     const Sign& operator=(const Sign& target);
     Sign(Expression member);
     ~Sign();
+    friend class Add;
+    friend class Sign;
+    friend class Mul;
+    friend class Frac;
+    friend class Exp;
+    friend class Func;
     friend Expression distribute(Expression left, Expression right);
     friend ExprVector getFactors(Expression factee);
     friend Expression combineProducts(Expression left, Expression right);
@@ -103,6 +116,7 @@ public:
     friend Expression performActions(Expression target);
     friend Expression performActionsOn(Expression target, Expression var);
     friend Expression insertAsVariable(Expression target, Expression var);
+    friend Expression getElementMatchingCondition(Expression source, std::function<bool(Expression)> condition, bool rightToLeft);
     
 };
 
@@ -126,6 +140,12 @@ public:
     Mul(ExprVector newMembers);
     Mul(Expression right, Expression left);
     ~Mul();
+    friend class Add;
+    friend class Sign;
+    friend class Mul;
+    friend class Frac;
+    friend class Exp;
+    friend class Func;
     friend Expression distribute(Expression left, Expression right);
     friend ExprVector getFactors(Expression factee);
     friend Expression combineProducts(Expression left, Expression right);
@@ -142,6 +162,7 @@ public:
     friend Expression performActions(Expression target);
     friend Expression performActionsOn(Expression target, Expression var);
     friend Expression insertAsVariable(Expression target, Expression var);
+    friend Expression getElementMatchingCondition(Expression source, std::function<bool(Expression)> condition, bool rightToLeft);
 };
 
 class Frac : public Container {
@@ -165,6 +186,12 @@ public:
     Frac(Expression denom);
     Frac(Expression num, Expression denom);
     ~Frac();
+    friend class Add;
+    friend class Sign;
+    friend class Mul;
+    friend class Frac;
+    friend class Exp;
+    friend class Func;
     friend Expression distribute(Expression left, Expression right);
     friend ExprVector getFactors(Expression factee);
     friend Expression combineProducts(Expression left, Expression right);
@@ -181,6 +208,7 @@ public:
     friend Expression performActions(Expression target);
     friend Expression performActionsOn(Expression target, Expression var);
     friend Expression insertAsVariable(Expression target, Expression var);
+    friend Expression getElementMatchingCondition(Expression source, std::function<bool(Expression)> condition, bool rightToLeft);
 };
 
 class Exp : public Container {
@@ -205,6 +233,12 @@ public:
     Exp(Expression base, Expression exponent);
     Exp(Expression base, int exponent);
     ~Exp();
+    friend class Add;
+    friend class Sign;
+    friend class Mul;
+    friend class Frac;
+    friend class Exp;
+    friend class Func;
     friend Expression distribute(Expression left, Expression right);
     friend ExprVector getFactors(Expression factee);
     friend Expression combineProducts(Expression left, Expression right);
@@ -219,6 +253,7 @@ public:
     friend Expression performActions(Expression target);
     friend Expression performActionsOn(Expression target, Expression var);
     friend Expression insertAsVariable(Expression target, Expression var);
+    friend Expression getElementMatchingCondition(Expression source, std::function<bool(Expression)> condition, bool rightToLeft);
 };
 
 //typedef std::function<Expression(Expression)> ExprActionObj;
@@ -266,6 +301,12 @@ public:
     Func(String name);
     //Func(String name, ExprActionObj action);
     Func(String name, ExprAction action);
+    friend class Add;
+    friend class Sign;
+    friend class Mul;
+    friend class Frac;
+    friend class Exp;
+    friend class Func;
     friend Expression parseString(String expr);
     friend Expression distribute(Expression left, Expression right);
     friend ExprVector getFactors(Expression factee);
@@ -281,6 +322,7 @@ public:
     friend Expression performActions(Expression target);
     friend Expression performActionsOn(Expression target, Expression var);
     friend Expression insertAsVariable(Expression target, Expression var);
+    friend Expression getElementMatchingCondition(Expression source, std::function<bool(Expression)> condition, bool rightToLeft);
 };
 static const Expression TRANSPOSE = *new Expression(new Func("transpose",transpose));
 

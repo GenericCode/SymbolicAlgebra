@@ -84,9 +84,10 @@ Expression Real::multiply(Expression other) const {
             Expression result = declareReal(newVal);
             return result;
         }
-    } else if(other->getTypeHash() == MULTYPE) {
+    }/*else if(other->getTypeHash() == MULTYPE) {
         return combineProducts(*new Expression(this),other);
-    }
+    }*/
+    return distribute(other);
 };
 Expression Real::divide(Expression other) const {
     Expression thisExpr = *new Expression(this);

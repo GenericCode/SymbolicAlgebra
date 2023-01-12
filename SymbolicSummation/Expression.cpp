@@ -47,9 +47,7 @@ Expression Expression::determinant() const {
 Expression Expression::transpose() const {
     return (**this).transpose();
 };
-Expression Expression::cancelTerms() const {
-    return (**this).cancelTerms();
-};
+
 ExprVector Expression::getFactors() const {
     return (**this).getFactors();
 };

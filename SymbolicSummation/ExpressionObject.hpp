@@ -22,7 +22,6 @@ public:
     virtual Expression reciprocal() const = 0;
     virtual Expression determinant() const = 0;
     virtual Expression transpose() const = 0;
-    virtual Expression cancelTerms() const = 0;
     virtual ExprVector getFactors() const = 0;
     
     bool simplified = false;
@@ -74,7 +73,6 @@ public:
     Expression reciprocal() const;
     Expression determinant() const;
     Expression transpose() const;
-    Expression cancelTerms() const;
     ExprVector getFactors() const;
 };
 

@@ -9,6 +9,8 @@
 #include "AlgebraicHelpers.hpp"
 #include "AbstractHelpers.hpp"
 #include "Real.hpp"
+#include "Symbol.hpp"
+#include "PauliMatrices.hpp"
 
 //Operator
 Expression Container::add(Expression other) const {
@@ -325,12 +327,108 @@ String Mul::print() const {
     return result;
 };
 
+Expression simplifyMulWithPauliMatrices(Expression target) {
+    bool isMul = target->getTypeHash() == MULTYPE;
+    bool isAdd = target->getTypeHash() == ADDTYPE;
+    Expression total;
+    Expression remainder = *new Expression(target.get());
+    Expression firstPauli = getElementOfType(target, PAULIMATRIXTYPE);
+    if(firstPauli.getTypeHash() == NULLTYPE)
+        return *new Expression(target.get());
+    if(isMul) {
+        total = ONE;
+    }
+    if(isAdd) {
+        total = ZERO;
+    }
+    
+    while(firstPauli.getTypeHash() != NULLTYPE && remainder != ZERO && remainder != ONE) {
+        if(isMul)
+            remainder = removeElementMultiplicatively(remainder, firstPauli);//remainder = remainder.remove(firstPauli);
+        if(isAdd)
+            remainder = removeElementAdditively(remainder, firstPauli);
+        Expression secondPauli = getMatrixMatchingPauliFlavor(remainder, firstPauli);
+        Expression tempResult = firstPauli;
+        while(secondPauli.getTypeHash() != NULLTYPE && remainder != ZERO && remainder != ONE) {
+            if(isMul) {
+                remainder = removeElementMultiplicatively(remainder, secondPauli);//remainder = remainder.remove(secondPauli);
+                tempResult = tempResult*secondPauli;
+            }
+            if(isAdd) {
+                remainder = removeElementAdditively(remainder, secondPauli);//remainder = remainder.remove(secondPauli);
+                tempResult = tempResult+secondPauli;
+            }
+            
+            secondPauli = getMatrixMatchingPauliFlavor(remainder, firstPauli);
+            
+        }
+        //if(tempResult.getTypeHash() == NULLTYPE)
+        //    tempResult = firstPauli;
+        
+        firstPauli = getElementOfType(remainder, PAULIMATRIXTYPE);//remainder.getFirstInstanceOfType(PAULIMATRIXTYPE);
+        if(isMul)
+            total = total*tempResult;//distribute(total, firstPauli);
+        if(isAdd)
+            total = total+tempResult;//combineSums(total, firstPauli);
+    }
+    if(remainder.getTypeHash() != ZEROTYPE) {
+        if(isMul)
+            total = total*remainder;//distribute(total, remainder);
+        if(isAdd)
+            total = total+remainder;//combineSums(total, remainder);
+    }
+    if(total.getTypeHash() == MULTYPE) {
+        const Mul& mulObj = dynamic_cast<const Mul&>(*total);
+        if(mulObj.members.size() == 0)
+            return ZERO;
+        if(mulObj.members.size() == 1)
+            return mulObj.members[0];
+    }
+    if(total.getTypeHash() == ADDTYPE) {
+        const Add& addObj = dynamic_cast<const Add&>(*total);
+        if(addObj.members.size() == 0)
+            return ZERO;
+        if(addObj.members.size() == 1) {
+            return addObj.members[0];
+        }
+    }
+    return total;
+}
+
 Expression Mul::simplify() const {
     ExprVector newMembers = *new ExprVector();
     for(int i = 0; i< members.size(); i++)
         newMembers.push_back(members[i].simplify());
-    Expression newMul = *new Expression(new Mul(newMembers));
-    return newMul;
+    Expression result = *new Expression(new Mul(newMembers));
+    std::vector<size_t> types = {FRACTYPE,EXPTYPE,SYMBOLTYPE,EUCLIDVECTORTYPE,PAULIMATRIXTYPE,MATRIXTYPE,IMAGINARYUNITTYPE,REALTYPE};
+    std::function<bool(Expression)> checker;
+    for(size_t type : types) {
+        if(type == PAULIMATRIXTYPE) {
+            result = simplifyMulWithPauliMatrices(result);
+        }
+        else {//all cases but simplifying pauli matrices
+            Expression first = getElementOfType(result, type);
+            if(first.getTypeHash() == NULLTYPE)
+                continue;
+            Expression remainder;// = result.remove(first);
+            remainder = removeElementMultiplicatively(result, first);
+            Expression second = getElementOfType(remainder, type);//remainder.getFirstInstanceOfType(type);
+            Expression total = first;
+            while(second.getTypeHash() != NULLTYPE && remainder != ZERO && remainder != ONE) {
+                remainder = removeElementMultiplicatively(remainder, second);//remainder = remainder.remove(second);
+                total = total*second;
+                second = getElementOfType(remainder, type);//remainder.getFirstInstanceOfType(type);
+            }
+            //if(tempResult.getTypeHash() == NULLTYPE)
+            //    tempResult = first;
+            if(remainder.getTypeHash() != NULLTYPE) {
+                result = total*remainder;//distribute(first, remainder);
+            } else
+                result = total;
+        }
+    }
+        
+    return result;
 };
 Expression Mul::distribute(Expression other) const {
     if(other.getTypeHash() == MULTYPE) {

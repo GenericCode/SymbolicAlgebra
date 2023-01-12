@@ -65,38 +65,6 @@ Expression determinant(Expression target) {
     return det;
 }
 
-Expression getMatrixMatchingPauliFlavor(Expression target, Expression matrixToMatch) {
-    Expression result = *new Expression(new NullObject("could not find PAULIMATRIXTYPE of matching flavor"));
-    if(matrixToMatch->getTypeHash() != PAULIMATRIXTYPE) {
-        return result;
-    }
-    const PauliMatrix& matrixObjToMatch = dynamic_cast<const PauliMatrix&>(*matrixToMatch);
-    String flavorToFind = matrixObjToMatch.flavor;
-    Expression matrixToCheck = getElementOfType(target, PAULIMATRIXTYPE);//target->getFirstInstanceOfType(PAULIMATRIXTYPE);
-    bool sign = false;
-    if(matrixToCheck.getTypeHash() == SIGNTYPE) {
-        sign = true;
-        matrixToCheck = -matrixToCheck;
-    }
-    Expression remainder = *new Expression(target.get());//removeElementAbsolutely(target, matrixToCheck);//target->remove(matrixToCheck);
-    while(result.getTypeHash() == NULLTYPE && matrixToCheck.getTypeHash() != NULLTYPE) {
-        remainder = removeElementAbsolutely(remainder, matrixToCheck);//remainder.remove(matrixToCheck);
-        const PauliMatrix& matrixObjToCheck = dynamic_cast<const PauliMatrix&>(*matrixToCheck);
-        if(matrixObjToCheck.flavor == flavorToFind ) {//&& *matrixToCheck != matrixToMatch) {
-            if(sign)
-                result = *new Expression(new Sign(matrixToCheck));
-            else
-                result = matrixToCheck;
-        }
-        matrixToCheck = getElementOfType(remainder, PAULIMATRIXTYPE);//remainder.getFirstInstanceOfType(PAULIMATRIXTYPE);
-        if(matrixToCheck.getTypeHash() == SIGNTYPE) {
-            sign = true;
-            matrixToCheck = -matrixToCheck;
-        }
-    }
-    return result;
-}
-
 Expression matMul(Expression left, Expression right) {
     if( isTypeSimilarTo(right, MATRIXTYPE) && isTypeSimilarTo(left, MATRIXTYPE)) {
         const Matrix& leftMatrix = dynamic_cast<const Matrix&>(*left);
