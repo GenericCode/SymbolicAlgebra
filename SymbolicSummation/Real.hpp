@@ -30,6 +30,9 @@ public:
     Expression transpose() const;
     Expression cancelTerms() const;
     ExprVector getFactors() const;
+    float getValue() const {
+        return value;
+    };
     Real(const Real& target);
     const Real& operator=(const Real& target);
     Real(float newVal);

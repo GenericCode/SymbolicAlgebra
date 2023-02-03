@@ -10,7 +10,8 @@
 
 #include <stdio.h>
 #include "Symbol.hpp"
-
+//TODO:
+//delete index? why is it necessary as a member variable?
 class PauliMatrix : public Matrix {
 protected:
     int index = 0;
@@ -25,12 +26,8 @@ public:
     };
     Expression simplify() const;
     Expression distribute(Expression other) const;
-    Expression factor() const;
-    Expression reciprocal() const;
-    Expression determinant() const;
     Expression transpose() const;
     Expression cancelTerms() const;
-    ExprVector getFactors() const;
     
     PauliMatrix(String name, int index, String flavor, std::initializer_list<std::initializer_list<Expression>> newElements );
     PauliMatrix(String name, int index, String flavor, ExprMatrix elements);

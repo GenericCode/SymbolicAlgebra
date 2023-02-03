@@ -36,7 +36,7 @@ Expression simplify(Expression target);
 ExprVector commonFactors(ExprVector terms);
 ExprVector getSimpleCommonFactors(ExprVector terms);
 Expression combineTermsDifferingByCoefficientsAdditively(Expression left, Expression right);
-Expression factor(Expression factee);
+//Expression factor(Expression factee);
 ExprVector getFactorsOfInt(Expression factee);
 Expression substitute(Expression source, Expression target, Expression value);
 Expression substitute(Expression source, std::vector<std::pair<Expression,Expression>> substitutions);

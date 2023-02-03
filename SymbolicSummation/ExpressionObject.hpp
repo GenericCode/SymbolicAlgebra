@@ -23,6 +23,7 @@ public:
     virtual Expression determinant() const = 0;
     virtual Expression transpose() const = 0;
     virtual ExprVector getFactors() const = 0;
+    virtual ~ExpressionObject() = 0;
     
     bool simplified = false;
 public:

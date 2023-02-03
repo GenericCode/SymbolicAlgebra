@@ -125,16 +125,18 @@ Expression Real::distribute(Expression other) const {
     if(other.getTypeHash() == MULTYPE) {
         const Mul& otherMul = dynamic_cast<const Mul&>(*other);
         ExprVector newMembers = *new ExprVector();
-        for(int i = 0; i< otherMul.members.size(); i++) {
-            newMembers.push_back(otherMul.members[i]);
+        ExprVector mulMembers = otherMul.getMembers();
+        for(int i = 0; i< mulMembers.size(); i++) {
+            newMembers.push_back(mulMembers[i]);
         }
         return *new Expression(new Mul(newMembers));
     }
     if(other.getTypeHash() == ADDTYPE) {
         const Add& otherAdd= dynamic_cast<const Add&>(*other);
         ExprVector newMembers = *new ExprVector();
-        for(int i = 0; i< otherAdd.members.size(); i++) {
-            newMembers.push_back(distribute(otherAdd.members[i]));
+        ExprVector addMembers = otherAdd.getMembers();
+        for(int i = 0; i< addMembers.size(); i++) {
+            newMembers.push_back(distribute(addMembers[i]));
         }
         return *new Expression(new Add(newMembers));
     }

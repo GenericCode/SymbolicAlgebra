@@ -21,11 +21,13 @@ protected:
     Expression subtract(Expression other) const;
     Expression negate() const;
 public:
+    ~Container();
 };
 
 class Add : public Container {
+private:
+    ExprVector members;
 protected:
-    ExprVector members = *new ExprVector();
     //SignVector memberSigns = *new SignVector();
     Expression negate() const;
 public:
@@ -38,19 +40,16 @@ public:
     Expression transpose() const;
     Expression cancelTerms() const;
     ExprVector getFactors() const;
+    ExprVector getMembers() const {
+        return *new ExprVector(members);
+    };
     
     Add(const Add& target);
     Add& operator=(const Add& target);
     Add(std::initializer_list<Expression> newMembers);
     Add(ExprVector newMembers);
     Add(Expression left, Expression right);
-    ~Add();
-    friend class Add;
-    friend class Sign;
-    friend class Mul;
-    friend class Frac;
-    friend class Exp;
-    friend class Func;
+    ~Add();/*
     friend Expression distribute(Expression left, Expression right);
     friend ExprVector getFactors(Expression factee);
     friend Expression combineProducts(Expression left, Expression right);
@@ -68,12 +67,13 @@ public:
     friend Expression performActions(Expression target);
     friend Expression performActionsOn(Expression target, Expression var);
     friend Expression insertAsVariable(Expression target, Expression var);
-    friend Expression getElementMatchingCondition(Expression source, std::function<bool(Expression)> condition, bool rightToLeft);
+    friend Expression getElementMatchingCondition(Expression source, std::function<bool(Expression)> condition, bool rightToLeft);*/
 };
 
 class Sign : public Container {
-protected:
+private:
     Expression member;
+protected:
     Expression negate() const;
     Expression multiply(Expression other) const;
     Expression add(Expression other) const;
@@ -88,17 +88,15 @@ public:
     Expression transpose() const;
     Expression cancelTerms() const;
     ExprVector getFactors() const;
+    Expression getMember() const {
+        return member;
+    };
     
     Sign(const Sign& target);
     const Sign& operator=(const Sign& target);
     Sign(Expression member);
     ~Sign();
-    friend class Add;
-    friend class Sign;
-    friend class Mul;
-    friend class Frac;
-    friend class Exp;
-    friend class Func;
+    /*
     friend Expression distribute(Expression left, Expression right);
     friend ExprVector getFactors(Expression factee);
     friend Expression combineProducts(Expression left, Expression right);
@@ -116,13 +114,14 @@ public:
     friend Expression performActions(Expression target);
     friend Expression performActionsOn(Expression target, Expression var);
     friend Expression insertAsVariable(Expression target, Expression var);
-    friend Expression getElementMatchingCondition(Expression source, std::function<bool(Expression)> condition, bool rightToLeft);
+    friend Expression getElementMatchingCondition(Expression source, std::function<bool(Expression)> condition, bool rightToLeft);*/
     
 };
 
 class Mul : public Container {
+private:
+    ExprVector members;
 protected:
-    ExprVector members = *new ExprVector();
     Expression negate()  const;
 public:
     String print() const;
@@ -134,18 +133,17 @@ public:
     Expression transpose() const;
     Expression cancelTerms() const;
     ExprVector getFactors() const;
+    ExprVector getMembers() const {
+        return *new ExprVector(members);
+    };
     
     Mul(const Mul& target);
     Mul& operator=(const Mul& target);
     Mul(ExprVector newMembers);
     Mul(Expression right, Expression left);
     ~Mul();
-    friend class Add;
-    friend class Sign;
-    friend class Mul;
-    friend class Frac;
-    friend class Exp;
-    friend class Func;
+    /*
+    friend Expression simplifyMulWithPauliMatrices(Expression target);
     friend Expression distribute(Expression left, Expression right);
     friend ExprVector getFactors(Expression factee);
     friend Expression combineProducts(Expression left, Expression right);
@@ -162,13 +160,14 @@ public:
     friend Expression performActions(Expression target);
     friend Expression performActionsOn(Expression target, Expression var);
     friend Expression insertAsVariable(Expression target, Expression var);
-    friend Expression getElementMatchingCondition(Expression source, std::function<bool(Expression)> condition, bool rightToLeft);
+    friend Expression getElementMatchingCondition(Expression source, std::function<bool(Expression)> condition, bool rightToLeft);*/
 };
 
 class Frac : public Container {
-protected:
+private:
     Expression numerator;
     Expression denomenator;
+protected:
     Expression negate() const;
 public:
     String print() const;
@@ -180,18 +179,19 @@ public:
     Expression transpose() const;
     Expression cancelTerms() const;
     ExprVector getFactors() const;
+    Expression getNumerator() const {
+        return numerator;
+    };
+    Expression getDenomenator() const {
+        return denomenator;
+    };
     
     Frac& operator=(const Frac& target);
     Frac(const Frac& target);
     Frac(Expression denom);
     Frac(Expression num, Expression denom);
     ~Frac();
-    friend class Add;
-    friend class Sign;
-    friend class Mul;
-    friend class Frac;
-    friend class Exp;
-    friend class Func;
+    /*
     friend Expression distribute(Expression left, Expression right);
     friend ExprVector getFactors(Expression factee);
     friend Expression combineProducts(Expression left, Expression right);
@@ -208,13 +208,14 @@ public:
     friend Expression performActions(Expression target);
     friend Expression performActionsOn(Expression target, Expression var);
     friend Expression insertAsVariable(Expression target, Expression var);
-    friend Expression getElementMatchingCondition(Expression source, std::function<bool(Expression)> condition, bool rightToLeft);
+    friend Expression getElementMatchingCondition(Expression source, std::function<bool(Expression)> condition, bool rightToLeft);*/
 };
 
 class Exp : public Container {
-protected:
+private:
     Expression base;
     Expression exponent;
+protected:
     Expression negate() const;
     Expression multiply(Expression other) const;
 public:
@@ -227,18 +228,19 @@ public:
     Expression transpose() const;
     Expression cancelTerms() const;
     ExprVector getFactors() const;
+    Expression getBase() const {
+        return base;
+    };
+    Expression getExponent() const {
+        return exponent;
+    };
     
     const Exp& operator=(const Exp& target);
     Exp(const Exp& target);
     Exp(Expression base, Expression exponent);
     Exp(Expression base, int exponent);
     ~Exp();
-    friend class Add;
-    friend class Sign;
-    friend class Mul;
-    friend class Frac;
-    friend class Exp;
-    friend class Func;
+    /*
     friend Expression distribute(Expression left, Expression right);
     friend ExprVector getFactors(Expression factee);
     friend Expression combineProducts(Expression left, Expression right);
@@ -253,7 +255,7 @@ public:
     friend Expression performActions(Expression target);
     friend Expression performActionsOn(Expression target, Expression var);
     friend Expression insertAsVariable(Expression target, Expression var);
-    friend Expression getElementMatchingCondition(Expression source, std::function<bool(Expression)> condition, bool rightToLeft);
+    friend Expression getElementMatchingCondition(Expression source, std::function<bool(Expression)> condition, bool rightToLeft);*/
 };
 
 //typedef std::function<Expression(Expression)> ExprActionObj;
@@ -274,14 +276,6 @@ protected:
     String funcName;
     ExprAction functionAction;
     Expression member = *new Expression(new NullObject("stand-in for a generic variable"));
-    Expression act() const {
-        return functionAction(member);
-    };
-    //actingOn() guaranteed to be pointing at a Func object?
-    Expression actingOn(Expression variable) const;
-    Expression resultOfActingOn(Expression variable) const {
-        return functionAction(variable);
-    };
 public:
     String print() const;
     Expression simplify() const;
@@ -292,6 +286,20 @@ public:
     Expression transpose() const;
     Expression cancelTerms() const;
     ExprVector getFactors() const;
+    Expression act() const {
+        return functionAction(member);
+    };
+    //actingOn() guaranteed to be pointing at a Func object?
+    Expression actingOn(Expression variable) const;
+    Expression resultOfActingOn(Expression variable) const {
+        return functionAction(variable);
+    };
+    ExprAction getAction() const {
+        return *new ExprAction(functionAction);
+    };
+    Expression getMember() const {
+        return member;
+    }
     
     Func(const Func& target);
     Func& operator=(const Func& target);
@@ -301,12 +309,8 @@ public:
     Func(String name);
     //Func(String name, ExprActionObj action);
     Func(String name, ExprAction action);
-    friend class Add;
-    friend class Sign;
-    friend class Mul;
-    friend class Frac;
-    friend class Exp;
-    friend class Func;
+    Func(String name, ExprAction action, Expression member);
+    /*
     friend Expression parseString(String expr);
     friend Expression distribute(Expression left, Expression right);
     friend ExprVector getFactors(Expression factee);
@@ -322,7 +326,7 @@ public:
     friend Expression performActions(Expression target);
     friend Expression performActionsOn(Expression target, Expression var);
     friend Expression insertAsVariable(Expression target, Expression var);
-    friend Expression getElementMatchingCondition(Expression source, std::function<bool(Expression)> condition, bool rightToLeft);
+    friend Expression getElementMatchingCondition(Expression source, std::function<bool(Expression)> condition, bool rightToLeft);*/
 };
 static const Expression TRANSPOSE = *new Expression(new Func("transpose",transpose));
 

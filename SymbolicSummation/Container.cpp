@@ -12,7 +12,10 @@
 #include "Symbol.hpp"
 #include "PauliMatrices.hpp"
 
-//Operator
+//Container
+Container::~Container() {
+    delete &name;
+}
 Expression Container::add(Expression other) const {
     if(*this == *other)
         return 2**this;
@@ -54,12 +57,12 @@ Add::~Add() {
 Add& Add::operator=(const Add &target) {
     if(this == &target)
         return *this;
-    members = *new ExprVector(target.members);
+    members = *new ExprVector(target.getMembers());
     name = target.name;
     return *this;
 };
 Add::Add(const Add& target) {
-    members = *new ExprVector(target.members);
+    members = *new ExprVector(target.getMembers());
     name = target.name;
 }
 
@@ -107,7 +110,7 @@ Expression Add::simplify() const {
     for(int i = 0; i< members.size(); i++) {
         simplifiedMembers.push_back(members[i].simplify());
     }
-    Expression newAdd = *new Expression(new Add(simplifiedMembers));
+    const Add& newAdd = *new Add(simplifiedMembers);
     return newAdd.cancelTerms();
 };
 Expression Add::distribute(Expression other) const {
@@ -156,7 +159,7 @@ Expression Add::cancelTerms() const {
                 accountedFor.push_back(j);
                 continue;
             }
-            ExprVector currCommonFactors = runningSum.getCommonFactors(currExpr);
+            ExprVector currCommonFactors = commonFactors({runningSum,currExpr});
             if(currCommonFactors.size() == 0)
                 continue;
             Expression inCommon = ONE;
@@ -254,9 +257,6 @@ Expression Sign::determinant() const {
 Expression Sign::transpose() const {
     return -member.transpose();
 };
-Expression Sign::cancelTerms() const {
-    return -member.cancelTerms();
-};
 ExprVector Sign::getFactors() const {
     ExprVector memFactors = member.getFactors();
     if(!exprVectorContains(memFactors, MINUSONE))
@@ -285,11 +285,11 @@ Mul::~Mul() {
 Mul& Mul::operator=(const Mul &target) {
     if(this == &target)
         return *this;
-    members = *new ExprVector(target.members);
+    members = *new ExprVector(target.getMembers());
     return *this;
 };
 Mul::Mul(const Mul& target) {
-    members = *new ExprVector(target.members);
+    members = *new ExprVector(target.getMembers());
     name = target.name;
 };
 Mul::Mul(ExprVector newMembers) {
@@ -379,17 +379,17 @@ Expression simplifyMulWithPauliMatrices(Expression target) {
     }
     if(total.getTypeHash() == MULTYPE) {
         const Mul& mulObj = dynamic_cast<const Mul&>(*total);
-        if(mulObj.members.size() == 0)
+        if(mulObj.getMembers().size() == 0)
             return ZERO;
-        if(mulObj.members.size() == 1)
-            return mulObj.members[0];
+        if(mulObj.getMembers().size() == 1)
+            return mulObj.getMembers()[0];
     }
     if(total.getTypeHash() == ADDTYPE) {
         const Add& addObj = dynamic_cast<const Add&>(*total);
-        if(addObj.members.size() == 0)
+        if(addObj.getMembers().size() == 0)
             return ZERO;
-        if(addObj.members.size() == 1) {
-            return addObj.members[0];
+        if(addObj.getMembers().size() == 1) {
+            return addObj.getMembers()[0];
         }
     }
     return total;
@@ -433,13 +433,13 @@ Expression Mul::simplify() const {
 Expression Mul::distribute(Expression other) const {
     if(other.getTypeHash() == MULTYPE) {
         const Mul& otherMul = dynamic_cast<const Mul&>(*other);
-        return *new Expression(new Mul(setUnion(members, otherMul.members)));
+        return *new Expression(new Mul(setUnion(members, otherMul.getMembers())));
     }
     if(other.getTypeHash() == ADDTYPE) {
         const Add& otherAdd= dynamic_cast<const Add&>(*other);
         ExprVector newMembers = *new ExprVector();
-        for(int i = 0; i< otherAdd.members.size(); i++) {
-            newMembers.push_back(distribute(otherAdd.members[i]));
+        for(int i = 0; i< otherAdd.getMembers().size(); i++) {
+            newMembers.push_back(distribute(otherAdd.getMembers()[i]));
         }
         return *new Expression(new Add(newMembers));
     }
@@ -479,12 +479,6 @@ Expression Mul::transpose() const {
     }
     Expression newMul = *new Expression(new Mul(newMembers));
     return newMul;
-};
-Expression Mul::cancelTerms() const {
-    Expression simpledSelf = simplify();
-    if(simpledSelf.getTypeHash() != ADDTYPE)
-        return *new Expression(this);
-    return simpledSelf.cancelTerms();
 };
 ExprVector Mul::getFactors() const {
     ExprVector factors = *new ExprVector();
@@ -559,12 +553,6 @@ Expression Frac::determinant() const {
 };
 Expression Frac::transpose() const {
     return *new Expression(new Mul(denomenator.transpose().reciprocal(),numerator.transpose()));
-};
-Expression Frac::cancelTerms() const {
-    Expression simpledSelf = simplify();
-    if(simpledSelf.getTypeHash() != ADDTYPE)
-        return *new Expression(this);
-    return simpledSelf.cancelTerms();
 };
 ExprVector Frac::getFactors() const {
     ExprVector numFactors = numerator.getFactors();
@@ -655,20 +643,75 @@ String Exp::print() const {
 };
 
 Expression Exp::simplify() const {
+    return *new Expression(new Exp(base.simplify(),exponent.simplify()));
 };
 Expression Exp::distribute(Expression other) const {
+    size_t otherType = other.getTypeHash();
+    Expression thisExpr = *new Expression(this);
+    if(otherType == ADDTYPE) {
+        const Add& otherAdd = dynamic_cast<const Add&>(*other);
+        ExprVector newMembers = otherAdd.getMembers();
+        for(int i = 0; i<newMembers.size(); i++) {
+            newMembers[i] = distribute(newMembers[i]);
+        }
+        return *new Expression(new Add(newMembers));
+    }
+    if(otherType == MULTYPE) {
+        Expression testTarget = getElementOfType(other, EXPTYPE);
+        if(testTarget.getTypeHash() != NULLTYPE) {
+            Expression product = thisExpr*testTarget;
+            return product*removeElementMultiplicatively(other, testTarget);
+        }
+        const Mul& otherMul = dynamic_cast<const Mul&>(*other);
+        ExprVector newMembers = *new ExprVector();
+        ExprVector otherMembers = otherMul.getMembers();
+        newMembers.push_back(thisExpr);
+        for(int i = 0; i<otherMembers.size(); i++) {
+            newMembers.push_back(otherMembers[i]);
+        }
+        return *new Expression(new Mul(newMembers));
+    }
+    if(otherType == FRACTYPE) {
+        const Frac& otherFrac = dynamic_cast<const Frac&>(*other);
+        return *new Expression(new Frac(distribute(otherFrac.getNumerator()),otherFrac.getDenomenator()));
+    }
+    return *new Expression(new Mul(thisExpr,other));
 };
 Expression Exp::factor() const {
+    return *new Expression(new Mul(getFactors()));
 };
 Expression Exp::reciprocal() const {
+    return *new Expression(new Exp(base,-exponent));
 };
 Expression Exp::determinant() const {
+    return *new Expression(this);
 };
 Expression Exp::transpose() const {
-};
-Expression Exp::cancelTerms() const {
+    return *new Expression(this);
 };
 ExprVector Exp::getFactors() const {
+    size_t expType = exponent.getTypeHash();
+    if(expType == REALTYPE) {
+        const Real& realExp = dynamic_cast<const Real&>(*exponent);
+        if(floor(realExp.getValue()) == realExp.getValue()) {
+            int expVal = realExp.getValue();
+            ExprVector factors = *new ExprVector();
+            for(int i = 0; i<expVal; i++ ) {
+                factors.push_back(base);
+            }
+            return factors;
+        }
+    }
+    if(expType == ADDTYPE) {
+        const Add& addExp = dynamic_cast<const Add&>(*exponent);
+        ExprVector expMembers = addExp.getMembers();
+        ExprVector factors = *new ExprVector();
+        for(int i = 0; i<expMembers.size(); i++) {
+            factors.push_back(*new Expression(new Exp(base,expMembers[i])));
+        }
+        return factors;
+    }
+    return {*new Expression(this)};
 };
 
 //Func
@@ -711,6 +754,14 @@ Func::Func(String name, ExprAction action) {
     this->name = this->print();
 };
 
+Func::Func(String name, ExprAction action, Expression targetedExpression) {
+    funcName = name;
+    //functionAction = *new ExprAction(action);
+    functionAction = action;
+    member = targetedExpression;
+    this->name = this->print();
+};
+
 Expression Func::actingOn(Expression variable) const {
     Func* thisFunc = new Func(*this);
     thisFunc->member = variable;
@@ -734,21 +785,47 @@ String Func::print() const {
 }
 
 Expression Func::simplify() const {
-
+    return *new Expression(new Func(funcName,functionAction,member.simplify()));
 };
 Expression Func::distribute(Expression other) const {
-
+    size_t otherType = other.getTypeHash();
+    Expression thisExpr = *new Expression(this);
+    if(otherType == ADDTYPE) {
+        const Add& otherAdd = dynamic_cast<const Add&>(*other);
+        ExprVector newMembers = otherAdd.getMembers();
+        for(int i = 0; i<newMembers.size(); i++) {
+            newMembers[i] = distribute(newMembers[i]);
+        }
+        return *new Expression(new Add(newMembers));
+    }
+    if(otherType == MULTYPE) {
+        const Mul& otherMul = dynamic_cast<const Mul&>(*other);
+        ExprVector newMembers = *new ExprVector();
+        ExprVector otherMembers = otherMul.getMembers();
+        newMembers.push_back(thisExpr);
+        for(int i = 0; i<otherMembers.size(); i++) {
+            newMembers.push_back(otherMembers[i]);
+        }
+        return *new Expression(new Mul(newMembers));
+    }
+    if(otherType == FRACTYPE) {
+        const Frac& otherFrac = dynamic_cast<const Frac&>(*other);
+        return *new Expression(new Frac(distribute(otherFrac.getNumerator()),otherFrac.getDenomenator()));
+    }
+    return *new Expression(new Mul(thisExpr,other));
 };
 Expression Func::factor() const {
-
+    return *new Expression(this);
 };
 Expression Func::reciprocal() const {
+    return *new Expression(new Frac(*new Expression(this)));
 };
 Expression Func::determinant() const {
+    return *new Expression(this);
 };
 Expression Func::transpose() const {
-};
-Expression Func::cancelTerms() const {
+    return *new Expression(this);
 };
 ExprVector Func::getFactors() const {
+    return {*new Expression(this)};
 };

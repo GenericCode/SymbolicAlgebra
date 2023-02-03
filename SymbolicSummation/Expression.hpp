@@ -44,9 +44,7 @@ protected:
     Expression reciprocal() const;
     Expression determinant() const;
     Expression transpose() const;
-    Expression cancelTerms() const;
     ExprVector getFactors() const;
-    ExprVector getCommonFactors(Expression other) const;
     friend Expression operator+(Expression self, Expression other);
     friend Expression operator-(Expression self, Expression other);
     friend Expression operator-(Expression self);

@@ -1,7 +1,7 @@
 #include "ExpressionObject.hpp"
 #include "Expression.hpp"
 #include "AbstractHelpers.hpp"
-//ExpressionObject::~ExpressionObject(){};
+ExpressionObject::~ExpressionObject(){};
 
 Expression operator+(const ExpressionObject& self, const ExpressionObject& other) {
     return self.add(&other);
@@ -93,9 +93,6 @@ Expression NullObject::determinant() const {
     throw std::logic_error("null object: "+origin);
 };
 Expression NullObject::transpose() const {
-    throw std::logic_error("null object: "+origin);
-};
-Expression NullObject::cancelTerms() const {
     throw std::logic_error("null object: "+origin);
 };
 ExprVector NullObject::getFactors() const {

@@ -147,18 +147,59 @@ Expression PauliMatrix::multiply(Expression other) const {
 };
 
 Expression PauliMatrix::simplify() const {
+    ExprMatrix newElements = *new ExprMatrix(elements);
+    for(int i = 0; i<dimensions.first; i++) {
+        for(int j = 0; j<dimensions.second; j++) {
+            newElements[i][j] = newElements[i][j].simplify();
+        }
+    }
+    return *new Expression(new PauliMatrix(name+"Simplified",index,flavor,newElements));
 };
 Expression PauliMatrix::distribute(Expression other) const {
-};
-Expression PauliMatrix::factor() const {
-};
-Expression PauliMatrix::reciprocal() const {
-};
-Expression PauliMatrix::determinant() const {
+    size_t otherType = other.getTypeHash();
+    Expression thisExpr = *new Expression(this);
+    if(otherType == ADDTYPE) {
+        const Add& otherAdd = dynamic_cast<const Add&>(*other);
+        ExprVector newMembers = otherAdd.getMembers();
+        for(int i = 0; i<newMembers.size(); i++) {
+            newMembers[i] = distribute(newMembers[i]);
+        }
+        return *new Expression(new Add(newMembers));
+    }
+    if(otherType == MULTYPE) {
+        Expression testTarget = getMatrixMatchingPauliFlavor(other, *new Expression(this));
+        if(testTarget.getTypeHash() != NULLTYPE) {
+            Expression product = thisExpr*testTarget;
+            return product*removeElementMultiplicatively(other, testTarget);
+        }
+        const Mul& otherMul = dynamic_cast<const Mul&>(*other);
+        ExprVector newMembers = *new ExprVector();
+        ExprVector otherMembers = otherMul.getMembers();
+        newMembers.push_back(thisExpr);
+        for(int i = 0; i<otherMembers.size(); i++) {
+            newMembers.push_back(otherMembers[i]);
+        }
+        return *new Expression(new Mul(newMembers));
+    }
+    if(otherType == FRACTYPE) {
+        const Frac& otherFrac = dynamic_cast<const Frac&>(*other);
+        return *new Expression(new Frac(distribute(otherFrac.getNumerator()),otherFrac.getDenomenator()));
+    }
+    return *new Expression(new Mul(thisExpr,other));
+    
 };
 Expression PauliMatrix::transpose() const {
+    if( dimensions.first != dimensions.second )
+        return *new Expression(new NullObject("Transpose of non-square matrix"));
+    ExprMatrix transElements = *new ExprMatrix();
+    for(int i = 0; i<dimensions.second; i++) {
+        ExprVector newColumn = *new ExprVector();
+        for(int j = 0; j<dimensions.first; j++) {
+           
+            newColumn.push_back(elements[j][i]);
+        }
+        transElements.push_back(newColumn);
+    }
+    return *new Expression(new PauliMatrix(name+"Transpose",0,flavor,transElements));
 };
-Expression PauliMatrix::cancelTerms() const {
-};
-ExprVector PauliMatrix::getFactors() const {
-};
+
