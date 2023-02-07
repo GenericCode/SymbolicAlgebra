@@ -28,15 +28,25 @@ Expression Symbol::divide(Expression other) const {
     if(other == thisExpr) {
         return ONE;
     }
-    return combineProducts(thisExpr,reciprocal());
+    if(exprVectorContains(other.getFactors(), thisExpr)) {
+        return *new Expression(new Frac(removeElementMultiplicatively(other, thisExpr)));
+    }
+    return *new Expression(new Frac(thisExpr,other));
 };
 Expression Symbol::add(Expression other) const {
     Expression thisExpr = *new Expression(this);
-    if(other->getTypeHash() == ZEROTYPE)
+    if(other.getTypeHash() == ZEROTYPE)
         return *new Expression(this);
     if(other == thisExpr)
         return 2*thisExpr;
-    return combineSums(thisExpr, other);
+    if(other.getTypeHash() == ADDTYPE) {
+        const Add& otherAdd = dynamic_cast<const Add&>(*other);
+        ExprVector newMembers = *new ExprVector();
+        newMembers.push_back(thisExpr);
+        newMembers = setUnion(newMembers, otherAdd.getMembers());
+        return *new Expression(new Add(newMembers));
+    }
+    return *new Expression(new Add(thisExpr,other));
 };
 Expression Symbol::negate() const {
     Expression thisExpr = *new Expression(this);
@@ -47,22 +57,34 @@ Expression Symbol::subtract(Expression other) const {
     if(other == thisExpr) {
         return ZERO;
     }
-    
-    Expression negativeOf = -other;
-    return combineSums(thisExpr, negativeOf);
+    if(other.getTypeHash() == ADDTYPE) {
+        const Add& otherNegativeAdd = dynamic_cast<const Add&>(*-other);
+        ExprVector newMembers = *new ExprVector();
+        newMembers.push_back(thisExpr);
+        newMembers = setUnion(newMembers, otherNegativeAdd.getMembers());
+        return *new Expression(new Add(newMembers));
+    }
+    return *new Expression(new Add(thisExpr,-other));
 };
 Expression Symbol::multiply(Expression other) const {
     Expression thisExpr = *new Expression(this);
-    if(other->getTypeHash() == ZEROTYPE)
+    if(other.getTypeHash() == ZEROTYPE)
         return ZERO;
-    if(other->getTypeHash() == ONETYPE)
+    if(other.getTypeHash() == ONETYPE)
         return *new Expression(this);
-    if(other->getTypeHash() == SYMBOLTYPE) {
+    if(other.getTypeHash() == SYMBOLTYPE) {
         if(thisExpr == other) {
             return *new Expression(new Exp(thisExpr,2));
         }
     }
-    return combineProducts(thisExpr, other);
+    if(other.getTypeHash() == MULTYPE) {
+        const Mul& otherMul = dynamic_cast<const Mul&>(*other);
+        ExprVector newMembers = *new ExprVector();
+        newMembers.push_back(thisExpr);
+        newMembers = setUnion(newMembers, otherMul.getMembers());
+        return *new Expression(new Mul(newMembers));
+    }
+    return *new Expression(new Mul(thisExpr,other));
 }; 
 
 Expression Symbol::simplify() const {
@@ -128,7 +150,14 @@ Expression ImaginaryUnit::multiply(Expression other) const {
     if(other == thisExpr) {
         return MINUSONE;
     }
-    return combineProducts(thisExpr, other);
+    if(other.getTypeHash() == MULTYPE) {
+        const Mul& otherMul = dynamic_cast<const Mul&>(*other);
+        ExprVector newMembers = *new ExprVector();
+        newMembers.push_back(thisExpr);
+        newMembers = setUnion(newMembers, otherMul.getMembers());
+        return *new Expression(new Mul(newMembers));
+    }
+    return *new Expression(new Mul(thisExpr,other));
 };
 
 Expression ImaginaryUnit::negate() const {
@@ -175,7 +204,7 @@ Matrix::Matrix(String name, std::initializer_list<std::initializer_list<Expressi
 Matrix::Matrix(String name, std::vector<int> newDimensions) : Symbol(name) {
     
 };//empty matrix
-Matrix::Matrix(Expression diag, int newDim)  : Symbol("I*"+diag->print()) {
+Matrix::Matrix(Expression diag, int newDim)  : Symbol("I*"+diag.print()) {
     ExprMatrix newElements = *new ExprMatrix();
     Expression diagElement = *new Expression(diag);
     for(int i = 0; i< newDim; i++) {
@@ -196,10 +225,14 @@ Expression Matrix::divide(Expression other) const {
 };
 Expression Matrix::add(Expression other) const {
     Expression thisExpr = *new Expression(this);
-    if(other->getTypeHash() == ADDTYPE) {
-        return combineSums(thisExpr, other);
+    if(other.getTypeHash() == ADDTYPE) {
+        const Add& otherAdd = dynamic_cast<const Add&>(*other);
+        ExprVector newMembers = *new ExprVector();
+        newMembers.push_back(thisExpr);
+        newMembers = setUnion(newMembers, otherAdd.getMembers());
+        return *new Expression(new Add(newMembers));
     }
-    if(other->getTypeHash() == MATRIXTYPE) {
+    if(other.getTypeHash() == MATRIXTYPE) {
         const Matrix& otherMat = dynamic_cast<const Matrix&>(*other);
         bool zeroMat = true;
         if(dimensions != otherMat.dimensions) {
@@ -218,15 +251,15 @@ Expression Matrix::add(Expression other) const {
         }
         if(zeroMat)
             return ZERO;
-        String newName = this->print()+"+"+other->print();
+        String newName = print()+"+"+other.print();
         Expression result = *new Expression(new Matrix(newName,newElements));
         return result;
     }
     Expression matTarget = getElementOfType(other,MATRIXTYPE);
     if(matTarget.getTypeHash() == NULLTYPE)
-        return matTarget;
+        return *new Expression(new Add(thisExpr,other));
     const Matrix& otherMat = dynamic_cast<const Matrix&>(*matTarget);
-    Expression otherCoefficent = removeElementMultiplicatively(other, matTarget);//other->remove(matTarget);
+    Expression otherCoefficent = removeElementMultiplicatively(other, matTarget);//other.remove(matTarget);
     ExprMatrix distrElements = *new ExprMatrix();
     for(int i = 0; i<otherMat.dimensions.first; i++) {
         ExprVector currentColumn = *new ExprVector();
@@ -236,8 +269,7 @@ Expression Matrix::add(Expression other) const {
         distrElements.push_back(currentColumn);
     }
     Expression distrMat = new Matrix("temp matrix",distrElements);
-    Expression finalResult = *this+*distrMat;
-    return finalResult;
+    return add(distrMat);
 };
 Expression Matrix::negate() const {
     ExprMatrix newElements = *new ExprMatrix();
@@ -259,14 +291,22 @@ Expression Matrix::subtract(Expression other) const {
 };
 Expression Matrix::multiply(Expression other) const {
     Expression thisExpr = *new Expression(this);
-    if(other->getTypeHash() == MATRIXTYPE) {
+    if(other.getTypeHash() == MATRIXTYPE) {
         Expression result = matMul(*new Expression(this), other);
         return result;
     }
     Expression matTarget = getElementOfType(other,MATRIXTYPE);
     
-    if(matTarget.getTypeHash() == NULLTYPE)
-        return combineProducts(thisExpr,other);
+    if(matTarget.getTypeHash() == NULLTYPE) {
+        if(other.getTypeHash() == MULTYPE) {
+            const Mul& otherMul = dynamic_cast<const Mul&>(*other);
+            ExprVector newMembers = *new ExprVector();
+            newMembers.push_back(thisExpr);
+            newMembers = setUnion(newMembers, otherMul.getMembers());
+            return *new Expression(new Mul(newMembers));
+        }
+        return *new Expression(new Mul(thisExpr,other));
+    }
     Expression result = matMul(thisExpr, matTarget);
     Expression finalResult = replaceElementOfType(other,MATRIXTYPE,result);
     return finalResult;
@@ -400,7 +440,14 @@ Expression EuclidVector::multiply(Expression other) const {
     if(other.getTypeHash() == EUCLIDVECTORTYPE) {
         return matMul(thisExpr, other.transpose());
     }
-    return combineProducts(thisExpr,other);
+    if(other.getTypeHash() == MULTYPE) {
+        const Mul& otherMul = dynamic_cast<const Mul&>(*other);
+        ExprVector newMembers = *new ExprVector();
+        newMembers.push_back(thisExpr);
+        newMembers = setUnion(newMembers, otherMul.getMembers());
+        return *new Expression(new Mul(newMembers));
+    }
+    return *new Expression(new Mul(thisExpr,other));
 };
 String EuclidVector::print() const {
     /*String result = "{";

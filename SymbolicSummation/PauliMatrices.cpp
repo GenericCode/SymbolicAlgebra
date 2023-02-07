@@ -93,13 +93,29 @@ Expression PauliMatrix::add(Expression other) const {
     Expression pauliTarget = getElementOfType(other, PAULIMATRIXTYPE);
     //bool wasAVector = false;
     if(pauliTarget.getTypeHash() == NULLTYPE) {
-        Expression result = combineSums(thisExpr, other);
-        return result;
+        if(other.getTypeHash() == ADDTYPE) {
+            const Add& otherAdd = dynamic_cast<const Add&>(*other);
+            ExprVector newMembers = *new ExprVector();
+            newMembers.push_back(thisExpr);
+            newMembers = setUnion(newMembers, otherAdd.getMembers());
+            return *new Expression(new Add(newMembers));
+        }
+        return *new Expression(new Add(thisExpr,other));
+        //Expression result = combineSums(thisExpr, other);
+        //return result;
     }
     const PauliMatrix& targetMatrix = dynamic_cast<const PauliMatrix&>(*pauliTarget);
     if(targetMatrix.flavor != thisPauli.flavor || rtype != MULTYPE) {
-        Expression result = combineSums(thisExpr, other);
-        return result;
+        if(other.getTypeHash() == ADDTYPE) {
+            const Add& otherAdd = dynamic_cast<const Add&>(*other);
+            ExprVector newMembers = *new ExprVector();
+            newMembers.push_back(thisExpr);
+            newMembers = setUnion(newMembers, otherAdd.getMembers());
+            return *new Expression(new Add(newMembers));
+        }
+        return *new Expression(new Add(thisExpr,other));
+        //Expression result = combineSums(thisExpr, other);
+        //return result;
     }
     Expression otherCoefficent = removeElementMultiplicatively(other, pauliTarget);//other->remove(pauliTarget);
     ExprMatrix distrElements = *new ExprMatrix();

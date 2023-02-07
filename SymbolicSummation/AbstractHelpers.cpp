@@ -577,7 +577,7 @@ Expression removeElementMultiplicatively(Expression source, Expression target, b
         const Exp& sourceObj = dynamic_cast<const Exp&>(*source);
         if(sourceObj.getBase() == target) {
             Expression expOneDown = sourceObj.getExponent()-ONE;
-            expOneDown = simplify(expOneDown);
+            expOneDown = expOneDown.simplify();
             if(expOneDown == ONE)
                 return sourceObj.getBase();
             if(expOneDown == ZERO)

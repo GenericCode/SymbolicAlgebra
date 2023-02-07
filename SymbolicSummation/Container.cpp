@@ -17,11 +17,30 @@ Container::~Container() {
     //delete &name;
 }
 Expression Container::add(Expression other) const {
-    if(*this == *other)
-        return 2**this;
+    Expression thisExpr = *new Expression(this);
+    if(thisExpr == other)
+        return 2*thisExpr;
     if(other->getTypeHash() == ZEROTYPE)
-        return *new Expression(this);
-    return combineSums(*new Expression(this), other);
+        return thisExpr;
+    if(getTypeHash() == ADDTYPE && other.getTypeHash() == ADDTYPE ) {
+        const Add& thisAdd = dynamic_cast<const Add&>(*thisExpr);
+        const Add& otherAdd = dynamic_cast<const Add&>(*other);
+        return *new Expression(new Add(setUnion(thisAdd.getMembers(), otherAdd.getMembers())));
+    }
+    if(getTypeHash() == ADDTYPE) {
+        const Add& thisAdd = dynamic_cast<const Add&>(*thisExpr);
+        ExprVector newMembers = thisAdd.getMembers();
+        newMembers.push_back(other);
+        return *new Expression(new Add(newMembers));
+    }
+    if(other.getTypeHash() == ADDTYPE) {
+        const Add& otherAdd = dynamic_cast<const Add&>(*other);
+        ExprVector newMembers = *new ExprVector();
+        newMembers.push_back(thisExpr);
+        newMembers = setUnion(newMembers, otherAdd.getMembers());
+        return *new Expression(new Add(newMembers));
+    }
+    return *new Expression(new Add(thisExpr,other));
 };
 Expression Container::multiply(Expression other) const {
     if(other->getTypeHash() == ZEROTYPE)
@@ -42,7 +61,7 @@ Expression Container::subtract(Expression other) const {
     if(thisExpr == other)
         return ZERO;
     Expression negativeOf = -other;
-    return combineSums(thisExpr,negativeOf);
+    return add(negativeOf);
 };
 
 Expression Container::negate() const {

@@ -104,7 +104,7 @@ Expression matMul(Expression left, Expression right) {
         Expression result = *new Expression(new Matrix(newName,*new ExprMatrix(newElements)));
         return declareSymbol(newName,result);
     }
-    return combineProducts(left, right);
+    return left*right;
 };
 
 Expression transpose(Expression target) {
@@ -179,6 +179,7 @@ Expression combineProducts(Expression left, Expression right) {
     }
 };
 
+/*
 Expression combineSums(Expression left, Expression right) {
     size_t leftType = left->getTypeHash();
     size_t rightType = right->getTypeHash();
@@ -225,6 +226,7 @@ Expression combineSums(Expression left, Expression right) {
         return result;
     }
 };
+*/
 
 bool commutesWith(Expression left, Expression right) {
     size_t ltype = left->getTypeHash();
@@ -269,6 +271,7 @@ bool commutesWith(Expression left, Expression right) {
     return true;
 }
 
+/*
 Expression cancelTerms(Expression target) {
     if(target->getTypeHash() != ADDTYPE)
         return *new Expression(target.get());
@@ -307,8 +310,9 @@ Expression cancelTerms(Expression target) {
         return *new Expression(new Add(newMembers));
     }
     return *new Expression(target.get());
-}
+}*/
 
+/*
 Expression simplifySubExpressions(Expression target) {
     bool isMul = target->getTypeHash() == MULTYPE;
     bool isAdd = target->getTypeHash() == ADDTYPE;
@@ -347,6 +351,7 @@ Expression simplifySubExpressions(Expression target) {
     }
     return total;
 }
+*/
 
 Expression simplifyPauliMatrices(Expression target) {
     bool isMul = target->getTypeHash() == MULTYPE;
@@ -416,6 +421,7 @@ Expression simplifyPauliMatrices(Expression target) {
     return total;
 }
 
+/*
 Expression simplify(Expression target) {
     //std::vector<size_t> types = {REALTYPE,IMAGINARYUNITTYPE,SYMBOLTYPE,MATRIXTYPE,PAULIMATRIXTYPE,FRACTYPE};
     std::vector<size_t> types = {FRACTYPE,EXPTYPE,SYMBOLTYPE,EUCLIDVECTORTYPE,PAULIMATRIXTYPE,MATRIXTYPE,IMAGINARYUNITTYPE,REALTYPE};
@@ -544,7 +550,7 @@ Expression simplify(Expression target) {
         }
     }
     return result;
-}
+}*/
 
 ExprVector cancelCommonFactors(ExprVector targets) {
     ExprVector results = targets;
@@ -557,7 +563,7 @@ ExprVector cancelCommonFactors(ExprVector targets) {
                 results[j] = removeElementMultiplicatively(results[j], factors[i]);
             //else
             //    results[j] = results[j]/commonFactors[i];
-            results[j] = simplify(results[j]);
+            results[j] = results[j].simplify();
             if(results[j].getTypeHash() == NULLTYPE) {
                 const NullObject& nullObj = dynamic_cast<const NullObject&>(*results[j]);
                 if(nullObj.origin == "this is what happens when you remove something from itself!")
@@ -878,6 +884,7 @@ ExprVector commonFactors(ExprVector terms) {
 }
 
 //DOES NOT RESPECT COMMUTATION PROPERTIES... probably
+/*
 Expression combineTermsDifferingByCoefficientsAdditively(Expression left, Expression right) {
     if(left->getTypeHash() == ZEROTYPE)
         return *new Expression(right.get());
@@ -912,7 +919,7 @@ Expression combineTermsDifferingByCoefficientsAdditively(Expression left, Expres
         return left+right;
     Expression temp = combinedCoeffs*inCommon;
     return temp;
-}
+}*/
 
 Expression performActions(Expression target) {
     size_t sourceType = target->getTypeHash();
