@@ -147,13 +147,14 @@ Expression PauliMatrix::multiply(Expression other) const {
 };
 
 Expression PauliMatrix::simplify() const {
-    ExprMatrix newElements = *new ExprMatrix(elements);
+    return *new Expression(this);
+    /*ExprMatrix newElements = *new ExprMatrix(elements);
     for(int i = 0; i<dimensions.first; i++) {
         for(int j = 0; j<dimensions.second; j++) {
             newElements[i][j] = newElements[i][j].simplify();
         }
     }
-    return *new Expression(new PauliMatrix(name+"Simplified",index,flavor,newElements));
+    return *new Expression(new PauliMatrix(name+"Simplified",index,flavor,newElements));*/
 };
 Expression PauliMatrix::distribute(Expression other) const {
     size_t otherType = other.getTypeHash();

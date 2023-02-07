@@ -12,7 +12,7 @@
 #include "AbstractHelpers.hpp"
 Symbol::~Symbol() {
     //delete &name;
-    delete &name;
+    //delete &name;
 }
 
 Symbol::Symbol(const Symbol& target) {
@@ -368,8 +368,8 @@ Expression Matrix::reciprocal() const {
     return *new Expression(new Frac(*new Expression(this)));
 };
 Expression Matrix::transpose() const {
-    if( dimensions.first != dimensions.second )
-        return *new Expression(new NullObject("Transpose of non-square matrix"));
+    //if( dimensions.first != dimensions.second )
+    //    return *new Expression(new NullObject("Transpose of non-square matrix"));
     ExprMatrix transElements = *new ExprMatrix();
     for(int i = 0; i<dimensions.second; i++) {
         ExprVector newColumn = *new ExprVector();
@@ -470,9 +470,10 @@ Expression EuclidVector::reciprocal() const {
 Expression EuclidVector::determinant() const {
     return *new Expression(this);
 };
+/*
 Expression EuclidVector::transpose() const {
     return *new Expression(this);
-};
+};*/
 ExprVector EuclidVector::getFactors() const {
     return {*new Expression(this)};
 };

@@ -14,7 +14,7 @@
 
 //Container
 Container::~Container() {
-    delete &name;
+    //delete &name;
 }
 Expression Container::add(Expression other) const {
     if(*this == *other)
@@ -399,6 +399,18 @@ Expression Mul::simplify() const {
     ExprVector newMembers = *new ExprVector();
     for(int i = 0; i< members.size(); i++)
         newMembers.push_back(members[i].simplify());
+    if(exprVectorContainsType(newMembers, MULTYPE)) {
+        ExprVector newerMembers = *new ExprVector();
+        for(int i=0; i<newMembers.size(); i++) {
+            if(newMembers[i].getTypeHash() == MULTYPE) {
+                const Mul& subMul = dynamic_cast<const Mul&>(*newMembers[i]);
+                newerMembers = setUnion(newerMembers, subMul.getMembers());
+            } else {
+                newerMembers.push_back(newMembers[i]);
+            }
+        }
+        newMembers = newerMembers;
+    }
     Expression result = *new Expression(new Mul(newMembers));
     std::vector<size_t> types = {FRACTYPE,EXPTYPE,SYMBOLTYPE,EUCLIDVECTORTYPE,PAULIMATRIXTYPE,MATRIXTYPE,IMAGINARYUNITTYPE,REALTYPE};
     std::function<bool(Expression)> checker;

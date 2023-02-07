@@ -212,8 +212,8 @@ Expression spinIsospinSummation(ExprVector interactions, bool threeBody = false 
             }
         }
     }
-    Expression result = cancelTerms(total);
-    result = result.simplify();
+    Expression result = total.simplify();
+    //result = result.simplify();
     //result = simplify(result);
     //result = cancelTerms(result);
     return result;

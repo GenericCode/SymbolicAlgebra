@@ -112,7 +112,7 @@ public:
     Expression factor() const;
     Expression reciprocal() const;
     Expression determinant() const;
-    Expression transpose() const;
+    //Expression transpose() const;
     Expression cancelTerms() const;
     ExprVector getFactors() const;
     
