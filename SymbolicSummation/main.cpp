@@ -13,7 +13,9 @@
 #include "Symbol.hpp"
 #include "PauliMatrices.hpp"
 Expression matrixElement(Expression potential,Expression initialState, Expression finalState) {
-    Expression temp = transpose(initialState)*potential*finalState;
+    //Expression temp = transpose(initialState)*potential*finalState;
+    Expression temp = potential*finalState;
+    temp = transpose(initialState)*temp;
     Expression result = temp.simplify();
     return result;
 }
@@ -216,7 +218,7 @@ Expression spinIsospinSummation(ExprVector interactions, bool threeBody = false 
     //result = result.simplify();
     //result = simplify(result);
     //result = cancelTerms(result);
-    return result;
+    return result.simplify();
 }
 
 Expression spinIsospinSummation(std::vector<String> interactions, bool exchange ) {

@@ -18,35 +18,30 @@ PauliMatrix::~PauliMatrix() {
     //delete &dimensions;
 }
 
-PauliMatrix::PauliMatrix(String name, int index, String flavor, std::initializer_list<std::initializer_list<Expression>> newElements ) : Matrix(name,newElements) {
-    (*this).index = index;
+PauliMatrix::PauliMatrix(String name, String flavor, std::initializer_list<std::initializer_list<Expression>> newElements ) : Matrix(name,newElements) {
     (*this).flavor = flavor;
 }
 
 
 
-PauliMatrix::PauliMatrix(String name, int index, String flavor, ExprMatrix elements) : Matrix(name,elements) {
+PauliMatrix::PauliMatrix(String name, String flavor, ExprMatrix elements) : Matrix(name,elements) {
     (*this).flavor = flavor;
-    (*this).index = index;
 }
 
 PauliMatrix::PauliMatrix(const PauliMatrix& target) : Matrix(target.name) {
     (*this).elements = *new ExprMatrix(target.elements);
     (*this).dimensions = *new std::pair<int,int>(target.dimensions);
     (*this).flavor = target.flavor;
-    (*this).index = target.index;
 };
 
 PauliMatrix& PauliMatrix::operator=(const PauliMatrix& target) {
     (*this).elements = *new ExprMatrix(target.elements);
     (*this).dimensions = *new std::pair<int,int>(target.dimensions);
     (*this).flavor = target.flavor;
-    (*this).index = target.index;
     return *this;
 };
 
 PauliMatrix::PauliMatrix(int index, String flavor) :  Matrix(flavor+std::to_string(index)) {
-    (*this).index = index;
     (*this).flavor = flavor;
     dimensions = {2,2};
     Expression minusImag = -IMAGUNIT;
@@ -87,7 +82,7 @@ Expression PauliMatrix::add(Expression other) const {
         if(tempResult.getTypeHash() != MATRIXTYPE)
             return tempResult;
         const Matrix& resultingMatrix = dynamic_cast<const Matrix&>(*tempResult);
-        Expression resultingPauli = *new Expression(new PauliMatrix(flavor+resultingMatrix.print(),0,thisPauli.flavor,resultingMatrix.getElements()));
+        Expression resultingPauli = *new Expression(new PauliMatrix(flavor+resultingMatrix.print(),thisPauli.flavor,resultingMatrix.getElements()));
         return resultingPauli;
     }
     Expression pauliTarget = getElementOfType(other, PAULIMATRIXTYPE);
@@ -128,7 +123,7 @@ Expression PauliMatrix::add(Expression other) const {
         }
         distrElements.push_back(currentColumn);
     }
-    Expression distrMat = *new Expression(new PauliMatrix("temp",0,targetMatrix.flavor,distrElements));
+    Expression distrMat = *new Expression(new PauliMatrix("temp",targetMatrix.flavor,distrElements));
     Expression resultingMatrix = thisExpr+distrMat;
     return resultingMatrix;
 };
@@ -154,7 +149,7 @@ Expression PauliMatrix::multiply(Expression other) const {
         if(tempResult.getTypeHash() != MATRIXTYPE)
             return tempResult;
         const Matrix& resultingMatrix = dynamic_cast<const Matrix&>(*tempResult);
-        Expression resultingPauli = *new Expression(new PauliMatrix(flavor+resultingMatrix.print(),0,thisPauli.flavor,resultingMatrix.getElements()));
+        Expression resultingPauli = *new Expression(new PauliMatrix(flavor+resultingMatrix.print(),thisPauli.flavor,resultingMatrix.getElements()));
         return resultingPauli;
     }
     
@@ -206,8 +201,6 @@ Expression PauliMatrix::distribute(Expression other) const {
     
 };
 Expression PauliMatrix::transpose() const {
-    if( dimensions.first != dimensions.second )
-        return *new Expression(new NullObject("Transpose of non-square matrix"));
     ExprMatrix transElements = *new ExprMatrix();
     for(int i = 0; i<dimensions.second; i++) {
         ExprVector newColumn = *new ExprVector();
@@ -217,6 +210,6 @@ Expression PauliMatrix::transpose() const {
         }
         transElements.push_back(newColumn);
     }
-    return *new Expression(new PauliMatrix(name+"Transpose",0,flavor,transElements));
+    return *new Expression(new PauliMatrix(name+"T",flavor,transElements));
 };
 

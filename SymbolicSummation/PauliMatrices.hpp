@@ -14,7 +14,6 @@
 //delete index? why is it necessary as a member variable?
 class PauliMatrix : public Matrix {
 protected:
-    int index = 0;
     String flavor = "";
     Expression add(Expression other) const;
     Expression subtract(Expression other) const;
@@ -29,8 +28,8 @@ public:
     Expression transpose() const;
     Expression cancelTerms() const;
     
-    PauliMatrix(String name, int index, String flavor, std::initializer_list<std::initializer_list<Expression>> newElements );
-    PauliMatrix(String name, int index, String flavor, ExprMatrix elements);
+    PauliMatrix(String name, String flavor, std::initializer_list<std::initializer_list<Expression>> newElements );
+    PauliMatrix(String name, String flavor, ExprMatrix elements);
     PauliMatrix(const PauliMatrix& target);
     PauliMatrix& operator=(const PauliMatrix& target);
     PauliMatrix(int index, String flavor = "");

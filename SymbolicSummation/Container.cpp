@@ -129,6 +129,18 @@ Expression Add::simplify() const {
     for(int i = 0; i< members.size(); i++) {
         simplifiedMembers.push_back(members[i].simplify());
     }
+    if(exprVectorContainsType(simplifiedMembers, ADDTYPE)) {
+        ExprVector newerMembers = *new ExprVector();
+        for(int i=0; i<simplifiedMembers.size(); i++) {
+            if(simplifiedMembers[i].getTypeHash() == ADDTYPE) {
+                const Add& subAdd = dynamic_cast<const Add&>(*simplifiedMembers[i]);
+                newerMembers = setUnion(newerMembers, subAdd.getMembers());
+            } else {
+                newerMembers.push_back(simplifiedMembers[i]);
+            }
+        }
+        simplifiedMembers = newerMembers;
+    }
     const Add& newAdd = *new Add(simplifiedMembers);
     return newAdd.cancelTerms();
 };
@@ -169,10 +181,18 @@ Expression Add::cancelTerms() const {
         if(intVectorContains(accountedFor, i))
             continue;
         Expression runningSum = members[i];
+        if(runningSum == ZERO) {
+            accountedFor.push_back(i);
+            continue;
+        }
         for(int j = i; j<members.size(); j++) {
             if(intVectorContains(accountedFor, j))
                 continue;
             Expression currExpr = members[j];
+            if(currExpr == ZERO) {
+                accountedFor.push_back(j);
+                continue;
+            }
             if(currExpr == runningSum) {
                 runningSum = 2*runningSum;
                 accountedFor.push_back(j);
@@ -186,8 +206,8 @@ Expression Add::cancelTerms() const {
             Expression otherNotInCommon = currExpr;
             for(int k = 0; k<currCommonFactors.size(); k++) {
                 inCommon = inCommon*currCommonFactors[k];
-                sumNotInCommon = removeElementMultiplicatively(sumNotInCommon, currCommonFactors[k]);
-                otherNotInCommon = removeElementMultiplicatively(otherNotInCommon, currCommonFactors[k]);
+                sumNotInCommon = sumNotInCommon/currCommonFactors[k];
+                otherNotInCommon = otherNotInCommon/currCommonFactors[k];
             }
             if(isTypeSimilarTo(sumNotInCommon, CONTAINERTYPE) || isTypeSimilarTo(otherNotInCommon, CONTAINERTYPE) || !areSimilarTypes(sumNotInCommon, otherNotInCommon))
                 continue;
@@ -197,6 +217,7 @@ Expression Add::cancelTerms() const {
             if(isTypeSimilarTo(testCombine, CONTAINERTYPE))
                 continue;
             runningSum = testCombine*inCommon;
+            accountedFor.push_back(j);
         }
         accountedFor.push_back(i);
         newMembers.push_back(runningSum);
@@ -431,7 +452,7 @@ Expression Mul::simplify() const {
         newMembers = newerMembers;
     }
     Expression result = *new Expression(new Mul(newMembers));
-    std::vector<size_t> types = {FRACTYPE,EXPTYPE,SYMBOLTYPE,EUCLIDVECTORTYPE,PAULIMATRIXTYPE,MATRIXTYPE,IMAGINARYUNITTYPE,REALTYPE};
+    std::vector<size_t> types = {ADDTYPE,FRACTYPE,EXPTYPE,SYMBOLTYPE,EUCLIDVECTORTYPE,PAULIMATRIXTYPE,MATRIXTYPE,IMAGINARYUNITTYPE,REALTYPE};
     std::function<bool(Expression)> checker;
     for(size_t type : types) {
         if(type == PAULIMATRIXTYPE) {
@@ -458,7 +479,8 @@ Expression Mul::simplify() const {
                 result = total;
         }
     }
-        
+    if(result.getTypeHash() != MULTYPE)
+        return result.simplify();
     return result;
 };
 Expression Mul::distribute(Expression other) const {
