@@ -20,11 +20,11 @@ static std::unordered_map<String,Expression> declaredSymbols = *new std::unorder
 static std::unordered_map<String,Expression> declaredFunctions = *new std::unordered_map<String, Expression>();
 
 bool areSimilarTypes(Expression exprA, Expression exprB) {
-    size_t subType = exprA->getTypeHash();
+    size_t subType = exprA.getTypeHash();
     if(subType == SIGNTYPE) {
         subType = (-exprA).getTypeHash();
     }
-    size_t superType = exprB->getTypeHash();
+    size_t superType = exprB.getTypeHash();
     if(superType == SIGNTYPE) {
         superType = (-exprB).getTypeHash();
     }
@@ -41,7 +41,7 @@ bool areSimilarTypes(Expression exprA, Expression exprB) {
 }
 
 bool isTypeSimilarTo(Expression subject, size_t type) {
-    size_t subType = subject->getTypeHash();
+    size_t subType = subject.getTypeHash();
     if(subType == SIGNTYPE) {
         subType = (-subject).getTypeHash();
     }
@@ -152,9 +152,11 @@ std::vector<String> tokenize(String expr, String delimiters) {
             tokens.push_back(currentToken);
             continue;
         }
-        if(parenthesisDepth==0 && delimiters.find(currChar) != String::npos && currentToken != ""){
-            tokens.push_back(currentToken);
-            currentToken = "";
+        if(delimiters.find(currChar) != String::npos && parenthesisDepth==0 ) {
+            if(currentToken != "") {
+                tokens.push_back(currentToken);
+                currentToken = "";
+            }
         } else
             currentToken += currChar;
         
@@ -247,9 +249,10 @@ void initializeDefaultSymbols(bool force) {
 
 void initializeDefaultFunctions(bool force) {
     if(declaredFunctions.empty() || force) {
-        declaredFunctions["TRANSPOSE"] = TRANSPOSE;
-        declaredFunctions["Transpose"] = TRANSPOSE;
-        declaredFunctions["transpose"] = TRANSPOSE;
+        //what basic function should always be initialized?
+        //Trig functions?
+        //exp?
+        //diffEq solutions?
     }
 }
 
@@ -290,15 +293,15 @@ Expression declareEuclidVector(std::string name, std::initializer_list<Expressio
 }
 
 Expression declareMatrix(Expression value) {
-    return declareSymbol(value->print(),value);
+    return declareSymbol(value.print(),value);
 };
 
 Expression declarePauliVector(bool up, String flavor) {
     if(up) {
-        Expression result = new PauliMatrix(flavor+"Up",0,flavor,{{ONE},{ZERO}});
+        Expression result = new PauliMatrix(flavor+"Up",flavor,{{ONE},{ZERO}});
         return declareSymbol(flavor+"Up", result);
     } else {
-        Expression result = new PauliMatrix(flavor+"Down",0,flavor,{{ZERO},{ONE}});
+        Expression result = new PauliMatrix(flavor+"Down",flavor,{{ZERO},{ONE}});
         return declareSymbol(flavor+"Down", result);
     }
 }
@@ -309,7 +312,7 @@ Expression declarePauliMatrix(int index, String flavor) {
 }
 
 Expression declarePauliMatrix(Expression value) {
-    return declareSymbol(value->print(), value);
+    return declareSymbol(value.print(), value);
 }
 
 Expression declareMatrix(String matName, ExprMatrix elements) {
@@ -350,7 +353,7 @@ Expression declareReal(float value) {
 Expression declareSymbol(String name, Expression value) {
     initializeDefaultSymbols();
     if(!declaredSymbols.contains(name)) {
-        if(value->getTypeHash() != NULLTYPE) {
+        if(value.getTypeHash() != NULLTYPE) {
             declaredSymbols[name] = value;
             return *new Expression(declaredSymbols[name].get());
         }
@@ -370,7 +373,7 @@ Expression parseString(String exprString) {
         SignVector memberSigns = getTokenSigns(exprString);
         std::vector<String> tokens = tokenize(sanitize(exprString), "+-");
         if(tokens.size() == 1) {
-            return *new Expression(new Sign(parseString(tokens[0].substr(1))));
+            return *new Expression(new Sign(parseString(tokens[0])));
         }
         for(int i = 0; i<tokens.size(); i++) {
             String nextToken = tokens[i];
@@ -525,7 +528,7 @@ ExprVector removeElementFromVector(ExprVector source, Expression target, bool ri
     ExprVector result = *new ExprVector();
     int location = positionOfElement(source, target, rightToLeft);
     if(location < 0)
-        return result;
+        return source;
     for(int i = 0; i<source.size(); i++) {
         if(i == location)
             continue;
@@ -538,7 +541,7 @@ ExprVector removeElementFromVector(ExprVector source, Expression target, bool ri
 Expression removeElementMultiplicatively(Expression source, Expression target, bool rightToLeft) {
     if(source == target)
         return ONE;//*new Expression(new NullObject("this is what happens when you remove something from itself!"));
-    size_t type = source->getTypeHash();
+    size_t type = source.getTypeHash();
     if(type == SIGNTYPE) {
         const Sign& sourceObj = dynamic_cast<const Sign&>(*source);
         Expression result = removeElementMultiplicatively(sourceObj.getMember(), target);
@@ -562,7 +565,7 @@ Expression removeElementMultiplicatively(Expression source, Expression target, b
         const Frac& sourceObj = dynamic_cast<const Frac&>(*source);
         Expression result = removeElementMultiplicatively(sourceObj.getNumerator(), target, rightToLeft);
         if(result.getTypeHash() == NULLTYPE) {
-            Expression recip = reciprocal(target);
+            Expression recip = target.reciprocal();
             result = removeElementMultiplicatively(sourceObj.getDenomenator(), recip, rightToLeft);
             if(result.getTypeHash() == NULLTYPE)
                 return result;
@@ -593,7 +596,7 @@ Expression removeElementMultiplicatively(Expression source, Expression target, b
 Expression removeElementAdditively(Expression source, Expression target, bool rightToLeft) {
     if(source == target)
         return ZERO;//*new Expression(new NullObject("this is what happens when you remove something from itself!"));
-    if(source->getTypeHash() != ADDTYPE)
+    if(source.getTypeHash() != ADDTYPE)
         return *new Expression(new NullObject("could not remove target additively"));
     const Add& sourceObj = dynamic_cast<const Add&>(*source);
     ExprVector newMembers = removeElementFromVector(sourceObj.getMembers(), target);
@@ -606,19 +609,22 @@ Expression removeElementAdditively(Expression source, Expression target, bool ri
     return *new Expression(new Add(*new ExprVector(newMembers)));
 };
 Expression removeElementAbsolutely(Expression source, Expression target, bool rightToLeft) {
-    if(source->getTypeHash() == ADDTYPE)
+    if(source.getTypeHash() == ADDTYPE)
         return removeElementAdditively(source, target, rightToLeft);
     else
         return removeElementMultiplicatively(source, target,rightToLeft);
 };
 
 Expression getElementOfType(Expression source, size_t type, bool rightToLeft) {
-    size_t sourceType = source->getTypeHash();
+    size_t sourceType = source.getTypeHash();
     if(sourceType == NULLTYPE)
         return source;
     if(isTypeSimilarTo(source, type))
         return *new Expression(source);
     ExprVector elementsToCheck = *new ExprVector();
+    if(sourceType == SIGNTYPE) {
+        return getElementOfType(-source, type, rightToLeft);
+    }
     if(sourceType == ADDTYPE) {
         const Add& addObj = dynamic_cast<const Add&>(*source);
         elementsToCheck = addObj.getMembers();
@@ -651,7 +657,7 @@ Expression getElementOfType(Expression source, size_t type, bool rightToLeft) {
 };
 
 Expression getElementMatchingCondition(Expression source, std::function<bool(Expression)> condition, bool rightToLeft) {
-    size_t sourceType = source->getTypeHash();
+    size_t sourceType = source.getTypeHash();
     if(sourceType == NULLTYPE)
         return source;
     if(condition(source))
@@ -690,18 +696,18 @@ Expression getElementMatchingCondition(Expression source, std::function<bool(Exp
 
 Expression getMatrixMatchingPauliFlavor(Expression target, Expression matrixToMatch) {
     Expression result = *new Expression(new NullObject("could not find PAULIMATRIXTYPE of matching flavor"));
-    if(matrixToMatch->getTypeHash() != PAULIMATRIXTYPE) {
+    if(matrixToMatch.getTypeHash() != PAULIMATRIXTYPE) {
         return result;
     }
     const PauliMatrix& matrixObjToMatch = dynamic_cast<const PauliMatrix&>(*matrixToMatch);
     String flavorToFind = matrixObjToMatch.flavor;
-    Expression matrixToCheck = getElementOfType(target, PAULIMATRIXTYPE);//target->getFirstInstanceOfType(PAULIMATRIXTYPE);
+    Expression matrixToCheck = getElementOfType(target, PAULIMATRIXTYPE);//target.getFirstInstanceOfType(PAULIMATRIXTYPE);
     bool sign = false;
     if(matrixToCheck.getTypeHash() == SIGNTYPE) {
         sign = true;
         matrixToCheck = -matrixToCheck;
     }
-    Expression remainder = *new Expression(target.get());//removeElementAbsolutely(target, matrixToCheck);//target->remove(matrixToCheck);
+    Expression remainder = *new Expression(target.get());//removeElementAbsolutely(target, matrixToCheck);//target.remove(matrixToCheck);
     while(result.getTypeHash() == NULLTYPE && matrixToCheck.getTypeHash() != NULLTYPE) {
         remainder = removeElementAbsolutely(remainder, matrixToCheck);//remainder.remove(matrixToCheck);
         const PauliMatrix& matrixObjToCheck = dynamic_cast<const PauliMatrix&>(*matrixToCheck);
@@ -746,13 +752,32 @@ ExprVector setUnion(ExprVector setA, ExprVector setB) {
 };
 ExprVector setIntersect(ExprVector setA, ExprVector setB) {
     ExprVector result = *new ExprVector();
+    std::vector<int> countedB = *new std::vector<int>();
     for(int i = 0; i<setA.size(); i++) {
         for(int j = 0; j<setB.size(); j++) {
-            if(setA[i] == setB[j]) {
+            if(setA[i] == setB[j] && !intVectorContains(countedB, j)) {
                 result.push_back(setA[i]);
+                countedB.push_back(j);
                 break;
             }
         }
+    }
+    return result;
+};
+ExprVector setDifference(ExprVector setA, ExprVector setB) {
+    ExprVector result = *new ExprVector();
+    std::vector<int> countedB = *new std::vector<int>();
+    for(int i = 0; i<setA.size(); i++) {
+        bool containedInB = false;
+        for(int j = 0; j<setB.size(); j++) {
+            if( setA[i] == setB[j] && !intVectorContains(countedB, j) ) {
+                containedInB = true;
+                countedB.push_back(j);
+                break;
+            }
+        }
+        if( !containedInB )
+            result.push_back(setA[i]);
     }
     return result;
 };
@@ -785,7 +810,7 @@ ExprVector replaceElementInVector(ExprVector source, Expression target, Expressi
 };
 
 Expression replaceElement(Expression source, Expression target, Expression value, bool rightToLeft) {
-    size_t sourceType = source->getTypeHash();
+    size_t sourceType = source.getTypeHash();
     if(source == target)
         return *new Expression(value);
     ExprVector elementsToCheck;
@@ -823,7 +848,7 @@ Expression replaceElement(Expression source, Expression target, Expression value
     return *new Expression(source);
 };
 Expression replaceElementOfType(Expression source, size_t type, Expression value, bool rightToLeft) {
-    size_t sourceType = source->getTypeHash();
+    size_t sourceType = source.getTypeHash();
     if(isTypeSimilarTo(source, type))
         return *new Expression(value);
     ExprVector elementsToCheck;
@@ -979,7 +1004,7 @@ ExprVector combineExprVectors(ExprVector left, ExprVector right) {
 }
 
 ExprVector getConstituentSymbols(Expression target) {
-    size_t targetType = target->getTypeHash();
+    size_t targetType = target.getTypeHash();
     if(targetType == ADDTYPE) {
         ExprVector symbols = *new ExprVector;
         const Add& addTarget = dynamic_cast<const Add&>(*target);
@@ -1030,7 +1055,7 @@ void lambdifyToFile(Expression func, String funcName = "foo", String filePath = 
     std::ofstream funcFile;
     String fullPath = filePath+"/"+funcName+".cpp";
     funcFile.open(fullPath);
-    String funcToPrint  = func->print();
+    String funcToPrint  = func.print();
     ExprVector variables = getConstituentSymbols(func);
     String variableList = "";
     for(int i = 0; i<variables.size(); i++) {

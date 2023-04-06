@@ -328,7 +328,6 @@ public:
     friend Expression insertAsVariable(Expression target, Expression var);
     friend Expression getElementMatchingCondition(Expression source, std::function<bool(Expression)> condition, bool rightToLeft);*/
 };
-static const Expression TRANSPOSE = *new Expression(new Func("transpose",transpose));
 
 static const size_t CONTAINERTYPE = typeid(Container).hash_code();
 static const size_t ADDTYPE = typeid(Add).hash_code();

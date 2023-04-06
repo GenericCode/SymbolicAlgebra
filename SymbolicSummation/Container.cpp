@@ -18,8 +18,11 @@ Container::~Container() {
 }
 Expression Container::add(Expression other) const {
     Expression thisExpr = *new Expression(this);
-    if(thisExpr == other)
+    if(thisExpr == other) {
+        if(isNegative(thisExpr))
+            return -2*(-thisExpr);
         return 2*thisExpr;
+    }
     if(other->getTypeHash() == ZEROTYPE)
         return thisExpr;
     if(getTypeHash() == ADDTYPE && other.getTypeHash() == ADDTYPE ) {
@@ -54,7 +57,26 @@ Expression Container::divide(Expression other) const {
     if(other == thisExpr) {
         return ONE;
     }
-    return reciprocal().distribute(other);
+    ExprVector factors = getFactors();
+    ExprVector otherFactors = other.getFactors();
+    ExprVector diffAB = setDifference(factors, otherFactors);
+    ExprVector diffBA = setDifference(otherFactors, factors);
+    if( diffAB.size() == 0 ) {
+        if(diffBA.size() == 0)
+            return ONE;
+        if(diffBA.size() == 1)
+            return diffBA[0].reciprocal();
+        Expression denomenator = *new Expression(new Mul(diffBA));
+        return *new Expression(new Frac(denomenator));
+    }
+    if( diffBA.size() == 0 ) {
+        if(diffAB.size() == 1)
+            return diffAB[0];
+        return *new Expression(new Mul(diffAB));
+    }
+    Expression numerator = *new Expression(new Mul(diffAB));
+    Expression denomenator = *new Expression(new Mul(diffBA));
+    return *new Expression(new Frac(numerator,denomenator));
 };
 Expression Container::subtract(Expression other) const {
     Expression thisExpr = *new Expression(this);
@@ -117,7 +139,7 @@ String Add::print() const {
     //std::cout << members.size();
     for(int i = 0; i<members.size(); i++) {
         Expression next = members[i];
-        if(members[i]->getTypeHash() != SIGNTYPE && i>0)
+        if(!isNegative(next) && i>0)
             result+="+";
         result+=next.print();
     }
@@ -181,8 +203,8 @@ Expression Add::cancelTerms() const {
         if(intVectorContains(accountedFor, i))
             continue;
         Expression runningSum = members[i];
+        accountedFor.push_back(i);
         if(runningSum == ZERO) {
-            accountedFor.push_back(i);
             continue;
         }
         for(int j = i; j<members.size(); j++) {
@@ -194,10 +216,18 @@ Expression Add::cancelTerms() const {
                 continue;
             }
             if(currExpr == runningSum) {
+                if(isNegative(runningSum))
+                    runningSum = -2*(-runningSum);
                 runningSum = 2*runningSum;
                 accountedFor.push_back(j);
                 continue;
             }
+            if(currExpr == -runningSum || -currExpr == runningSum) {
+                accountedFor.push_back(j);
+                runningSum = ZERO;
+                break;
+            }
+                
             ExprVector currCommonFactors = commonFactors({runningSum,currExpr});
             if(currCommonFactors.size() == 0)
                 continue;
@@ -209,17 +239,16 @@ Expression Add::cancelTerms() const {
                 sumNotInCommon = sumNotInCommon/currCommonFactors[k];
                 otherNotInCommon = otherNotInCommon/currCommonFactors[k];
             }
-            if(isTypeSimilarTo(sumNotInCommon, CONTAINERTYPE) || isTypeSimilarTo(otherNotInCommon, CONTAINERTYPE) || !areSimilarTypes(sumNotInCommon, otherNotInCommon))
-                continue;
+            //if(isTypeSimilarTo(sumNotInCommon, CONTAINERTYPE) || isTypeSimilarTo(otherNotInCommon, CONTAINERTYPE) || !areSimilarTypes(sumNotInCommon, otherNotInCommon))
+            //    continue;
             //There are no cases I can think of where this will break commutators,
             //lack of evidence is not evidence of lack however.
             Expression testCombine = sumNotInCommon+otherNotInCommon;
-            if(isTypeSimilarTo(testCombine, CONTAINERTYPE))
+            if(testCombine.getTypeHash() == ADDTYPE)
                 continue;
             runningSum = testCombine*inCommon;
             accountedFor.push_back(j);
         }
-        accountedFor.push_back(i);
         newMembers.push_back(runningSum);
     }
     return *new Expression(new Add(newMembers));
@@ -368,54 +397,30 @@ String Mul::print() const {
 };
 
 Expression simplifyMulWithPauliMatrices(Expression target) {
-    bool isMul = target->getTypeHash() == MULTYPE;
-    bool isAdd = target->getTypeHash() == ADDTYPE;
     Expression total;
     Expression remainder = *new Expression(target.get());
     Expression firstPauli = getElementOfType(target, PAULIMATRIXTYPE);
     if(firstPauli.getTypeHash() == NULLTYPE)
         return *new Expression(target.get());
-    if(isMul) {
-        total = ONE;
-    }
-    if(isAdd) {
-        total = ZERO;
-    }
+    total = ONE;
     
     while(firstPauli.getTypeHash() != NULLTYPE && remainder != ZERO && remainder != ONE) {
-        if(isMul)
-            remainder = removeElementMultiplicatively(remainder, firstPauli);//remainder = remainder.remove(firstPauli);
-        if(isAdd)
-            remainder = removeElementAdditively(remainder, firstPauli);
+        remainder = removeElementMultiplicatively(remainder, firstPauli);
         Expression secondPauli = getMatrixMatchingPauliFlavor(remainder, firstPauli);
         Expression tempResult = firstPauli;
         while(secondPauli.getTypeHash() != NULLTYPE && remainder != ZERO && remainder != ONE) {
-            if(isMul) {
-                remainder = removeElementMultiplicatively(remainder, secondPauli);//remainder = remainder.remove(secondPauli);
-                tempResult = tempResult*secondPauli;
-            }
-            if(isAdd) {
-                remainder = removeElementAdditively(remainder, secondPauli);//remainder = remainder.remove(secondPauli);
-                tempResult = tempResult+secondPauli;
-            }
-            
+            remainder = removeElementMultiplicatively(remainder, secondPauli);//remainder = remainder.remove(secondPauli);
+            tempResult = tempResult*secondPauli;
             secondPauli = getMatrixMatchingPauliFlavor(remainder, firstPauli);
-            
         }
         //if(tempResult.getTypeHash() == NULLTYPE)
         //    tempResult = firstPauli;
         
-        firstPauli = getElementOfType(remainder, PAULIMATRIXTYPE);//remainder.getFirstInstanceOfType(PAULIMATRIXTYPE);
-        if(isMul)
-            total = total*tempResult;//distribute(total, firstPauli);
-        if(isAdd)
-            total = total+tempResult;//combineSums(total, firstPauli);
+        firstPauli = getElementOfType(remainder, PAULIMATRIXTYPE);
+        total = total*tempResult;
     }
     if(remainder.getTypeHash() != ZEROTYPE) {
-        if(isMul)
-            total = total*remainder;//distribute(total, remainder);
-        if(isAdd)
-            total = total+remainder;//combineSums(total, remainder);
+        total = total*remainder;
     }
     if(total.getTypeHash() == MULTYPE) {
         const Mul& mulObj = dynamic_cast<const Mul&>(*total);
@@ -437,20 +442,22 @@ Expression simplifyMulWithPauliMatrices(Expression target) {
 
 Expression Mul::simplify() const {
     ExprVector newMembers = *new ExprVector();
+    bool signOfThis = false;
     for(int i = 0; i< members.size(); i++)
         newMembers.push_back(members[i].simplify());
-    if(exprVectorContainsType(newMembers, MULTYPE)) {
-        ExprVector newerMembers = *new ExprVector();
-        for(int i=0; i<newMembers.size(); i++) {
-            if(newMembers[i].getTypeHash() == MULTYPE) {
-                const Mul& subMul = dynamic_cast<const Mul&>(*newMembers[i]);
-                newerMembers = setUnion(newerMembers, subMul.getMembers());
-            } else {
-                newerMembers.push_back(newMembers[i]);
-            }
+    ExprVector newerMembers = *new ExprVector();
+    for(int i=0; i<newMembers.size(); i++) {
+        if(newMembers[i].getTypeHash() == MULTYPE) {
+            const Mul& subMul = dynamic_cast<const Mul&>(*newMembers[i]);
+            newerMembers = setUnion(newerMembers, subMul.getMembers());
+        } else if( isNegative(newMembers[i]) ){
+            newerMembers.push_back(-newMembers[i]);
+            signOfThis = signOfThis != true;
+        } else {
+            newerMembers.push_back(newMembers[i]);
         }
-        newMembers = newerMembers;
     }
+    newMembers = newerMembers;
     Expression result = *new Expression(new Mul(newMembers));
     std::vector<size_t> types = {ADDTYPE,FRACTYPE,EXPTYPE,SYMBOLTYPE,EUCLIDVECTORTYPE,PAULIMATRIXTYPE,MATRIXTYPE,IMAGINARYUNITTYPE,REALTYPE};
     std::function<bool(Expression)> checker;
@@ -479,6 +486,11 @@ Expression Mul::simplify() const {
                 result = total;
         }
     }
+    if(signOfThis) {
+        if(result.getTypeHash() != MULTYPE)
+            return -result.simplify();
+        return -result;
+    }
     if(result.getTypeHash() != MULTYPE)
         return result.simplify();
     return result;
@@ -492,7 +504,7 @@ Expression Mul::distribute(Expression other) const {
         const Add& otherAdd= dynamic_cast<const Add&>(*other);
         ExprVector newMembers = *new ExprVector();
         for(int i = 0; i< otherAdd.getMembers().size(); i++) {
-            newMembers.push_back(distribute(otherAdd.getMembers()[i]));
+            newMembers.push_back(distribute(otherAdd.getMembers()[i]).simplify());
         }
         return *new Expression(new Add(newMembers));
     }

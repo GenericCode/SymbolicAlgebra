@@ -93,7 +93,6 @@ public:
     friend Expression matMul(Expression left, Expression right);
     friend ExprVector getConstituentSymbols(Expression target);
     friend Expression determinant(Expression target);
-    friend Expression transpose(Expression target);
     friend Expression substitute(Expression source, Expression target, Expression value);
     friend bool areEqual(const ExpressionObject& left, const ExpressionObject& right);
     friend Expression performActions(Expression target);
@@ -112,7 +111,6 @@ public:
     Expression factor() const;
     Expression reciprocal() const;
     Expression determinant() const;
-    //Expression transpose() const;
     Expression cancelTerms() const;
     ExprVector getFactors() const;
     

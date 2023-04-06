@@ -87,15 +87,13 @@ Expression Real::multiply(Expression other) const {
             Expression result = declareReal(newVal);
             return result;
         }
-    }/*else if(other->getTypeHash() == MULTYPE) {
-        return combineProducts(*new Expression(this),other);
-    }*/
+    }
     return distribute(other);
 };
 Expression Real::divide(Expression other) const {
     Expression thisExpr = *new Expression(this);
     if(isTypeSimilarTo(other, REALTYPE)) {
-        bool sign = other->getTypeHash() == SIGNTYPE;
+        bool sign = other.getTypeHash() == SIGNTYPE;
         Expression temp = NULL;
         if(sign)
             temp = (-*other);
@@ -124,11 +122,17 @@ Expression Real::simplify() const {
     return *new Expression(this);
 };
 Expression Real::distribute(Expression other) const {
+    Expression thisExpr = *new Expression(this);
     if(other.getTypeHash() == MULTYPE) {
         const Mul& otherMul = dynamic_cast<const Mul&>(*other);
         ExprVector newMembers = *new ExprVector();
         ExprVector mulMembers = otherMul.getMembers();
+        int index = positionOfType(mulMembers, REALTYPE);
+        Expression result = index >= 0? thisExpr*mulMembers[index] : thisExpr;
+        newMembers.push_back(result);
         for(int i = 0; i< mulMembers.size(); i++) {
+            if(i == index)
+                continue;
             newMembers.push_back(mulMembers[i]);
         }
         return *new Expression(new Mul(newMembers));
@@ -141,6 +145,10 @@ Expression Real::distribute(Expression other) const {
             newMembers.push_back(distribute(addMembers[i]));
         }
         return *new Expression(new Add(newMembers));
+    }
+    if(other.getTypeHash() == SIGNTYPE) {
+        const Sign& signObj = dynamic_cast<const Sign&>(*other);
+        return (-thisExpr).distribute(signObj.getMember());
     }
     ExprVector newMembers = *new ExprVector();
     newMembers.push_back(*new Expression(this));

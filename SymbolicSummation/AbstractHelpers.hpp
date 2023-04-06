@@ -37,6 +37,7 @@ Expression replaceElementOfType(Expression source, size_t type, Expression value
 ExprVector replaceElementOfTypeInVector(ExprVector source, size_t type, Expression value, bool rightToLeft = false);
 ExprVector setUnion(ExprVector setA, ExprVector setB);
 ExprVector setIntersect(ExprVector setA, ExprVector setB);
+ExprVector setDifference(ExprVector setA, ExprVector setB);
 ExprVector combineExprVectors(ExprVector left, ExprVector right);
 ExprVector generateExprVector(std::initializer_list<Expression> elements);
 ExprMatrix generateExprMatrix(std::initializer_list<std::initializer_list<Expression>> elements);

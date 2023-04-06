@@ -20,13 +20,12 @@
  */
 
 bool commutesWith(Expression left, Expression right);
+bool isNegative(Expression target);
 Expression performActions(Expression target);
 Expression performActionsOn(Expression target, Expression var);
 Expression insertAsVariable(Expression target, Expression var);
 Expression reciprocal(Expression self);
 Expression matMul(Expression left, Expression right);
-Expression determinant(Expression target);
-Expression transpose(Expression target);
 //Expression combineProducts(Expression left, Expression right);
 //Expression combineSums(Expression left, Expression right);
 //Expression cancelTerms(Expression target);

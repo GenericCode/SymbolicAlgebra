@@ -12,15 +12,6 @@
 #include "PauliMatrices.hpp"
 #include "AbstractHelpers.hpp"
 #include <cmath>
-Expression reciprocal(Expression self) {
-    if(self->getTypeHash() == FRACTYPE) {
-        const Frac& selfFrac = dynamic_cast<const Frac&>(*self);
-        Expression result = *new Expression(new Frac(selfFrac.getDenomenator(),selfFrac.getNumerator()));
-        return result;
-    }
-    Expression result = *new Expression(new Frac(self));
-    return result;
-};
 
 Expression complexConjugate(Expression target) {
     Expression result = substitute(target, IMAGUNIT, (-IMAGUNIT));
@@ -29,7 +20,45 @@ Expression complexConjugate(Expression target) {
     return *new Expression(target.get());
 }
 
-Expression determinant(Expression target) {
+bool isNegative(Expression target) {
+    bool negative = false;
+    size_t targetType = target.getTypeHash();
+    ExprVector elementsToCheck = *new ExprVector();
+    if(targetType == SIGNTYPE) {
+        const Sign& signObj = dynamic_cast<const Sign&>(*target);
+        negative = true;
+        return negative != isNegative(signObj.getMember());
+    }
+    if(targetType == ADDTYPE) {
+        const Add& addObj = dynamic_cast<const Add&>(*target);
+        elementsToCheck = addObj.getMembers();
+        bool totallyNegative = true;
+        for(int i = 0; i<elementsToCheck.size(); i++) {
+            totallyNegative &= isNegative(elementsToCheck[i]);
+        }
+        return negative != totallyNegative;
+    }
+    if(targetType == MULTYPE) {
+        const Mul& mulObj = dynamic_cast<const Mul&>(*target);
+        elementsToCheck = mulObj.getMembers();
+        for(int i = 0; i<elementsToCheck.size(); i++) {
+            negative = negative != isNegative(elementsToCheck[i]);
+        }
+        return negative;
+    }
+    if(targetType == FRACTYPE) {
+        const Frac& fracObj = dynamic_cast<const Frac&>(*target);
+        negative = negative != isNegative(fracObj.getNumerator());
+        return negative != isNegative(fracObj.getDenomenator());
+    }
+    if(targetType == REALTYPE) {
+        const Real& realObj = dynamic_cast<const Real&>(*target);
+        negative = negative != realObj.getValue() < 0;
+    }
+    return negative;
+}
+
+/*Expression determinant(Expression target) {
     if(!isTypeSimilarTo(target, MATRIXTYPE)) {
         return *new Expression(target.get());
     }
@@ -63,7 +92,7 @@ Expression determinant(Expression target) {
         }
     }
     return det;
-}
+}*/
 
 Expression matMul(Expression left, Expression right) {
     if( isTypeSimilarTo(right, MATRIXTYPE) && isTypeSimilarTo(left, MATRIXTYPE)) {
@@ -107,7 +136,7 @@ Expression matMul(Expression left, Expression right) {
     return left*right;
 };
 
-Expression transpose(Expression target) {
+/*Expression transpose(Expression target) {
     if(!isTypeSimilarTo(target, MATRIXTYPE))
         return *new Expression(target.get());
     const Matrix& matTarget = dynamic_cast<const Matrix&>(*target);
@@ -125,12 +154,12 @@ Expression transpose(Expression target) {
     }
     if(target->getTypeHash() == PAULIMATRIXTYPE) {
         const PauliMatrix& pauliTarget = dynamic_cast<const PauliMatrix&>(*target);
-        Expression result = *new Expression(new PauliMatrix(target->print()+"Transpose",0,pauliTarget.flavor,newElements));
+        Expression result = *new Expression(new PauliMatrix(target->print()+"Transpose",pauliTarget.flavor,newElements));
         return result;
     }
     Expression result = *new Expression(new Matrix(matTarget.name+"Transpose", newElements));
     return result;
-}
+}*/
 
 Expression combineProducts(Expression left, Expression right) {
     size_t leftType = left->getTypeHash();
@@ -727,6 +756,10 @@ ExprVector getFactorsOfInt(Expression factee) {
         return {*new Expression(factee)};
     int val = realObj.value;
     ExprVector factors = *new ExprVector();
+    if(val<0) {
+        factors.push_back(MINUSONE);
+        val = -val;
+    }
     for(int i = 2; i <= val; i++) {
         int remain = val%i;
         if(remain == 0) {
@@ -935,7 +968,7 @@ Expression performActions(Expression target) {
         }
         if(sourceType == PAULIMATRIXTYPE) {
             const PauliMatrix& pauliSource = dynamic_cast<const PauliMatrix&>(*target);
-            Expression newMat = declarePauliMatrix(new PauliMatrix(printExprMatrix(elements),0,pauliSource.flavor,elements));
+            Expression newMat = declarePauliMatrix(new PauliMatrix(printExprMatrix(elements),pauliSource.flavor,elements));
             return newMat;
         }
         Expression newMat = declareMatrix(matObj.name+"with replacement", elements);
@@ -998,7 +1031,7 @@ Expression performActionsOn(Expression target, Expression var) {
         }
         if(sourceType == PAULIMATRIXTYPE) {
             const PauliMatrix& pauliSource = dynamic_cast<const PauliMatrix&>(*target);
-            Expression newMat = declarePauliMatrix(new PauliMatrix(printExprMatrix(elements),0,pauliSource.flavor,elements));
+            Expression newMat = declarePauliMatrix(new PauliMatrix(printExprMatrix(elements),pauliSource.flavor,elements));
             return newMat;
         }
         Expression newMat = declareMatrix(matObj.name+"with replacement", elements);
@@ -1061,7 +1094,7 @@ Expression insertAsVariable(Expression target, Expression var) {
         }
         if(sourceType == PAULIMATRIXTYPE) {
             const PauliMatrix& pauliSource = dynamic_cast<const PauliMatrix&>(*target);
-            Expression newMat = declarePauliMatrix(new PauliMatrix(printExprMatrix(elements),0,pauliSource.flavor,elements));
+            Expression newMat = declarePauliMatrix(new PauliMatrix(printExprMatrix(elements),pauliSource.flavor,elements));
             return newMat;
         }
         Expression newMat = declareMatrix(matObj.name+"with replacement", elements);
@@ -1137,7 +1170,7 @@ Expression substitute(Expression source, Expression target, Expression value) {
         }
         if(sourceType == PAULIMATRIXTYPE) {
             const PauliMatrix& pauliSource = dynamic_cast<const PauliMatrix&>(*source);
-            Expression newMat = declarePauliMatrix(new PauliMatrix(printExprMatrix(elements),0,pauliSource.flavor,elements));
+            Expression newMat = declarePauliMatrix(new PauliMatrix(printExprMatrix(elements),pauliSource.flavor,elements));
             return newMat;
         }
         Expression newMat = declareMatrix(matObj.name+"with replacement", elements);

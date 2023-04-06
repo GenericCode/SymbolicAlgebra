@@ -13,17 +13,17 @@
 #include "Symbol.hpp"
 #include "PauliMatrices.hpp"
 Expression matrixElement(Expression potential,Expression initialState, Expression finalState) {
-    //Expression temp = transpose(initialState)*potential*finalState;
     Expression temp = potential*finalState;
-    temp = transpose(initialState)*temp;
+    temp = initialState.transpose()*temp;
     Expression result = temp.simplify();
     return result;
 }
 
 /*
  TODO:
- move all the functions to member functions
- 
+ CHECK move all the functions to member functions
+ fraction/division behavior needs to be significantly improved
+ removeElement functions are very bad, need to go
  
  
  
@@ -103,8 +103,8 @@ Expression spinIsospinSummation(ExprVector interactions, bool threeBody = false 
     Expression pThreeVector = declareEuclidVector("pThreeVector", {pThreeX,pThreeY,pThreeZ});
     Expression test = qOneVector*qTwoVector;
     Expression potential = parseString("-((tauOneVector*tauTwoVector)*(sigmaOneVector*qOneVector)*(sigmaTwoVector*qOneVector))");
+    //Expression potential = parseString("(sigmaOneVector*qOneVector)*(sigmaTwoVector*qOneVector)");//first*second;
     potential = potential.simplify();
-    //Expression potential = simplify(parseString("(sigmaOneVector*qVector)*(sigmaTwoVector*qVector)"));//first*second;
     /*Expression exchangePotential = -potential;
     Expression directPotential = substitute(potential, qOneX, ZERO);
     directPotential = substitute(directPotential, qOneY, ZERO);
@@ -166,44 +166,10 @@ Expression spinIsospinSummation(ExprVector interactions, bool threeBody = false 
                                     }
                                 }
                             }
-                            
-                            
-                            
-                            
-                            
-                            /*Expression directContribution = matrixElement(directPotential, sigmaOneStates[sigmaOne], sigmaOneStates[sigmaOne]);
-                            std::cout<<"sigmaOne\n";
-                            std::cout<<directContribution.print()+"\n";
-                            directContribution = matrixElement(directContribution, sigmaTwoStates[sigmaTwo], sigmaTwoStates[sigmaTwo]);
-                            std::cout<<"sigmaTwo\n";
-                            std::cout<<directContribution.print()+"\n";
-                            directContribution = matrixElement(directContribution, tauOneStates[tauOne], tauOneStates[tauOne]);
-                            std::cout<<"tauOne\n";
-                            std::cout<<directContribution.print()+"\n";
-                            directContribution = matrixElement(directContribution, tauTwoStates[tauTwo], tauTwoStates[tauTwo]);
-                            std::cout<<"tauTwo\n";
-                            //std::cout<<"Direct\n";
-                            std::cout<<directContribution.print()+"\n";
-                            Expression exchangeContribution;
-                            exchangeContribution = matrixElement(exchangePotential, sigmaOneStates[sigmaOne], sigmaOneStates[sigmaTwo]);
-                            std::cout<<"exchange sigmaOne\n";
-                            std::cout<<exchangeContribution.print()+"\n";
-                            exchangeContribution = matrixElement(exchangeContribution, sigmaTwoStates[sigmaTwo], sigmaTwoStates[sigmaOne]);
-                            std::cout<<"exchange sigmaTwo\n";
-                            std::cout<<exchangeContribution.print()+"\n";
-                            exchangeContribution = matrixElement(exchangeContribution, tauOneStates[tauOne], tauOneStates[tauTwo]);
-                            std::cout<<"exchange tauOne\n";
-                            std::cout<<exchangeContribution.print()+"\n";
-                            exchangeContribution = matrixElement(exchangeContribution, tauTwoStates[tauTwo], tauTwoStates[tauOne]);
-                            std::cout<<"exchange TauB\n";
-                            //std::cout<<"Exchange\n";
-                            std::cout<<exchangeContribution.print()+"\n";*/
                             Expression tempTotal = total;
-                            //total = tempTotal + directContribution + exchangeContribution;
                             total = tempTotal + totalForCurrentStates;
-                            std::cout<<total.print()+"\n";
+                            total = total.simplify();
                             std::cout<<"running total:"+total.print()+"\n\n";
-                            
                             if(!threeBody)
                                 break;
                         }
@@ -236,6 +202,8 @@ int main(int argc, const char * argv[]) {
     initializeDefaultFunctions();
     std::vector<String> interactions = {};
     Expression result = spinIsospinSummation(interactions, false);
+    //Expression result = parseString("-2*qOneZ^2-qOneZ^2+3*qOneZ^2");
+    result = result.simplify();
     //Expression result = parseString("transpose[x]");
     std::cout << result.print()+"\n";
     

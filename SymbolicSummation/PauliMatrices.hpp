@@ -11,7 +11,6 @@
 #include <stdio.h>
 #include "Symbol.hpp"
 //TODO:
-//delete index? why is it necessary as a member variable?
 class PauliMatrix : public Matrix {
 protected:
     String flavor = "";
@@ -36,7 +35,6 @@ public:
     ~PauliMatrix();
     friend Expression matMul(Expression left, Expression right);
     friend ExprVector getConstituentSymbols(Expression target);
-    friend Expression transpose(Expression target);
     friend Expression getMatrixMatchingPauliFlavor(Expression target, Expression matrixToMatch);
     friend bool areEqual(const ExpressionObject& left, const ExpressionObject& right);
     friend Expression substitute(Expression source, Expression target, Expression value);
