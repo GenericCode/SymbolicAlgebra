@@ -33,7 +33,6 @@ Expression matMul(Expression left, Expression right);
 //Expression distribute(Expression left, Expression right);
 //ExprVector getFactors(Expression factee);
 ExprVector commonFactors(ExprVector terms);
-ExprVector getSimpleCommonFactors(ExprVector terms);
 //Expression combineTermsDifferingByCoefficientsAdditively(Expression left, Expression right);
 //Expression factor(Expression factee);
 ExprVector getFactorsOfInt(Expression factee);

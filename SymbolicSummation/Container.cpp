@@ -67,12 +67,14 @@ Expression Container::divide(Expression other) const {
         if(diffBA.size() == 1)
             return diffBA[0].reciprocal();
         Expression denomenator = *new Expression(new Mul(diffBA));
-        return *new Expression(new Frac(denomenator));
+        Expression result = *new Expression(new Frac(denomenator));
+        return result.simplify();
     }
     if( diffBA.size() == 0 ) {
         if(diffAB.size() == 1)
             return diffAB[0];
-        return *new Expression(new Mul(diffAB));
+        Expression result = *new Expression(new Mul(diffAB));
+        return result.simplify();
     }
     Expression numerator = *new Expression(new Mul(diffAB));
     Expression denomenator = *new Expression(new Mul(diffBA));
@@ -149,7 +151,9 @@ String Add::print() const {
 Expression Add::simplify() const {
     ExprVector simplifiedMembers = *new ExprVector();
     for(int i = 0; i< members.size(); i++) {
-        simplifiedMembers.push_back(members[i].simplify());
+        Expression nextMem = members[i].simplify();
+        if(nextMem != ZERO)
+            simplifiedMembers.push_back(nextMem);
     }
     if(exprVectorContainsType(simplifiedMembers, ADDTYPE)) {
         ExprVector newerMembers = *new ExprVector();
@@ -204,9 +208,6 @@ Expression Add::cancelTerms() const {
             continue;
         Expression runningSum = members[i];
         accountedFor.push_back(i);
-        if(runningSum == ZERO) {
-            continue;
-        }
         for(int j = i; j<members.size(); j++) {
             if(intVectorContains(accountedFor, j))
                 continue;
@@ -218,7 +219,8 @@ Expression Add::cancelTerms() const {
             if(currExpr == runningSum) {
                 if(isNegative(runningSum))
                     runningSum = -2*(-runningSum);
-                runningSum = 2*runningSum;
+                else
+                    runningSum = 2*runningSum;
                 accountedFor.push_back(j);
                 continue;
             }
@@ -249,8 +251,11 @@ Expression Add::cancelTerms() const {
             runningSum = testCombine*inCommon;
             accountedFor.push_back(j);
         }
-        newMembers.push_back(runningSum);
+        if(runningSum != ZERO)
+            newMembers.push_back(runningSum);
     }
+    if(newMembers.size() == 0)
+        return ZERO;
     return *new Expression(new Add(newMembers));
 };
 ExprVector Add::getFactors() const {
@@ -327,10 +332,10 @@ Expression Sign::transpose() const {
     return -member.transpose();
 };
 ExprVector Sign::getFactors() const {
-    ExprVector memFactors = member.getFactors();
-    if(!exprVectorContains(memFactors, MINUSONE))
-        memFactors.push_back(MINUSONE);
-    return memFactors;
+    ExprVector factors = *new ExprVector();
+    factors.push_back(MINUSONE);
+    factors = setUnion(factors, member.getFactors());
+    return factors;
 };
 
 Sign::Sign(const Sign& target) {
@@ -371,10 +376,14 @@ Mul::Mul(Expression right, Expression left) {
     name = (*this).print();
 };
 Expression Mul::negate() const {
-    Expression negateTarget = getElementOfType(*new Expression(this), SIGNTYPE);//this.getFirstInstanceOfType(SIGNTYPE);
+    Expression thisExpr = *new Expression(this);
+    Expression negateTarget = getElementOfType(thisExpr, SIGNTYPE);//this.getFirstInstanceOfType(SIGNTYPE);
     if(negateTarget.getTypeHash() == NULLTYPE) {
-        Expression result = *new Expression(new Sign(*new Expression(this)));
-        return result;
+        negateTarget = getElementOfType(thisExpr, REALTYPE);
+        if(negateTarget.getTypeHash() == NULLTYPE) {
+            Expression result = *new Expression(new Sign(thisExpr));
+            return result;
+        }
     }
     Expression negatedTarget = -negateTarget;
     ExprVector newMembers = replaceElementInVector(members, negateTarget, negatedTarget);
@@ -450,7 +459,7 @@ Expression Mul::simplify() const {
         if(newMembers[i].getTypeHash() == MULTYPE) {
             const Mul& subMul = dynamic_cast<const Mul&>(*newMembers[i]);
             newerMembers = setUnion(newerMembers, subMul.getMembers());
-        } else if( isNegative(newMembers[i]) ){
+        } else if( isNegative(newMembers[i]) ) {
             newerMembers.push_back(-newMembers[i]);
             signOfThis = signOfThis != true;
         } else {
@@ -473,7 +482,7 @@ Expression Mul::simplify() const {
             remainder = removeElementMultiplicatively(result, first);
             Expression second = getElementOfType(remainder, type);//remainder.getFirstInstanceOfType(type);
             Expression total = first;
-            while(second.getTypeHash() != NULLTYPE && remainder != ZERO && remainder != ONE) {
+            while(second.getTypeHash() != NULLTYPE && remainder != ONE) {
                 remainder = removeElementMultiplicatively(remainder, second);//remainder = remainder.remove(second);
                 total = total*second;
                 second = getElementOfType(remainder, type);//remainder.getFirstInstanceOfType(type);
@@ -659,7 +668,8 @@ Exp::Exp(Expression newBase, int newExponent) {
 }
 
 Expression Exp::negate() const {
-    Expression result = *new Expression(new Sign(this));
+    Expression thisExpr = *new Expression(this);
+    Expression result = *new Expression(new Sign(thisExpr));
     return result;
 };
 

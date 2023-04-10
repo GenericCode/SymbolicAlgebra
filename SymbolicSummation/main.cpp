@@ -24,6 +24,18 @@ Expression matrixElement(Expression potential,Expression initialState, Expressio
  CHECK move all the functions to member functions
  fraction/division behavior needs to be significantly improved
  removeElement functions are very bad, need to go
+ pauliMatrix::multiply is fucked???
+ 
+ get rid of removeElement_____ functions, they are really bad and can be handled in more elegant ways
+ 
+ rename containers AGAIN
+ Sum
+ Product
+ Fraction
+ Exponential
+ Function
+ 
+ etc.
  
  
  
@@ -103,6 +115,7 @@ Expression spinIsospinSummation(ExprVector interactions, bool threeBody = false 
     Expression pThreeVector = declareEuclidVector("pThreeVector", {pThreeX,pThreeY,pThreeZ});
     Expression test = qOneVector*qTwoVector;
     Expression potential = parseString("-((tauOneVector*tauTwoVector)*(sigmaOneVector*qOneVector)*(sigmaTwoVector*qOneVector))");
+    //Expression potential = parseString("qOneVector*sigmaTwoVector");
     //Expression potential = parseString("(sigmaOneVector*qOneVector)*(sigmaTwoVector*qOneVector)");//first*second;
     potential = potential.simplify();
     /*Expression exchangePotential = -potential;
@@ -110,6 +123,7 @@ Expression spinIsospinSummation(ExprVector interactions, bool threeBody = false 
     directPotential = substitute(directPotential, qOneY, ZERO);
     directPotential = substitute(directPotential, qOneZ, ZERO);*/
     std::cout << potential.print()+"\n";
+    //potential = ONE;
     Expression total = ZERO;
     for(int sigmaOne = 1; sigmaOne>=0; sigmaOne--) {
         for(int sigmaTwo = 1; sigmaTwo>=0; sigmaTwo--) {
@@ -123,11 +137,13 @@ Expression spinIsospinSummation(ExprVector interactions, bool threeBody = false 
                             std::cout<<tauTwo;
                             std::cout<<"\n";
                             Expression totalForCurrentStates = ZERO;
+                            
                             std::vector<std::pair<int, int>> finalStates = {{sigmaOne,tauOne},{sigmaTwo,tauTwo},{sigmaThree,tauThree}};
                             ExprVector momentumVectors = {pOneVector,pTwoVector,pThreeVector};
                             int sigmaOneFinal, tauOneFinal, sigmaTwoFinal, tauTwoFinal, sigmaThreeFinal, tauThreeFinal;
                             Expression qOneVectorActual, qTwoVectorActual, qThreeVectorActual;
                             int numParticles = threeBody? 3 : 2;
+                            //refactor first,second,third. It's confusing as hell
                             for(int first = 0; first<numParticles; first++) {
                                 for(int second = 0; second<numParticles; second++) {
                                     if(first==second)
@@ -159,9 +175,13 @@ Expression spinIsospinSummation(ExprVector interactions, bool threeBody = false 
                                     else {
                                         //Expression currentPotential = insertProperQVectors(potential, qOneVectorActual, qTwoVectorActual);
                                         Expression contribution = matrixElement(potential, sigmaOneStates[sigmaOne], sigmaOneStates[sigmaOneFinal]);
+                                        std::cout<<contribution.print()+"\n";
                                         contribution = matrixElement(contribution, sigmaTwoStates[sigmaTwo], sigmaTwoStates[sigmaTwoFinal]);
+                                        std::cout<<contribution.print()+"\n";
                                         contribution = matrixElement(contribution, tauOneStates[tauOne], tauOneStates[tauOneFinal]);
+                                        std::cout<<contribution.print()+"\n";
                                         contribution = matrixElement(contribution, tauTwoStates[tauTwo], tauTwoStates[tauTwoFinal]);
+                                        std::cout<<contribution.print()+"\n";
                                         totalForCurrentStates = totalForCurrentStates + contribution;
                                     }
                                 }
@@ -202,8 +222,8 @@ int main(int argc, const char * argv[]) {
     initializeDefaultFunctions();
     std::vector<String> interactions = {};
     Expression result = spinIsospinSummation(interactions, false);
-    //Expression result = parseString("-2*qOneZ^2-qOneZ^2+3*qOneZ^2");
-    result = result.simplify();
+    //Expression result = parseString("2*qOneZ-qOneZ-qOneZ");
+    //result = result.simplify();
     //Expression result = parseString("transpose[x]");
     std::cout << result.print()+"\n";
     

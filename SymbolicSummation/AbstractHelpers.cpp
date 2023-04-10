@@ -437,13 +437,14 @@ Expression parseString(String exprString) {
         String symbolPart = "";
         int i = 0;
         while(i<expr.size()) {
-            if(isdigit(expr[i]))
-                i++;
-            else
+            if(!isdigit(expr[i]))
                 break;
+            i++;
         }
-        realPart = expr.substr(0,i);
-        symbolPart = expr.substr(i+1);
+        if(i == 0)
+            return declareSymbol(sanitize(exprString));
+        realPart = expr.substr(0,i-1);
+        symbolPart = expr.substr(i);
         Expression rePart = parseString(realPart);
         Expression symPart = parseString(symbolPart);
         Expression result = *new Expression(new Mul(rePart,symPart));

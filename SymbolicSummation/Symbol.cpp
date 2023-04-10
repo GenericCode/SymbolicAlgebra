@@ -147,6 +147,10 @@ ImaginaryUnit& ImaginaryUnit::operator=(const ImaginaryUnit &target) {
 
 Expression ImaginaryUnit::multiply(Expression other) const {
     Expression thisExpr = *new Expression(this);
+    if(other.getTypeHash() == ZEROTYPE)
+        return ZERO;
+    if(other.getTypeHash() == ONETYPE)
+        return *new Expression(this);
     if(other == thisExpr) {
         return MINUSONE;
     }

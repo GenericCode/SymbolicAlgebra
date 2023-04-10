@@ -605,20 +605,6 @@ ExprVector cancelCommonFactors(ExprVector targets) {
     return results;
 }
 
-ExprVector cancelSimpleCommonFactors(ExprVector targets) {
-    ExprVector results = targets;
-    ExprVector commonFactors = getSimpleCommonFactors(results);
-    for(int i = 0; i<commonFactors.size(); i++) {
-        for(int j = 0; j<results.size(); j++) {
-            results[j] = results[j].factor();
-            results[j] = removeElementMultiplicatively(results[j], commonFactors[i]);
-            if(results[j].getTypeHash() == NULLTYPE)
-                results[j] = targets[j];
-        }
-    }
-    return results;
-}
-
 Expression distribute(Expression left, Expression right) {
     size_t leftType = left->getTypeHash();
     size_t rightType = right->getTypeHash();
@@ -825,43 +811,6 @@ ExprVector getFactors(Expression factee) {
         return getFactorsOfInt(factee);
     return generateExprVector({*new Expression(factee)});
 }*/
-
-ExprVector getSimpleCommonFactors(ExprVector terms) {
-    ExprVector commonFactors = *new ExprVector();
-    ExprMatrix ithTermFactors = *new ExprMatrix();
-    ExprVector firstTermFactors = terms[0].getFactors();
-    if(terms.size()<2)
-        return firstTermFactors;
-    std::vector<std::vector<int>> indicesAlreadyCounted = *new std::vector<std::vector<int>>();
-    for(int i = 1; i<terms.size(); i++) {
-        ExprVector currTermFactors = terms[i].getFactors();
-        ithTermFactors.push_back(currTermFactors);
-        indicesAlreadyCounted.push_back(*new std::vector<int>());
-    }
-    
-    for(int i = 0; i<firstTermFactors.size(); i++) {
-        bool isCommonFactor = true;
-        for(int j=0; j<(ithTermFactors).size(); j++) {
-            bool containsFactor = false;
-            for(int k = 0; k<ithTermFactors[j].size(); k++) {
-                if(intVectorContains(indicesAlreadyCounted[j], k))
-                    continue;
-                containsFactor |= firstTermFactors[i] == (ithTermFactors[j])[k];
-                if(containsFactor) {
-                    indicesAlreadyCounted[j].push_back(k);
-                    break;
-                }
-            }
-            isCommonFactor &= containsFactor;
-            if(!isCommonFactor)
-                break;
-            //isCommonFactor &= containsElement(ithTermFactors[j], firstTermFactors[i]);
-        }
-        if(isCommonFactor && !isTypeSimilarTo(firstTermFactors[i], MATRIXTYPE) && firstTermFactors[i].getTypeHash() != SYMBOLTYPE)
-            commonFactors.push_back(firstTermFactors[i]);
-    }
-    return commonFactors;
-}
 
 ExprVector commonFactors(ExprVector terms) {
     

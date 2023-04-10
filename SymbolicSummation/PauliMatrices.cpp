@@ -170,16 +170,26 @@ Expression PauliMatrix::simplify() const {
 Expression PauliMatrix::distribute(Expression other) const {
     size_t otherType = other.getTypeHash();
     Expression thisExpr = *new Expression(this);
+    if(otherType == ZEROTYPE) {
+        return ZERO;
+    }
+    if(otherType == ONETYPE) {
+        return thisExpr;
+    }
     if(otherType == ADDTYPE) {
         const Add& otherAdd = dynamic_cast<const Add&>(*other);
         ExprVector newMembers = otherAdd.getMembers();
         for(int i = 0; i<newMembers.size(); i++) {
             newMembers[i] = distribute(newMembers[i]);
         }
+        if(newMembers.size() == 0)
+            return newMembers[0];
         return *new Expression(new Add(newMembers));
     }
     if(otherType == MULTYPE) {
-        Expression testTarget = getMatrixMatchingPauliFlavor(other, *new Expression(this));
+        Expression testTarget = getMatrixMatchingPauliFlavor(other, thisExpr);
+        
+        //This below is fucked.
         if(testTarget.getTypeHash() != NULLTYPE) {
             Expression product = thisExpr*testTarget;
             return product*removeElementMultiplicatively(other, testTarget);
