@@ -141,9 +141,14 @@ String Add::print() const {
     //std::cout << members.size();
     for(int i = 0; i<members.size(); i++) {
         Expression next = members[i];
-        if(!isNegative(next) && i>0)
+        if(i>0 && next.getTypeHash() != SIGNTYPE)
             result+="+";
+        bool nextIsNegative = isNegative(next);
+        if(nextIsNegative && next.getTypeHash() != SIGNTYPE)
+            result+="(";
         result+=next.print();
+        if(nextIsNegative && next.getTypeHash() != SIGNTYPE)
+            result+=")";
     }
     return result;
 };

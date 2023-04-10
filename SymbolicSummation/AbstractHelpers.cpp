@@ -912,8 +912,13 @@ bool areEqual(const ExpressionObject& left, const ExpressionObject& right) {
     if(leftType == ADDTYPE) {
         const Add& leftObj = dynamic_cast<const Add&>(left);
         const Add& rightObj = dynamic_cast<const Add&>(right);
+        if(leftObj.getMembers().size() != rightObj.getMembers().size())
+            return false;
         for(int i = 0; i<leftObj.getMembers().size(); i++) {
             areEqual &= exprVectorContains(rightObj.getMembers(), leftObj.getMembers()[i]);
+        }
+        for(int i = 0; i<rightObj.getMembers().size(); i++) {
+            areEqual &= exprVectorContains(leftObj.getMembers(), rightObj.getMembers()[i]);
         }
     }
     if(leftType == SIGNTYPE) {

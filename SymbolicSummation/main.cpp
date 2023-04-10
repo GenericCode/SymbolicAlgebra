@@ -14,6 +14,7 @@
 #include "PauliMatrices.hpp"
 Expression matrixElement(Expression potential,Expression initialState, Expression finalState) {
     Expression temp = potential*finalState;
+    temp = temp.simplify();
     temp = initialState.transpose()*temp;
     Expression result = temp.simplify();
     return result;
@@ -122,7 +123,7 @@ Expression spinIsospinSummation(ExprVector interactions, bool threeBody = false 
     Expression directPotential = substitute(potential, qOneX, ZERO);
     directPotential = substitute(directPotential, qOneY, ZERO);
     directPotential = substitute(directPotential, qOneZ, ZERO);*/
-    std::cout << potential.print()+"\n";
+    //std::cout << potential.print()+"\n";
     //potential = ONE;
     Expression total = ZERO;
     for(int sigmaOne = 1; sigmaOne>=0; sigmaOne--) {
@@ -131,11 +132,15 @@ Expression spinIsospinSummation(ExprVector interactions, bool threeBody = false 
                 for(int tauOne = 1; tauOne>=0; tauOne--) {
                     for(int tauTwo = 1; tauTwo>=0; tauTwo--) {
                         for(int tauThree = 1; tauThree>=0; tauThree--) {
+                            std::cout<<"s1[";
                             std::cout<<sigmaOne;
+                            std::cout<<"]s2[";
                             std::cout<<sigmaTwo;
+                            std::cout<<"]t1[";
                             std::cout<<tauOne;
+                            std::cout<<"]t2[";
                             std::cout<<tauTwo;
-                            std::cout<<"\n";
+                            std::cout<<"]\n";
                             Expression totalForCurrentStates = ZERO;
                             
                             std::vector<std::pair<int, int>> finalStates = {{sigmaOne,tauOne},{sigmaTwo,tauTwo},{sigmaThree,tauThree}};
@@ -173,7 +178,12 @@ Expression spinIsospinSummation(ExprVector interactions, bool threeBody = false 
                                         }
                                     }
                                     else {
+                                        //sigmaOne == 1 && sigmaTwo == 1 && tauOne == 1 && tauTwo == 0
                                         //Expression currentPotential = insertProperQVectors(potential, qOneVectorActual, qTwoVectorActual);
+                                        if(first)
+                                            std::cout<<"Direct\n";
+                                        else
+                                            std::cout<<"Exchange\n";
                                         Expression contribution = matrixElement(potential, sigmaOneStates[sigmaOne], sigmaOneStates[sigmaOneFinal]);
                                         std::cout<<contribution.print()+"\n";
                                         contribution = matrixElement(contribution, sigmaTwoStates[sigmaTwo], sigmaTwoStates[sigmaTwoFinal]);
