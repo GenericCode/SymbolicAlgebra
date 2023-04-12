@@ -1,6 +1,8 @@
 #pragma once
 //#include "Expression.hpp"
 #include <string>
+#include <vector>
+#include <typeinfo>
 class Expression;
 typedef std::string String;
 typedef std::vector<Expression> ExprVector;

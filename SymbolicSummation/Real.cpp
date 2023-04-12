@@ -16,7 +16,7 @@ Real::Real( const Real& target) {
     value = target.value;
 };
 
-Real::Real(float newVal)  {
+Real::Real(double newVal)  {
     if(ceil(newVal) == newVal)
         value = (int)newVal;
     else
@@ -31,7 +31,7 @@ Expression Real::add(Expression other) const {
     Expression thisExpr = *new Expression(this);
     if(isTypeSimilarTo(other, REALTYPE)) {
         bool sign = other.getTypeHash() == SIGNTYPE;
-        float otherVal;
+        double otherVal;
         if(sign) {
             const Real& otherObj = dynamic_cast<const Real&>(*-other);
             otherVal = -otherObj.value;
@@ -39,7 +39,7 @@ Expression Real::add(Expression other) const {
             const Real& otherObj = dynamic_cast<const Real&>(*other);
             otherVal = otherObj.value;
         }
-        float newVal = value + otherVal;
+        double newVal = value + otherVal;
         Expression result = declareReal(newVal);
         return result;
     }
@@ -56,7 +56,7 @@ Expression Real::subtract(Expression other) const {
     Expression thisExpr = *new Expression(this);
     if(isTypeSimilarTo(other, REALTYPE)) {
         const Real& otherReal = dynamic_cast<const Real&>(*other);
-        float newVal = value-otherReal.value;
+        double newVal = value-otherReal.value;
         Expression result = declareReal(newVal);
         return result;
     }
@@ -78,12 +78,12 @@ Expression Real::multiply(Expression other) const {
     if(isTypeSimilarTo(other, REALTYPE)) {
         if(other.getTypeHash() != SIGNTYPE) {
             const Real& otherReal = dynamic_cast<const Real&>(*other);
-            float newVal = value*otherReal.value;
+            double newVal = value*otherReal.value;
             Expression result = declareReal(newVal);
             return result;
         } else {
             const Real& otherReal = dynamic_cast<const Real&>(*-other);
-            float newVal = -value*otherReal.value;
+            double newVal = -value*otherReal.value;
             Expression result = declareReal(newVal);
             return result;
         }
@@ -100,7 +100,7 @@ Expression Real::divide(Expression other) const {
         else
             temp = other;
         const Real& otherReal = dynamic_cast<const Real&>(*temp);
-        float newVal = value/otherReal.value;
+        double newVal = value/otherReal.value;
         if(sign)
             newVal *= -1;
         Expression result = declareReal(newVal);

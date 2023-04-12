@@ -14,7 +14,7 @@
 
 class Real : public ExpressionObject {
 protected:
-    float value;
+    double value;
     Expression add(Expression other) const;
     Expression subtract(Expression other) const;
     Expression negate() const;
@@ -30,15 +30,14 @@ public:
     Expression transpose() const;
     Expression cancelTerms() const;
     ExprVector getFactors() const;
-    float getValue() const {
+    double getValue() const {
         return value;
     };
     Real(const Real& target);
     const Real& operator=(const Real& target);
-    Real(float newVal);
+    Real(double newVal);
     friend bool areEqual(const ExpressionObject& left, const ExpressionObject& right);
     friend ExprVector getFactorsOfInt(Expression factee);
-    friend Expression simplify(Expression target);
 };
 
 class Zero : public Real {

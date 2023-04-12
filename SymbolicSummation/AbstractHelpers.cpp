@@ -118,9 +118,9 @@ String getStringExpressionType(String exprString) {
                 break;
             default:
                 if(parenthesisDepth == 0) {
-                    containsLetter |= isalpha(currChar);
-                    containsNumber |= isdigit(currChar);
-                    containsNumberBeforeLetter |= isdigit(currChar) && !containsLetter;
+                    containsLetter |= (bool)isalpha(currChar);
+                    containsNumber |= (bool)isdigit(currChar);
+                    containsNumberBeforeLetter |= (bool)isdigit(currChar) && !containsLetter;
                 }
                 break;
         }
