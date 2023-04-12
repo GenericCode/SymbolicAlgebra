@@ -220,7 +220,7 @@ Expression spinIsospinSummation(ExprVector interactions, bool threeBody = false 
 Expression spinIsospinSummation(std::vector<String> interactions, bool exchange ) {
     int numTerms = (int)interactions.size();
     ExprVector interactionExpressions = *new ExprVector();
-    for(int i = 0; i<numTerms; i++) {
+    for(size_t i = 0; i<numTerms; i++) {
         Expression nextTerm = parseString(interactions[i]);
         interactionExpressions.push_back(nextTerm);
     }

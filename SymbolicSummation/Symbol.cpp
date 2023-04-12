@@ -96,7 +96,7 @@ Expression Symbol::distribute(Expression other) const {
     if(otherType == ADDTYPE) {
         const Add& otherAdd = dynamic_cast<const Add&>(*other);
         ExprVector newMembers = otherAdd.getMembers();
-        for(int i = 0; i<newMembers.size(); i++) {
+        for(size_t i = 0; i<newMembers.size(); i++) {
             newMembers[i] = distribute(newMembers[i]);
         }
         return *new Expression(new Add(newMembers));
@@ -106,7 +106,7 @@ Expression Symbol::distribute(Expression other) const {
         ExprVector newMembers = *new ExprVector();
         ExprVector otherMembers = otherMul.getMembers();
         newMembers.push_back(thisExpr);
-        for(int i = 0; i<otherMembers.size(); i++) {
+        for(size_t i = 0; i<otherMembers.size(); i++) {
             newMembers.push_back(otherMembers[i]);
         }
         return *new Expression(new Mul(newMembers));
@@ -211,9 +211,9 @@ Matrix::Matrix(String name, std::vector<int> newDimensions) : Symbol(name) {
 Matrix::Matrix(Expression diag, int newDim)  : Symbol("I*"+diag.print()) {
     ExprMatrix newElements = *new ExprMatrix();
     Expression diagElement = *new Expression(diag);
-    for(int i = 0; i< newDim; i++) {
+    for(size_t i = 0; i< newDim; i++) {
     ExprVector currColumn = *new ExprVector();
-        for(int j = 0; j< newDim; j++) {
+        for(size_t j =0; j< newDim; j++) {
             if(i == j)
                 currColumn.push_back(diagElement);
             else
@@ -244,9 +244,9 @@ Expression Matrix::add(Expression other) const {
             return result;
         }
         ExprMatrix newElements = *new ExprMatrix();
-        for(int i = 0; i<dimensions.first; i++) {
+        for(size_t i = 0; i<dimensions.first; i++) {
             ExprVector column = *new ExprVector();
-            for(int j = 0; j<dimensions.second; j++) {
+            for(size_t j =0; j<dimensions.second; j++) {
                 Expression currentElement = (elements[i][j]+otherMat.elements[i][j]);
                 zeroMat &= currentElement == ZERO;
                 column.push_back(currentElement);
@@ -265,9 +265,9 @@ Expression Matrix::add(Expression other) const {
     const Matrix& otherMat = dynamic_cast<const Matrix&>(*matTarget);
     Expression otherCoefficent = removeElementMultiplicatively(other, matTarget);//other.remove(matTarget);
     ExprMatrix distrElements = *new ExprMatrix();
-    for(int i = 0; i<otherMat.dimensions.first; i++) {
+    for(size_t i = 0; i<otherMat.dimensions.first; i++) {
         ExprVector currentColumn = *new ExprVector();
-        for(int j = 0; j<otherMat.dimensions.second; j++) {
+        for(size_t j =0; j<otherMat.dimensions.second; j++) {
             currentColumn.push_back(otherCoefficent*otherMat.elements[i][j]);
         }
         distrElements.push_back(currentColumn);
@@ -277,9 +277,9 @@ Expression Matrix::add(Expression other) const {
 };
 Expression Matrix::negate() const {
     ExprMatrix newElements = *new ExprMatrix();
-    for(int i = 0; i<dimensions.first; i++) {
+    for(size_t i = 0; i<dimensions.first; i++) {
         ExprVector newColumn = *new ExprVector();
-        for(int j = 0; j< dimensions.second; j++) {
+        for(size_t j =0; j< dimensions.second; j++) {
             Expression negateElement = -elements[i][j];
             newColumn.push_back(negateElement);
         }
@@ -324,10 +324,10 @@ ExprMatrix Matrix::getElements() const {
 String Matrix::print() const {
     String result = "";
     result += "{";
-    for(int i = 0; i<dimensions.first; i++)
+    for(size_t i = 0; i<dimensions.first; i++)
     {
         result += "{";
-        for(int j = 0; j<dimensions.second; j++) {
+        for(size_t j =0; j<dimensions.second; j++) {
             result += elements[i][j].print();
             if(j != dimensions.second-1)
                 result += ",";
@@ -349,7 +349,7 @@ Expression Matrix::distribute(Expression other) const {
     if(otherType == ADDTYPE) {
         const Add& otherAdd = dynamic_cast<const Add&>(*other);
         ExprVector newMembers = otherAdd.getMembers();
-        for(int i = 0; i<newMembers.size(); i++) {
+        for(size_t i = 0; i<newMembers.size(); i++) {
             newMembers[i] = distribute(newMembers[i]);
         }
         return *new Expression(new Add(newMembers));
@@ -364,7 +364,7 @@ Expression Matrix::distribute(Expression other) const {
         ExprVector newMembers = *new ExprVector();
         ExprVector otherMembers = otherMul.getMembers();
         newMembers.push_back(thisExpr);
-        for(int i = 0; i<otherMembers.size(); i++) {
+        for(size_t i = 0; i<otherMembers.size(); i++) {
             newMembers.push_back(otherMembers[i]);
         }
         return *new Expression(new Mul(newMembers));
@@ -389,10 +389,10 @@ Expression Matrix::determinant() const {
         for (int x = 0; x < n; x++) {
             ExprMatrix submatrix = *new ExprMatrix();
             int subi = 0;
-            for (int i = 1; i < n; i++) {
+            for (size_t i = 1; i < n; i++) {
                 int subj = 0;
                 ExprVector currentRow = *new ExprVector();
-                for (int j = 0; j < n; j++) {
+                for (size_t j =0; j < n; j++) {
                     if (j == x)
                         continue;
                     currentRow.push_back(elements[i][j]);
@@ -415,9 +415,9 @@ Expression Matrix::transpose() const {
     //if( dimensions.first != dimensions.second )
     //    return *new Expression(new NullObject("Transpose of non-square matrix"));
     ExprMatrix transElements = *new ExprMatrix();
-    for(int i = 0; i<dimensions.second; i++) {
+    for(size_t i = 0; i<dimensions.second; i++) {
         ExprVector newColumn = *new ExprVector();
-        for(int j = 0; j<dimensions.first; j++) {
+        for(size_t j =0; j<dimensions.first; j++) {
            
             newColumn.push_back(elements[j][i]);
         }
@@ -455,7 +455,7 @@ Expression EuclidVector::multiply(Expression other) const {
 };
 String EuclidVector::print() const {
     /*String result = "{";
-    for(int i = 0; i<elements[0].size(); i++) {
+    for(size_t i = 0; i<elements[0].size(); i++) {
         result += elements[0][i].print();
     }
     result += "}";*/
@@ -486,7 +486,7 @@ Expression EuclidVector::distribute(Expression other) const {
     if(otherType == ADDTYPE) {
         const Add& otherAdd = dynamic_cast<const Add&>(*other);
         ExprVector newMembers = otherAdd.getMembers();
-        for(int i = 0; i<newMembers.size(); i++) {
+        for(size_t i = 0; i<newMembers.size(); i++) {
             newMembers[i] = distribute(newMembers[i]);
         }
         return *new Expression(new Add(newMembers));
@@ -501,7 +501,7 @@ Expression EuclidVector::distribute(Expression other) const {
         ExprVector newMembers = *new ExprVector();
         ExprVector otherMembers = otherMul.getMembers();
         newMembers.push_back(thisExpr);
-        for(int i = 0; i<otherMembers.size(); i++) {
+        for(size_t i = 0; i<otherMembers.size(); i++) {
             newMembers.push_back(otherMembers[i]);
         }
         return *new Expression(new Mul(newMembers));
