@@ -29,7 +29,7 @@ bool isNegative(Expression target) {
         negative = true;
         return negative != isNegative(signObj.getMember());
     }
-    if(targetType == PRODUCTTYPE) {
+    if(targetType == SUMTYPE) {
         const Sum& addObj = dynamic_cast<const Sum&>(*target);
         elementsToCheck = addObj.getMembers();
         bool totallyNegative = true;
@@ -385,7 +385,7 @@ Expression simplifySubExpressions(Expression target) {
 /*
 Expression simplifyPauliMatrices(Expression target) {
     bool isMul = target->getTypeHash() == PRODUCTTYPE;
-    bool isAdd = target->getTypeHash() == PRODUCTTYPE;
+    bool isAdd = target->getTypeHash() == SUMTYPE;
     Expression total;
     Expression remainder = *new Expression(target.get());
     Expression firstPauli = getElementOfType(target, PAULIMATRIXTYPE);
@@ -440,7 +440,7 @@ Expression simplifyPauliMatrices(Expression target) {
         if(mulObj.getMembers().size() == 1)
             return mulObj.getMembers()[0];
     }
-    if(total.getTypeHash() == PRODUCTTYPE) {
+    if(total.getTypeHash() == SUMTYPE) {
         const Sum& addObj = dynamic_cast<const Sum&>(*total);
         if(addObj.getMembers().size() == 0)
             return ZERO;
@@ -618,9 +618,9 @@ Expression distribute(Expression left, Expression right) {
         const Sign& signRight = dynamic_cast<const Sign&>(*right);
         return -distribute(left, signRight.getMember());
     }
-    if(leftType == PRODUCTTYPE) {
+    if(leftType == SUMTYPE) {
         const Sum& leftObj = dynamic_cast<const Sum&>(*left);
-        if(rightType == PRODUCTTYPE) {
+        if(rightType == SUMTYPE) {
             const Sum& rightObj = dynamic_cast<const Sum&>(*right);
             ExprVector newMembers = *new ExprVector();
             for(int i=0; i<leftObj.getMembers().size(); i++) {
@@ -679,7 +679,7 @@ Expression distribute(Expression left, Expression right) {
         //end ltype == FRAC, rtype = MUL or similar
     }//end ltype = FRAC
     
-    if(rightType == PRODUCTTYPE) {
+    if(rightType == SUMTYPE) {
         const Sum& rightObj = dynamic_cast<const Sum&>(*right);
         ExprVector newMembers = *new ExprVector();
         for(int i=0; i<rightObj.getMembers().size(); i++) {
@@ -933,7 +933,7 @@ Expression performActions(Expression target) {
     }
     ExprVector elementsToModify;
     ExprVector newElements = *new ExprVector();
-    if(sourceType == PRODUCTTYPE) {
+    if(sourceType == SUMTYPE) {
         const Sum& addObj = dynamic_cast<const Sum&>(*target);
         elementsToModify = addObj.getMembers();
     }
@@ -945,7 +945,7 @@ Expression performActions(Expression target) {
         Expression moddedEle = performActions(elementsToModify[i]);
         newElements.push_back(moddedEle);
     }
-    if(sourceType == PRODUCTTYPE) {
+    if(sourceType == SUMTYPE) {
         return *new Expression(new Sum(newElements));
     }
     if(sourceType == PRODUCTTYPE) {
@@ -996,7 +996,7 @@ Expression performActionsOn(Expression target, Expression var) {
     }
     ExprVector elementsToModify;
     ExprVector newElements = *new ExprVector();
-    if(sourceType == PRODUCTTYPE) {
+    if(sourceType == SUMTYPE) {
         const Sum& addObj = dynamic_cast<const Sum&>(*target);
         elementsToModify = addObj.getMembers();
     }
@@ -1008,7 +1008,7 @@ Expression performActionsOn(Expression target, Expression var) {
         Expression moddedEle = performActionsOn(elementsToModify[i], var);
         newElements.push_back(moddedEle);
     }
-    if(sourceType == PRODUCTTYPE) {
+    if(sourceType == SUMTYPE) {
         return *new Expression(new Sum(newElements));
     }
     if(sourceType == PRODUCTTYPE) {
@@ -1059,7 +1059,7 @@ Expression insertAsVariable(Expression target, Expression var) {
     }
     ExprVector elementsToModify;
     ExprVector newElements = *new ExprVector();
-    if(sourceType == PRODUCTTYPE) {
+    if(sourceType == SUMTYPE) {
         const Sum& addObj = dynamic_cast<const Sum&>(*target);
         elementsToModify = addObj.getMembers();
     }
@@ -1071,7 +1071,7 @@ Expression insertAsVariable(Expression target, Expression var) {
         Expression moddedEle = insertAsVariable(elementsToModify[i], var);
         newElements.push_back(moddedEle);
     }
-    if(sourceType == PRODUCTTYPE) {
+    if(sourceType == SUMTYPE) {
         return *new Expression(new Sum(newElements));
     }
     if(sourceType == PRODUCTTYPE) {
@@ -1172,7 +1172,7 @@ Expression substitute(Expression source, Expression target, Expression value) {
     }
     ExprVector elementsToModify;
     ExprVector newElements = *new ExprVector();
-    if(sourceType == PRODUCTTYPE) {
+    if(sourceType == SUMTYPE) {
         const Sum& addObj = dynamic_cast<const Sum&>(*source);
         elementsToModify = addObj.getMembers();
     }
@@ -1193,7 +1193,7 @@ Expression substitute(Expression source, Expression target, Expression value) {
     }
     if(!moddedAnyElements)
         return *new Expression(new NullObject("No substitutions possible"));
-    if(sourceType == PRODUCTTYPE) {
+    if(sourceType == SUMTYPE) {
         return *new Expression(new Sum(newElements));
     }
     if(sourceType == PRODUCTTYPE) {

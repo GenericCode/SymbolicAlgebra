@@ -39,7 +39,7 @@ Expression Symbol::add(Expression other) const {
         return *new Expression(this);
     if(other == thisExpr)
         return 2*thisExpr;
-    if(other.getTypeHash() == PRODUCTTYPE) {
+    if(other.getTypeHash() == SUMTYPE) {
         const Sum& otherAdd = dynamic_cast<const Sum&>(*other);
         ExprVector newMembers = *new ExprVector();
         newMembers.push_back(thisExpr);
@@ -57,7 +57,7 @@ Expression Symbol::subtract(Expression other) const {
     if(other == thisExpr) {
         return ZERO;
     }
-    if(other.getTypeHash() == PRODUCTTYPE) {
+    if(other.getTypeHash() == SUMTYPE) {
         const Sum& otherNegativeAdd = dynamic_cast<const Sum&>(*-other);
         ExprVector newMembers = *new ExprVector();
         newMembers.push_back(thisExpr);
@@ -93,7 +93,7 @@ Expression Symbol::simplify() const {
 Expression Symbol::distribute(Expression other) const {
     size_t otherType = other.getTypeHash();
     Expression thisExpr = *new Expression(this);
-    if(otherType == PRODUCTTYPE) {
+    if(otherType == SUMTYPE) {
         const Sum& otherAdd = dynamic_cast<const Sum&>(*other);
         ExprVector newMembers = otherAdd.getMembers();
         for(size_t i = 0; i<newMembers.size(); i++) {
@@ -229,7 +229,7 @@ Expression Matrix::divide(Expression other) const {
 };
 Expression Matrix::add(Expression other) const {
     Expression thisExpr = *new Expression(this);
-    if(other.getTypeHash() == PRODUCTTYPE) {
+    if(other.getTypeHash() == SUMTYPE) {
         const Sum& otherAdd = dynamic_cast<const Sum&>(*other);
         ExprVector newMembers = *new ExprVector();
         newMembers.push_back(thisExpr);
@@ -346,7 +346,7 @@ Expression Matrix::simplify() const {
 Expression Matrix::distribute(Expression other) const {
     size_t otherType = other.getTypeHash();
     Expression thisExpr = *new Expression(this);
-    if(otherType == PRODUCTTYPE) {
+    if(otherType == SUMTYPE) {
         const Sum& otherAdd = dynamic_cast<const Sum&>(*other);
         ExprVector newMembers = otherAdd.getMembers();
         for(size_t i = 0; i<newMembers.size(); i++) {
@@ -483,7 +483,7 @@ Expression EuclidVector::simplify() const {
 Expression EuclidVector::distribute(Expression other) const {
     size_t otherType = other.getTypeHash();
     Expression thisExpr = *new Expression(this);
-    if(otherType == PRODUCTTYPE) {
+    if(otherType == SUMTYPE) {
         const Sum& otherAdd = dynamic_cast<const Sum&>(*other);
         ExprVector newMembers = otherAdd.getMembers();
         for(size_t i = 0; i<newMembers.size(); i++) {

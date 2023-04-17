@@ -88,7 +88,7 @@ Expression PauliMatrix::add(Expression other) const {
     Expression pauliTarget = getElementOfType(other, PAULIMATRIXTYPE);
     //bool wasAVector = false;
     if(pauliTarget.getTypeHash() == NULLTYPE) {
-        if(other.getTypeHash() == PRODUCTTYPE) {
+        if(other.getTypeHash() == SUMTYPE) {
             const Sum& otherAdd = dynamic_cast<const Sum&>(*other);
             ExprVector newMembers = *new ExprVector();
             newMembers.push_back(thisExpr);
@@ -101,7 +101,7 @@ Expression PauliMatrix::add(Expression other) const {
     }
     const PauliMatrix& targetMatrix = dynamic_cast<const PauliMatrix&>(*pauliTarget);
     if(targetMatrix.flavor != thisPauli.flavor || rtype != PRODUCTTYPE) {
-        if(other.getTypeHash() == PRODUCTTYPE) {
+        if(other.getTypeHash() == SUMTYPE) {
             const Sum& otherAdd = dynamic_cast<const Sum&>(*other);
             ExprVector newMembers = *new ExprVector();
             newMembers.push_back(thisExpr);
@@ -176,7 +176,7 @@ Expression PauliMatrix::distribute(Expression other) const {
     if(otherType == ONETYPE) {
         return thisExpr;
     }
-    if(otherType == PRODUCTTYPE) {
+    if(otherType == SUMTYPE) {
         const Sum& otherAdd = dynamic_cast<const Sum&>(*other);
         ExprVector newMembers = otherAdd.getMembers();
         for(size_t i = 0; i<newMembers.size(); i++) {
