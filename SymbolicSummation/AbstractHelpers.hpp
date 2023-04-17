@@ -17,6 +17,7 @@ void initializeDefaultFunctions(bool force = false);
 //bool isSubtypeOf(size_t sub, size_t super);
 bool areSimilarTypes(Expression sub, Expression super);
 bool isTypeSimilarTo(Expression sub, size_t superType);
+bool isInteger(Expression target);
 bool areEqual(const ExpressionObject& left, const ExpressionObject& right);
 int positionOfElement(ExprVector list, Expression target, bool rightToLeft = false);
 int positionOfElementIgnoringSign(ExprVector list, Expression target, bool rightToLeft = false);

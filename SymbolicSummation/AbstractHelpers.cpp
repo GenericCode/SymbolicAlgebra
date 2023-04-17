@@ -1003,6 +1003,18 @@ bool areEqual(const ExpressionObject& left, const ExpressionObject& right) {
     return areEqual;
 }
 
+bool isInteger(double target) {
+    return floor(target) == target;
+}
+
+bool isInteger(Expression target) {
+    if(target.getTypeHash() != REALTYPE)
+        return false;
+    
+    const Real& realObj = dynamic_cast<const Real&>(*target);
+    return isInteger(realObj.getValue());
+}
+
 String printExprMatrix(ExprMatrix target) {
     String result = "{";
     for(size_t i = 0; i<target.size(); i++) {

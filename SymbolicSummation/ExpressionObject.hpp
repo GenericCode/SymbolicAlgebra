@@ -26,8 +26,6 @@ public:
     virtual Expression transpose() const = 0;
     virtual ExprVector getFactors() const = 0;
     virtual ~ExpressionObject() = 0;
-    
-    bool simplified = false;
 public:
     virtual String print() const = 0;
     friend bool areEqual(Expression left, Expression right);
@@ -47,8 +45,6 @@ public:
     friend Expression operator/(float self, ExpressionObject& other);
     
     //virtual ~ExpressionObject() = 0;
-    
-    bool isSimplified(){return simplified;}
     size_t getTypeHash() const {
         size_t testName = typeid(*this).hash_code();
         return testName;

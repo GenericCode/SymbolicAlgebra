@@ -736,6 +736,16 @@ String Exp::print() const {
 };
 
 Expression Exp::simplify() const {
+    if(isTypeSimilarTo(base, CONTAINERTYPE) && isInteger(exponent)) {
+        const Real& realObj = dynamic_cast<const Real&>(*exponent);
+        int val = realObj.getValue();
+        Expression expandedProduct = ONE;
+        for(int i = 0; i<val; i++) {
+            expandedProduct = expandedProduct*base;
+        }
+        return expandedProduct.simplify();
+    }
+        
     return *new Expression(new Exp(base.simplify(),exponent.simplify()));
 };
 Expression Exp::distribute(Expression other) const {
