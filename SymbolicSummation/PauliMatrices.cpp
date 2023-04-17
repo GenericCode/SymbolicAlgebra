@@ -69,7 +69,7 @@ Expression PauliMatrix::add(Expression other) const {
     if(rtype == PAULIMATRIXTYPE) {
         const PauliMatrix& otherPauli = dynamic_cast<const PauliMatrix&>(*other);
         if(thisPauli.flavor != otherPauli.flavor) {
-            Expression result = *new Expression(new Add(thisExpr,other));
+            Expression result = *new Expression(new Sum(thisExpr,other));
             return result;
         }
         const PauliMatrix& leftPauli = dynamic_cast<const PauliMatrix&>(*this);
@@ -89,26 +89,26 @@ Expression PauliMatrix::add(Expression other) const {
     //bool wasAVector = false;
     if(pauliTarget.getTypeHash() == NULLTYPE) {
         if(other.getTypeHash() == ADDTYPE) {
-            const Add& otherAdd = dynamic_cast<const Add&>(*other);
+            const Sum& otherAdd = dynamic_cast<const Sum&>(*other);
             ExprVector newMembers = *new ExprVector();
             newMembers.push_back(thisExpr);
             newMembers = setUnion(newMembers, otherAdd.getMembers());
-            return *new Expression(new Add(newMembers));
+            return *new Expression(new Sum(newMembers));
         }
-        return *new Expression(new Add(thisExpr,other));
+        return *new Expression(new Sum(thisExpr,other));
         //Expression result = combineSums(thisExpr, other);
         //return result;
     }
     const PauliMatrix& targetMatrix = dynamic_cast<const PauliMatrix&>(*pauliTarget);
     if(targetMatrix.flavor != thisPauli.flavor || rtype != MULTYPE) {
         if(other.getTypeHash() == ADDTYPE) {
-            const Add& otherAdd = dynamic_cast<const Add&>(*other);
+            const Sum& otherAdd = dynamic_cast<const Sum&>(*other);
             ExprVector newMembers = *new ExprVector();
             newMembers.push_back(thisExpr);
             newMembers = setUnion(newMembers, otherAdd.getMembers());
-            return *new Expression(new Add(newMembers));
+            return *new Expression(new Sum(newMembers));
         }
-        return *new Expression(new Add(thisExpr,other));
+        return *new Expression(new Sum(thisExpr,other));
         //Expression result = combineSums(thisExpr, other);
         //return result;
     }
@@ -141,7 +141,7 @@ Expression PauliMatrix::multiply(Expression other) const {
     if(rtype == PAULIMATRIXTYPE) {
         const PauliMatrix& otherPauli = dynamic_cast<const PauliMatrix&>(*other);
         if(thisPauli.flavor != otherPauli.flavor) {
-            Expression result = *new Expression(new Mul(*new Expression(this),other));
+            Expression result = *new Expression(new Product(*new Expression(this),other));
             return result;
         }
         
@@ -177,14 +177,14 @@ Expression PauliMatrix::distribute(Expression other) const {
         return thisExpr;
     }
     if(otherType == ADDTYPE) {
-        const Add& otherAdd = dynamic_cast<const Add&>(*other);
+        const Sum& otherAdd = dynamic_cast<const Sum&>(*other);
         ExprVector newMembers = otherAdd.getMembers();
         for(size_t i = 0; i<newMembers.size(); i++) {
             newMembers[i] = distribute(newMembers[i]);
         }
         if(newMembers.size() == 0)
             return newMembers[0];
-        return *new Expression(new Add(newMembers));
+        return *new Expression(new Sum(newMembers));
     }
     if(otherType == MULTYPE) {
         Expression testTarget = getMatrixMatchingPauliFlavor(other, thisExpr);
@@ -194,20 +194,20 @@ Expression PauliMatrix::distribute(Expression other) const {
             Expression product = thisExpr*testTarget;
             return product*cancelFactor(other, testTarget);
         }
-        const Mul& otherMul = dynamic_cast<const Mul&>(*other);
+        const Product& otherMul = dynamic_cast<const Product&>(*other);
         ExprVector newMembers = *new ExprVector();
         ExprVector otherMembers = otherMul.getMembers();
         newMembers.push_back(thisExpr);
         for(size_t i = 0; i<otherMembers.size(); i++) {
             newMembers.push_back(otherMembers[i]);
         }
-        return *new Expression(new Mul(newMembers));
+        return *new Expression(new Product(newMembers));
     }
     if(otherType == FRACTYPE) {
-        const Frac& otherFrac = dynamic_cast<const Frac&>(*other);
-        return *new Expression(new Frac(distribute(otherFrac.getNumerator()),otherFrac.getDenomenator()));
+        const Fraction& otherFrac = dynamic_cast<const Fraction&>(*other);
+        return *new Expression(new Fraction(distribute(otherFrac.getNumerator()),otherFrac.getDenomenator()));
     }
-    return *new Expression(new Mul(thisExpr,other));
+    return *new Expression(new Product(thisExpr,other));
     
 };
 Expression PauliMatrix::transpose() const {

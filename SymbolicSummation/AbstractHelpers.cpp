@@ -263,7 +263,7 @@ bool assignActionToFunction(String name, ExprAction action) {
     initializeDefaultFunctions();
     if(!declaredFunctions.contains(name))
         return false;
-    declaredFunctions[name] = *new Expression(new Func(name, action));
+    declaredFunctions[name] = *new Expression(new Function(name, action));
     return true;
 };
 
@@ -271,7 +271,7 @@ Expression declareFunction(String name) {
     initializeDefaultFunctions();
     if(declaredFunctions.contains(name))
         return declaredFunctions[name];
-    Expression newFunc = *new Expression(new Func(name));
+    Expression newFunc = *new Expression(new Function(name));
     declaredFunctions[name] = newFunc;
     return newFunc;
 }
@@ -280,7 +280,7 @@ Expression declareFunction(String name, ExprAction action) {
     initializeDefaultFunctions();
     if(declaredFunctions.contains(name))
         return declaredFunctions[name];
-    Expression newFunc = *new Expression(new Func(name,action));
+    Expression newFunc = *new Expression(new Function(name,action));
     declaredFunctions[name] = newFunc;
     return newFunc;
 }
@@ -388,7 +388,7 @@ Expression parseString(String exprString) {
                 members.push_back(next);
         }
         //Expression result(std::make_shared<Add>(members,memberSigns));
-        Expression result = *new Expression(new Add(members));
+        Expression result = *new Expression(new Sum(members));
         return result;
     }
     if(exprType == "mul") {
@@ -398,28 +398,28 @@ Expression parseString(String exprString) {
             Expression next = parseString(sanitize(tokens[i]));
             members.push_back(next);
         }
-        Expression result = *new Expression(new Mul(members));
+        Expression result = *new Expression(new Product(members));
         return result;
     }
     if(exprType == "frac") {
         std::vector<String> tokens = tokenize(sanitize(exprString), "/()");
         Expression numerator = parseString(tokens[0]);
         Expression denominator = parseString(tokens[1]);
-        Expression result = *new Expression(new Frac(numerator,denominator));
+        Expression result = *new Expression(new Fraction(numerator,denominator));
         return result;
     }
     if(exprType == "exp") {
         std::vector<String> tokens = tokenize(sanitize(exprString), "^()");
         Expression base = parseString(tokens[0]);
         Expression exponent = parseString(tokens[1]);
-        Expression result = *new Expression(new Exp(base,exponent));
+        Expression result = *new Expression(new Exponent(base,exponent));
         return result;
     }
     if(exprType == "func") {
         std::vector<String> tokens = tokenize(sanitize(exprString), "[]");
         Expression funcParam = parseString(tokens[1]);
         Expression bareFunc = declareFunction(tokens[0]);
-        const Func& bareFuncObj = dynamic_cast<const Func&>(*bareFunc);
+        const Function& bareFuncObj = dynamic_cast<const Function&>(*bareFunc);
         return bareFuncObj.actingOn(funcParam);
     }
     if(exprType == "real") {
@@ -450,7 +450,7 @@ Expression parseString(String exprString) {
         symbolPart = expr.substr(i);
         Expression rePart = parseString(realPart);
         Expression symPart = parseString(symbolPart);
-        Expression result = *new Expression(new Mul(rePart,symPart));
+        Expression result = *new Expression(new Product(rePart,symPart));
         return result;
     }
     if(exprType == "symbol") {
@@ -578,7 +578,7 @@ Expression removeElementMultiplicatively(Expression source, Expression target, b
         return -result;
     }
     if(type == MULTYPE) {
-        const Mul& sourceObj = dynamic_cast<const Mul&>(*source);
+        const Product& sourceObj = dynamic_cast<const Product&>(*source);
         ExprVector newMembers = removeElementFromVector(sourceObj.getMembers(), target,rightToLeft);
         if(newMembers == sourceObj.getMembers())
             return *new Expression(source);
@@ -587,10 +587,10 @@ Expression removeElementMultiplicatively(Expression source, Expression target, b
         }
         if(newMembers.size() == 1)
             return newMembers[0];
-        return *new Expression(new Mul(newMembers));
+        return *new Expression(new Product(newMembers));
     }
     if(type == FRACTYPE) {
-        const Frac& sourceObj = dynamic_cast<const Frac&>(*source);
+        const Fraction& sourceObj = dynamic_cast<const Fraction&>(*source);
         Expression result = removeElementMultiplicatively(sourceObj.getNumerator(), target, rightToLeft);
         if(result.getTypeHash() == NULLTYPE) {
             Expression recip = target.reciprocal();
@@ -600,12 +600,12 @@ Expression removeElementMultiplicatively(Expression source, Expression target, b
             if(result == ONE)
                 return sourceObj.getNumerator();
             else
-                return *new Expression(new Frac(sourceObj.getNumerator(),result));
+                return *new Expression(new Fraction(sourceObj.getNumerator(),result));
         }
-        return *new Expression(new Frac(result,sourceObj.getDenomenator()));
+        return *new Expression(new Fraction(result,sourceObj.getDenomenator()));
     }
     if(type == EXPTYPE) {
-        const Exp& sourceObj = dynamic_cast<const Exp&>(*source);
+        const Exponent& sourceObj = dynamic_cast<const Exponent&>(*source);
         if(sourceObj.getBase() == target) {
             Expression expOneDown = sourceObj.getExponent()-ONE;
             expOneDown = expOneDown.simplify();
@@ -613,7 +613,7 @@ Expression removeElementMultiplicatively(Expression source, Expression target, b
                 return sourceObj.getBase();
             if(expOneDown == ZERO)
                 return ONE;
-            return *new Expression(new Exp(sourceObj.getBase(),expOneDown));
+            return *new Expression(new Exponent(sourceObj.getBase(),expOneDown));
         }
         return *new Expression(new NullObject("could not find target to remove"));
     }
@@ -627,7 +627,7 @@ Expression removeElementAdditively(Expression source, Expression target, bool ri
         return ZERO;//*new Expression(new NullObject("this is what happens when you remove something from itself!"));
     if(source.getTypeHash() != ADDTYPE)
         return *new Expression(new NullObject("could not remove target additively"));
-    const Add& sourceObj = dynamic_cast<const Add&>(*source);
+    const Sum& sourceObj = dynamic_cast<const Sum&>(*source);
     ExprVector newMembers = removeElementFromVector(sourceObj.getMembers(), target);
     if(newMembers == sourceObj.getMembers())
         return *new Expression(new NullObject("could not find target to remove"));
@@ -635,9 +635,8 @@ Expression removeElementAdditively(Expression source, Expression target, bool ri
         return newMembers[0];
     if(newMembers.size() == 0)
         return ZERO;
-    return *new Expression(new Add(*new ExprVector(newMembers)));
-};*/
-/*
+    return *new Expression(new Sum(*new ExprVector(newMembers)));
+};
 Expression removeElementAbsolutely(Expression source, Expression target, bool rightToLeft) {
     if(source.getTypeHash() == ADDTYPE)
         return removeElementAdditively(source, target, rightToLeft);
@@ -656,15 +655,15 @@ Expression getElementOfType(Expression source, size_t type, bool rightToLeft) {
         return getElementOfType(-source, type, rightToLeft);
     }
     if(sourceType == ADDTYPE) {
-        const Add& addObj = dynamic_cast<const Add&>(*source);
+        const Sum& addObj = dynamic_cast<const Sum&>(*source);
         elementsToCheck = addObj.getMembers();
     }
     if(sourceType == MULTYPE) {
-        const Mul& mulObj = dynamic_cast<const Mul&>(*source);
+        const Product& mulObj = dynamic_cast<const Product&>(*source);
         elementsToCheck = mulObj.getMembers();
     }
     if(sourceType == FRACTYPE) {
-        const Frac& fracObj = dynamic_cast<const Frac&>(*source);
+        const Fraction& fracObj = dynamic_cast<const Fraction&>(*source);
         return getElementOfType(fracObj.getNumerator(), type, rightToLeft);
     }
     
@@ -694,15 +693,15 @@ Expression getElementMatchingCondition(Expression source, std::function<bool(Exp
         return *new Expression(source);
     ExprVector elementsToCheck = *new ExprVector();
     if(sourceType == ADDTYPE) {
-        const Add& addObj = dynamic_cast<const Add&>(*source);
+        const Sum& addObj = dynamic_cast<const Sum&>(*source);
         elementsToCheck = addObj.getMembers();
     }
     if(sourceType == MULTYPE) {
-        const Mul& mulObj = dynamic_cast<const Mul&>(*source);
+        const Product& mulObj = dynamic_cast<const Product&>(*source);
         elementsToCheck = mulObj.getMembers();
     }
     if(sourceType == FRACTYPE) {
-        const Frac& fracObj = dynamic_cast<const Frac&>(*source);
+        const Fraction& fracObj = dynamic_cast<const Fraction&>(*source);
         return getElementMatchingCondition(fracObj.getNumerator(), condition, rightToLeft);
     }
     
@@ -845,34 +844,34 @@ Expression replaceElement(Expression source, Expression target, Expression value
         return *new Expression(value);
     ExprVector elementsToCheck;
     if(sourceType == ADDTYPE) {
-        const Add& addObj = dynamic_cast<const Add&>(*source);
+        const Sum& addObj = dynamic_cast<const Sum&>(*source);
         elementsToCheck = addObj.getMembers();
     }
     if(sourceType == MULTYPE) {
-        const Mul& mulObj = dynamic_cast<const Mul&>(*source);
+        const Product& mulObj = dynamic_cast<const Product&>(*source);
         elementsToCheck = mulObj.getMembers();
     }
     if(sourceType == FRACTYPE) {
-        const Frac& fracObj = dynamic_cast<const Frac&>(*source);
+        const Fraction& fracObj = dynamic_cast<const Fraction&>(*source);
         Expression result = replaceElement(fracObj.getNumerator(), target, value, rightToLeft);
         if(result == fracObj.getNumerator())
             return *new Expression(source);
-        Expression finalResult = *new Expression(new Frac(result,fracObj.getDenomenator()));
+        Expression finalResult = *new Expression(new Fraction(result,fracObj.getDenomenator()));
         return finalResult;
     }
     elementsToCheck = replaceElementInVector(elementsToCheck, target, value, rightToLeft);
     if(sourceType == ADDTYPE) {
-        const Add& addObj = dynamic_cast<const Add&>(*source);
+        const Sum& addObj = dynamic_cast<const Sum&>(*source);
         if(elementsToCheck == addObj.getMembers())
             return source;
-        Expression result = *new Expression(new Add(elementsToCheck));
+        Expression result = *new Expression(new Sum(elementsToCheck));
         return result;
     }
     if(sourceType == MULTYPE) {
-        const Mul& mulObj = dynamic_cast<const Mul&>(*source);
+        const Product& mulObj = dynamic_cast<const Product&>(*source);
         if(elementsToCheck == mulObj.getMembers())
             return source;
-        Expression result = *new Expression(new Mul(elementsToCheck));
+        Expression result = *new Expression(new Product(elementsToCheck));
         return result;
     }
     return *new Expression(source);
@@ -883,34 +882,34 @@ Expression replaceElementOfType(Expression source, size_t type, Expression value
         return *new Expression(value);
     ExprVector elementsToCheck;
     if(sourceType == ADDTYPE) {
-        const Add& addObj = dynamic_cast<const Add&>(*source);
+        const Sum& addObj = dynamic_cast<const Sum&>(*source);
         elementsToCheck = addObj.getMembers();
     }
     if(sourceType == MULTYPE) {
-        const Mul& mulObj = dynamic_cast<const Mul&>(*source);
+        const Product& mulObj = dynamic_cast<const Product&>(*source);
         elementsToCheck = mulObj.getMembers();
     }
     if(sourceType == FRACTYPE) {
-        const Frac& fracObj = dynamic_cast<const Frac&>(*source);
+        const Fraction& fracObj = dynamic_cast<const Fraction&>(*source);
         Expression result = replaceElementOfType(fracObj.getNumerator(), type, value, rightToLeft);
         if(result == fracObj.getNumerator())
             return *new Expression(source);
-        Expression finalResult = *new Expression(new Frac(result,fracObj.getDenomenator()));
+        Expression finalResult = *new Expression(new Fraction(result,fracObj.getDenomenator()));
         return finalResult;
     }
     elementsToCheck = replaceElementOfTypeInVector(elementsToCheck, type, value, rightToLeft);
     if(sourceType == ADDTYPE) {
-        const Add& addObj = dynamic_cast<const Add&>(*source);
+        const Sum& addObj = dynamic_cast<const Sum&>(*source);
         if(elementsToCheck == addObj.getMembers())
             return source;
-        Expression result = *new Expression(new Add(elementsToCheck));
+        Expression result = *new Expression(new Sum(elementsToCheck));
         return result;
     }
     if(sourceType == MULTYPE) {
-        const Mul& mulObj = dynamic_cast<const Mul&>(*source);
+        const Product& mulObj = dynamic_cast<const Product&>(*source);
         if(elementsToCheck == mulObj.getMembers())
             return source;
-        Expression result = *new Expression(new Mul(elementsToCheck));
+        Expression result = *new Expression(new Product(elementsToCheck));
         return result;
     }
     return *new Expression(source);
@@ -939,8 +938,8 @@ bool areEqual(const ExpressionObject& left, const ExpressionObject& right) {
         areEqual &= (left.print() == right.print());
     }
     if(leftType == ADDTYPE) {
-        const Add& leftObj = dynamic_cast<const Add&>(left);
-        const Add& rightObj = dynamic_cast<const Add&>(right);
+        const Sum& leftObj = dynamic_cast<const Sum&>(left);
+        const Sum& rightObj = dynamic_cast<const Sum&>(right);
         if(leftObj.getMembers().size() != rightObj.getMembers().size())
             return false;
         for(size_t i = 0; i<leftObj.getMembers().size(); i++) {
@@ -956,26 +955,26 @@ bool areEqual(const ExpressionObject& left, const ExpressionObject& right) {
         areEqual &= leftObj.getMember() == rightObj.getMember();
     }
     if(leftType == MULTYPE) {
-        const Mul& leftObj = dynamic_cast<const Mul&>(left);
-        const Mul& rightObj = dynamic_cast<const Mul&>(right);
+        const Product& leftObj = dynamic_cast<const Product&>(left);
+        const Product& rightObj = dynamic_cast<const Product&>(right);
         areEqual &= leftObj.getMembers().size() == rightObj.getMembers().size();
         for(size_t i = 0; i<leftObj.getMembers().size(); i++) {
             areEqual &= exprVectorContains(rightObj.getMembers(), leftObj.getMembers()[i]);
         }
     }
     if(leftType == FRACTYPE) {
-        const Frac& leftObj = dynamic_cast<const Frac&>(left);
-        const Frac& rightObj = dynamic_cast<const Frac&>(right);
+        const Fraction& leftObj = dynamic_cast<const Fraction&>(left);
+        const Fraction& rightObj = dynamic_cast<const Fraction&>(right);
         areEqual &= (leftObj.getNumerator() == rightObj.getNumerator() && leftObj.getDenomenator() == rightObj.getDenomenator());
     }
     if(leftType == EXPTYPE) {
-        const Exp& leftObj = dynamic_cast<const Exp&>(left);
-        const Exp& rightObj = dynamic_cast<const Exp&>(right);
+        const Exponent& leftObj = dynamic_cast<const Exponent&>(left);
+        const Exponent& rightObj = dynamic_cast<const Exponent&>(right);
         areEqual &= (leftObj.getBase() == rightObj.getBase() && leftObj.getExponent() == rightObj.getExponent());
     }
     if(leftType == FUNCTYPE) {
-        const Func& leftObj = dynamic_cast<const Func&>(left);
-        const Func& rightObj = dynamic_cast<const Func&>(right);
+        const Function& leftObj = dynamic_cast<const Function&>(left);
+        const Function& rightObj = dynamic_cast<const Function&>(right);
         areEqual &= (leftObj.getMember() == rightObj.getMember() && getAddress(leftObj.getAction()) == getAddress(rightObj.getAction()));
     }
     if(leftType == MATRIXTYPE) {
@@ -1054,7 +1053,7 @@ ExprVector getConstituentSymbols(Expression target) {
     size_t targetType = target.getTypeHash();
     if(targetType == ADDTYPE) {
         ExprVector symbols = *new ExprVector;
-        const Add& addTarget = dynamic_cast<const Add&>(*target);
+        const Sum& addTarget = dynamic_cast<const Sum&>(*target);
         for(size_t i = 0; i< addTarget.getMembers().size(); i++) {
             symbols = combineExprVectors(symbols, getConstituentSymbols(addTarget.getMembers()[i]));
         }
@@ -1062,19 +1061,19 @@ ExprVector getConstituentSymbols(Expression target) {
     }
     if(targetType == MULTYPE) {
         ExprVector symbols = *new ExprVector;
-        const Mul& mulTarget = dynamic_cast<const Mul&>(*target);
+        const Product& mulTarget = dynamic_cast<const Product&>(*target);
         for(size_t i = 0; i< mulTarget.getMembers().size(); i++) {
             symbols = combineExprVectors(symbols, getConstituentSymbols(mulTarget.getMembers()[i]));
         }
         return symbols;
     }
     if(targetType == FRACTYPE) {
-        const Frac& fracTarget = dynamic_cast<const Frac&>(*target);
+        const Fraction& fracTarget = dynamic_cast<const Fraction&>(*target);
         ExprVector symbols = combineExprVectors(getConstituentSymbols(fracTarget.getNumerator()),getConstituentSymbols(fracTarget.getNumerator()));
         return symbols;
     }
     if(targetType == EXPTYPE) {
-        const Exp& expTarget = dynamic_cast<const Exp&>(*target);
+        const Exponent& expTarget = dynamic_cast<const Exponent&>(*target);
         ExprVector symbols = combineExprVectors(getConstituentSymbols(expTarget.getBase()),getConstituentSymbols(expTarget.getExponent()));
         return symbols;
     }

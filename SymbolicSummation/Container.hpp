@@ -24,7 +24,7 @@ public:
     ~Container();
 };
 
-class Add : public Container {
+class Sum : public Container {
 private:
     ExprVector members;
 protected:
@@ -44,12 +44,12 @@ public:
         return *new ExprVector(members);
     };
     
-    Add(const Add& target);
-    Add& operator=(const Add& target);
-    Add(std::initializer_list<Expression> newMembers);
-    Add(ExprVector newMembers);
-    Add(Expression left, Expression right);
-    ~Add();/*
+    Sum(const Sum& target);
+    Sum& operator=(const Sum& target);
+    Sum(std::initializer_list<Expression> newMembers);
+    Sum(ExprVector newMembers);
+    Sum(Expression left, Expression right);
+    ~Sum();/*
     friend Expression distribute(Expression left, Expression right);
     friend ExprVector getFactors(Expression factee);
     friend Expression combineProducts(Expression left, Expression right);
@@ -118,7 +118,7 @@ public:
     
 };
 
-class Mul : public Container {
+class Product : public Container {
 private:
     ExprVector members;
 protected:
@@ -137,11 +137,11 @@ public:
         return *new ExprVector(members);
     };
     
-    Mul(const Mul& target);
-    Mul& operator=(const Mul& target);
-    Mul(ExprVector newMembers);
-    Mul(Expression right, Expression left);
-    ~Mul();
+    Product(const Product& target);
+    Product& operator=(const Product& target);
+    Product(ExprVector newMembers);
+    Product(Expression right, Expression left);
+    ~Product();
     /*
     friend Expression simplifyMulWithPauliMatrices(Expression target);
     friend Expression distribute(Expression left, Expression right);
@@ -163,7 +163,7 @@ public:
     friend Expression getElementMatchingCondition(Expression source, std::function<bool(Expression)> condition, bool rightToLeft);*/
 };
 
-class Frac : public Container {
+class Fraction : public Container {
 private:
     Expression numerator;
     Expression denomenator;
@@ -186,11 +186,11 @@ public:
         return denomenator;
     };
     
-    Frac& operator=(const Frac& target);
-    Frac(const Frac& target);
-    Frac(Expression denom);
-    Frac(Expression num, Expression denom);
-    ~Frac();
+    Fraction& operator=(const Fraction& target);
+    Fraction(const Fraction& target);
+    Fraction(Expression denom);
+    Fraction(Expression num, Expression denom);
+    ~Fraction();
     /*
     friend Expression distribute(Expression left, Expression right);
     friend ExprVector getFactors(Expression factee);
@@ -211,7 +211,7 @@ public:
     friend Expression getElementMatchingCondition(Expression source, std::function<bool(Expression)> condition, bool rightToLeft);*/
 };
 
-class Exp : public Container {
+class Exponent : public Container {
 private:
     Expression base;
     Expression exponent;
@@ -235,11 +235,11 @@ public:
         return exponent;
     };
     
-    const Exp& operator=(const Exp& target);
-    Exp(const Exp& target);
-    Exp(Expression base, Expression exponent);
-    Exp(Expression base, int exponent);
-    ~Exp();
+    const Exponent& operator=(const Exponent& target);
+    Exponent(const Exponent& target);
+    Exponent(Expression base, Expression exponent);
+    Exponent(Expression base, int exponent);
+    ~Exponent();
     /*
     friend Expression distribute(Expression left, Expression right);
     friend ExprVector getFactors(Expression factee);
@@ -271,7 +271,7 @@ public:
     }
 };*/
 
-class Func : public Container {
+class Function : public Container {
 protected:
     String funcName;
     ExprAction functionAction;
@@ -301,15 +301,15 @@ public:
         return member;
     }
     
-    Func(const Func& target);
-    Func& operator=(const Func& target);
+    Function(const Function& target);
+    Function& operator=(const Function& target);
     //Should probably automatically register ANY generic (not containing structure i.e. no members) function that is created.
     //need to add a helper function that will attempt to insert an expression as variable to any functions in another expression
     //common functions like transpose, exp or whatever should probably have private/protected constructors? no need to make more
-    Func(String name);
+    Function(String name);
     //Func(String name, ExprActionObj action);
-    Func(String name, ExprAction action);
-    Func(String name, ExprAction action, Expression member);
+    Function(String name, ExprAction action);
+    Function(String name, ExprAction action, Expression member);
     /*
     friend Expression parseString(String expr);
     friend Expression distribute(Expression left, Expression right);
@@ -330,9 +330,9 @@ public:
 };
 
 static const size_t CONTAINERTYPE = typeid(Container).hash_code();
-static const size_t ADDTYPE = typeid(Add).hash_code();
+static const size_t ADDTYPE = typeid(Sum).hash_code();
 static const size_t SIGNTYPE = typeid(Sign).hash_code();
-static const size_t MULTYPE = typeid(Mul).hash_code();
-static const size_t FRACTYPE = typeid(Frac).hash_code();
-static const size_t EXPTYPE = typeid(Exp).hash_code();
-static const size_t FUNCTYPE = typeid(Func).hash_code();
+static const size_t MULTYPE = typeid(Product).hash_code();
+static const size_t FRACTYPE = typeid(Fraction).hash_code();
+static const size_t EXPTYPE = typeid(Exponent).hash_code();
+static const size_t FUNCTYPE = typeid(Function).hash_code();

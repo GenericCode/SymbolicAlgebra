@@ -44,13 +44,13 @@ Expression Real::add(Expression other) const {
         return result;
     }
     if(other.getTypeHash() == ADDTYPE) {
-        const Add& otherAdd = dynamic_cast<const Add&>(*other);
+        const Sum& otherAdd = dynamic_cast<const Sum&>(*other);
         ExprVector newMembers = *new ExprVector();
         newMembers.push_back(thisExpr);
         newMembers = setUnion(newMembers, otherAdd.getMembers());
-        return *new Expression(new Add(newMembers));
+        return *new Expression(new Sum(newMembers));
     }
-    return *new Expression(new Add(thisExpr,other));
+    return *new Expression(new Sum(thisExpr,other));
 };
 Expression Real::subtract(Expression other) const {
     Expression thisExpr = *new Expression(this);
@@ -61,13 +61,13 @@ Expression Real::subtract(Expression other) const {
         return result;
     }
     if(other.getTypeHash() == ADDTYPE) {
-        const Add& otherNegativeAdd = dynamic_cast<const Add&>(*-other);
+        const Sum& otherNegativeAdd = dynamic_cast<const Sum&>(*-other);
         ExprVector newMembers = *new ExprVector();
         newMembers.push_back(thisExpr);
         newMembers = setUnion(newMembers, otherNegativeAdd.getMembers());
-        return *new Expression(new Add(newMembers));
+        return *new Expression(new Sum(newMembers));
     }
-    return *new Expression(new Add(thisExpr,-other));
+    return *new Expression(new Sum(thisExpr,-other));
 };
 Expression Real::negate() const {
     Expression result = declareReal(-value);
@@ -106,7 +106,7 @@ Expression Real::divide(Expression other) const {
         Expression result = declareReal(newVal);
         return result;
     } else  {
-        return *new Expression(new Frac(thisExpr,other));
+        return *new Expression(new Fraction(thisExpr,other));
     }
 };
 String Real::print() const {
@@ -124,7 +124,7 @@ Expression Real::simplify() const {
 Expression Real::distribute(Expression other) const {
     Expression thisExpr = *new Expression(this);
     if(other.getTypeHash() == MULTYPE) {
-        const Mul& otherMul = dynamic_cast<const Mul&>(*other);
+        const Product& otherMul = dynamic_cast<const Product&>(*other);
         ExprVector newMembers = *new ExprVector();
         ExprVector mulMembers = otherMul.getMembers();
         int index = positionOfType(mulMembers, REALTYPE);
@@ -135,16 +135,16 @@ Expression Real::distribute(Expression other) const {
                 continue;
             newMembers.push_back(mulMembers[i]);
         }
-        return *new Expression(new Mul(newMembers));
+        return *new Expression(new Product(newMembers));
     }
     if(other.getTypeHash() == ADDTYPE) {
-        const Add& otherAdd= dynamic_cast<const Add&>(*other);
+        const Sum& otherAdd= dynamic_cast<const Sum&>(*other);
         ExprVector newMembers = *new ExprVector();
         ExprVector addMembers = otherAdd.getMembers();
         for(size_t i = 0; i< addMembers.size(); i++) {
             newMembers.push_back(distribute(addMembers[i]));
         }
-        return *new Expression(new Add(newMembers));
+        return *new Expression(new Sum(newMembers));
     }
     if(other.getTypeHash() == SIGNTYPE) {
         const Sign& signObj = dynamic_cast<const Sign&>(*other);
@@ -153,7 +153,7 @@ Expression Real::distribute(Expression other) const {
     ExprVector newMembers = *new ExprVector();
     newMembers.push_back(*new Expression(this));
     newMembers.push_back(other);
-    return *new Expression(new Mul(newMembers));
+    return *new Expression(new Product(newMembers));
 };
 Expression Real::factor() const {
     Expression thisExpr = *new Expression(this);
@@ -164,7 +164,7 @@ Expression Real::factor() const {
 
 };
 Expression Real::reciprocal() const {
-    return *new Expression(new Frac(*new Expression(this)));
+    return *new Expression(new Fraction(*new Expression(this)));
 };
 Expression Real::determinant() const {
     return *new Expression(this);
