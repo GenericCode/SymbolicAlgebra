@@ -29,7 +29,7 @@ bool isNegative(Expression target) {
         negative = true;
         return negative != isNegative(signObj.getMember());
     }
-    if(targetType == ADDTYPE) {
+    if(targetType == PRODUCTTYPE) {
         const Sum& addObj = dynamic_cast<const Sum&>(*target);
         elementsToCheck = addObj.getMembers();
         bool totallyNegative = true;
@@ -38,7 +38,7 @@ bool isNegative(Expression target) {
         }
         return negative != totallyNegative;
     }
-    if(targetType == MULTYPE) {
+    if(targetType == PRODUCTTYPE) {
         const Product& mulObj = dynamic_cast<const Product&>(*target);
         elementsToCheck = mulObj.getMembers();
         for(size_t i = 0; i<elementsToCheck.size(); i++) {
@@ -46,7 +46,7 @@ bool isNegative(Expression target) {
         }
         return negative;
     }
-    if(targetType == FRACTYPE) {
+    if(targetType == FRACTIONTYPE) {
         const Fraction& fracObj = dynamic_cast<const Fraction&>(*target);
         negative = negative != isNegative(fracObj.getNumerator());
         return negative != isNegative(fracObj.getDenomenator());
@@ -176,10 +176,10 @@ Expression combineProducts(Expression left, Expression right) {
         return *new Expression(left.get());
     if(isTypeSimilarTo(left, REALTYPE) && isTypeSimilarTo(right, REALTYPE))
         return left*right;
-    if(leftType == MULTYPE) {
+    if(leftType == PRODUCTTYPE) {
         const Product& lMul = dynamic_cast<const Product&>(*left);
         ExprVector newMembers = *new ExprVector(lMul.getMembers());
-        if(rightType == MULTYPE) {
+        if(rightType == PRODUCTTYPE) {
             const Product& rMul = dynamic_cast<const Product&>(*right);
             ExprVector rightMembers = rMul.getMembers();
             for(size_t i = 0; i<rightMembers.size(); i++) {
@@ -193,7 +193,7 @@ Expression combineProducts(Expression left, Expression right) {
         Expression result = *new Expression(new Product(newMembers));
         return result;
     }
-    if(rightType == MULTYPE) {
+    if(rightType == PRODUCTTYPE) {
         const Product& rMul = dynamic_cast<const Product&>(*right);
         ExprVector newMembers = *new ExprVector();
         newMembers.push_back(*new Expression(left));
@@ -384,8 +384,8 @@ Expression simplifySubExpressions(Expression target) {
 
 /*
 Expression simplifyPauliMatrices(Expression target) {
-    bool isMul = target->getTypeHash() == MULTYPE;
-    bool isAdd = target->getTypeHash() == ADDTYPE;
+    bool isMul = target->getTypeHash() == PRODUCTTYPE;
+    bool isAdd = target->getTypeHash() == PRODUCTTYPE;
     Expression total;
     Expression remainder = *new Expression(target.get());
     Expression firstPauli = getElementOfType(target, PAULIMATRIXTYPE);
@@ -433,14 +433,14 @@ Expression simplifyPauliMatrices(Expression target) {
         if(isAdd)
             total = total+remainder;//combineSums(total, remainder);
     }
-    if(total.getTypeHash() == MULTYPE) {
+    if(total.getTypeHash() == PRODUCTTYPE) {
         const Product& mulObj = dynamic_cast<const Product&>(*total);
         if(mulObj.getMembers().size() == 0)
             return ZERO;
         if(mulObj.getMembers().size() == 1)
             return mulObj.getMembers()[0];
     }
-    if(total.getTypeHash() == ADDTYPE) {
+    if(total.getTypeHash() == PRODUCTTYPE) {
         const Sum& addObj = dynamic_cast<const Sum&>(*total);
         if(addObj.getMembers().size() == 0)
             return ZERO;
@@ -618,9 +618,9 @@ Expression distribute(Expression left, Expression right) {
         const Sign& signRight = dynamic_cast<const Sign&>(*right);
         return -distribute(left, signRight.getMember());
     }
-    if(leftType == ADDTYPE) {
+    if(leftType == PRODUCTTYPE) {
         const Sum& leftObj = dynamic_cast<const Sum&>(*left);
-        if(rightType == ADDTYPE) {
+        if(rightType == PRODUCTTYPE) {
             const Sum& rightObj = dynamic_cast<const Sum&>(*right);
             ExprVector newMembers = *new ExprVector();
             for(int i=0; i<leftObj.getMembers().size(); i++) {
@@ -634,7 +634,7 @@ Expression distribute(Expression left, Expression right) {
             Expression result = *new Expression(new Sum(newMembers));
             return result;
         }//end ltype == ADD, rtype == ADD
-        if(rightType == FRACTYPE) {
+        if(rightType == FRACTIONTYPE) {
             const Fraction& rightObj = dynamic_cast<const Fraction&>(*right);
             Expression newNumerator = distribute(left, rightObj.getNumerator());
             Expression newDenomenator = rightObj.getDenomenator();
@@ -659,9 +659,9 @@ Expression distribute(Expression left, Expression right) {
         //end ltype == ADD, rtype == MUL or similar
     }//end ltype == ADD
     
-    if(leftType == FRACTYPE) {
+    if(leftType == FRACTIONTYPE) {
         const Fraction& leftObj = dynamic_cast<const Fraction&>(*left);
-        if(rightType == FRACTYPE) {
+        if(rightType == FRACTIONTYPE) {
             const Fraction& rightObj = dynamic_cast<const Fraction&>(*right);
             Expression newNumerator = distribute(leftObj.getNumerator(), rightObj.getNumerator());
             Expression newDenomenator = distribute(leftObj.getDenomenator(), rightObj.getDenomenator());
@@ -679,7 +679,7 @@ Expression distribute(Expression left, Expression right) {
         //end ltype == FRAC, rtype = MUL or similar
     }//end ltype = FRAC
     
-    if(rightType == ADDTYPE) {
+    if(rightType == PRODUCTTYPE) {
         const Sum& rightObj = dynamic_cast<const Sum&>(*right);
         ExprVector newMembers = *new ExprVector();
         for(int i=0; i<rightObj.getMembers().size(); i++) {
@@ -690,7 +690,7 @@ Expression distribute(Expression left, Expression right) {
         Expression result = *new Expression(new Sum(newMembers));
         return result;
     }
-    if(rightType == FRACTYPE) {
+    if(rightType == FRACTIONTYPE) {
         const Fraction& rightObj = dynamic_cast<const Fraction&>(*right);
         Expression newNumerator = distribute(left, rightObj.getNumerator());
         Expression newDenomenator = rightObj.getDenomenator();
@@ -699,7 +699,7 @@ Expression distribute(Expression left, Expression right) {
         Expression finalResult = *new Expression(new Fraction(results[0],results[1]));
         return finalResult;
     }
-    if(leftType == EXPTYPE && rightType == EXPTYPE) {
+    if(leftType == EXPONENTTYPE && rightType == EXPONENTTYPE) {
         const Exponent& leftExp = dynamic_cast<const Exponent&>(*left);
         const Exponent& rightExp = dynamic_cast<const Exponent&>(*right);
         if(leftExp.getBase() == rightExp.getBase()) {
@@ -911,13 +911,13 @@ Expression performActions(Expression target) {
         Expression newMat = declareMatrix(matObj.name+"with replacement", elements);
         return newMat;
     }
-    if(sourceType == FRACTYPE) {
+    if(sourceType == FRACTIONTYPE) {
         const Fraction& fracObj = dynamic_cast<const Fraction&>(*target);
         Expression newNum = performActions(fracObj.getNumerator());
         Expression newDenom = performActions(fracObj.getDenomenator());
         return *new Expression(new Fraction(newNum,newDenom));
     }
-    if(sourceType == EXPTYPE) {
+    if(sourceType == EXPONENTTYPE) {
         const Exponent& expObj = dynamic_cast<const Exponent&>(*target);
         Expression newBase = performActions(expObj.getBase());
         Expression newExponent = performActions(expObj.getExponent());
@@ -927,17 +927,17 @@ Expression performActions(Expression target) {
         const Sign& signObj = dynamic_cast<const Sign&>(*target);
         return -performActions(signObj.getMember());
     }
-    if(isTypeSimilarTo(target, FUNCTYPE)) {
+    if(isTypeSimilarTo(target, FUNCTIONTYPE)) {
         const Function& funcObj = dynamic_cast<const Function&>(*target);
         return funcObj.act();
     }
     ExprVector elementsToModify;
     ExprVector newElements = *new ExprVector();
-    if(sourceType == ADDTYPE) {
+    if(sourceType == PRODUCTTYPE) {
         const Sum& addObj = dynamic_cast<const Sum&>(*target);
         elementsToModify = addObj.getMembers();
     }
-    if(sourceType == MULTYPE) {
+    if(sourceType == PRODUCTTYPE) {
         const Product& mulObj = dynamic_cast<const Product&>(*target);
         elementsToModify = mulObj.getMembers();
     }
@@ -945,10 +945,10 @@ Expression performActions(Expression target) {
         Expression moddedEle = performActions(elementsToModify[i]);
         newElements.push_back(moddedEle);
     }
-    if(sourceType == ADDTYPE) {
+    if(sourceType == PRODUCTTYPE) {
         return *new Expression(new Sum(newElements));
     }
-    if(sourceType == MULTYPE) {
+    if(sourceType == PRODUCTTYPE) {
         return *new Expression(new Product(newElements));
     }
     return target;
@@ -974,13 +974,13 @@ Expression performActionsOn(Expression target, Expression var) {
         Expression newMat = declareMatrix(matObj.name+"with replacement", elements);
         return newMat;
     }
-    if(sourceType == FRACTYPE) {
+    if(sourceType == FRACTIONTYPE) {
         const Fraction& fracObj = dynamic_cast<const Fraction&>(*target);
         Expression newNum = performActionsOn(fracObj.getNumerator(), var);
         Expression newDenom = performActionsOn(fracObj.getDenomenator(), var);
         return *new Expression(new Fraction(newNum,newDenom));
     }
-    if(sourceType == EXPTYPE) {
+    if(sourceType == EXPONENTTYPE) {
         const Exponent& expObj = dynamic_cast<const Exponent&>(*target);
         Expression newBase = performActionsOn(expObj.getBase(), var);
         Expression newExponent = performActionsOn(expObj.getExponent(), var);
@@ -990,17 +990,17 @@ Expression performActionsOn(Expression target, Expression var) {
         const Sign& signObj = dynamic_cast<const Sign&>(*target);
         return -performActionsOn(signObj.getMember(), var);
     }
-    if(isTypeSimilarTo(target, FUNCTYPE)) {
+    if(isTypeSimilarTo(target, FUNCTIONTYPE)) {
         const Function& funcObj = dynamic_cast<const Function&>(*target);
         return funcObj.resultOfActingOn(var);
     }
     ExprVector elementsToModify;
     ExprVector newElements = *new ExprVector();
-    if(sourceType == ADDTYPE) {
+    if(sourceType == PRODUCTTYPE) {
         const Sum& addObj = dynamic_cast<const Sum&>(*target);
         elementsToModify = addObj.getMembers();
     }
-    if(sourceType == MULTYPE) {
+    if(sourceType == PRODUCTTYPE) {
         const Product& mulObj = dynamic_cast<const Product&>(*target);
         elementsToModify = mulObj.getMembers();
     }
@@ -1008,10 +1008,10 @@ Expression performActionsOn(Expression target, Expression var) {
         Expression moddedEle = performActionsOn(elementsToModify[i], var);
         newElements.push_back(moddedEle);
     }
-    if(sourceType == ADDTYPE) {
+    if(sourceType == PRODUCTTYPE) {
         return *new Expression(new Sum(newElements));
     }
-    if(sourceType == MULTYPE) {
+    if(sourceType == PRODUCTTYPE) {
         return *new Expression(new Product(newElements));
     }
     return target;
@@ -1037,13 +1037,13 @@ Expression insertAsVariable(Expression target, Expression var) {
         Expression newMat = declareMatrix(matObj.name+"with replacement", elements);
         return newMat;
     }
-    if(sourceType == FRACTYPE) {
+    if(sourceType == FRACTIONTYPE) {
         const Fraction& fracObj = dynamic_cast<const Fraction&>(*target);
         Expression newNum = insertAsVariable(fracObj.getNumerator(), var);
         Expression newDenom = insertAsVariable(fracObj.getDenomenator(), var);
         return *new Expression(new Fraction(newNum,newDenom));
     }
-    if(sourceType == EXPTYPE) {
+    if(sourceType == EXPONENTTYPE) {
         const Exponent& expObj = dynamic_cast<const Exponent&>(*target);
         Expression newBase = insertAsVariable(expObj.getBase(), var);
         Expression newExponent = insertAsVariable(expObj.getExponent(), var);
@@ -1053,17 +1053,17 @@ Expression insertAsVariable(Expression target, Expression var) {
         const Sign& signObj = dynamic_cast<const Sign&>(*target);
         return -insertAsVariable(signObj.getMember(), var);
     }
-    if(isTypeSimilarTo(target, FUNCTYPE)) {
+    if(isTypeSimilarTo(target, FUNCTIONTYPE)) {
         const Function& funcObj = dynamic_cast<const Function&>(*target);
         return funcObj.actingOn(var);
     }
     ExprVector elementsToModify;
     ExprVector newElements = *new ExprVector();
-    if(sourceType == ADDTYPE) {
+    if(sourceType == PRODUCTTYPE) {
         const Sum& addObj = dynamic_cast<const Sum&>(*target);
         elementsToModify = addObj.getMembers();
     }
-    if(sourceType == MULTYPE) {
+    if(sourceType == PRODUCTTYPE) {
         const Product& mulObj = dynamic_cast<const Product&>(*target);
         elementsToModify = mulObj.getMembers();
     }
@@ -1071,10 +1071,10 @@ Expression insertAsVariable(Expression target, Expression var) {
         Expression moddedEle = insertAsVariable(elementsToModify[i], var);
         newElements.push_back(moddedEle);
     }
-    if(sourceType == ADDTYPE) {
+    if(sourceType == PRODUCTTYPE) {
         return *new Expression(new Sum(newElements));
     }
-    if(sourceType == MULTYPE) {
+    if(sourceType == PRODUCTTYPE) {
         return *new Expression(new Product(newElements));
     }
     return target;
@@ -1113,7 +1113,7 @@ Expression substitute(Expression source, Expression target, Expression value) {
         Expression newMat = declareMatrix(matObj.name+"with replacement", elements);
         return newMat;
     }
-    if(sourceType == FRACTYPE) {
+    if(sourceType == FRACTIONTYPE) {
         const Fraction& fracObj = dynamic_cast<const Fraction&>(*source);
         Expression newNum;
         Expression newDenom;
@@ -1138,7 +1138,7 @@ Expression substitute(Expression source, Expression target, Expression value) {
         }
         return *new Expression(new NullObject("No substitutions possible"));
     }
-    if(sourceType == EXPTYPE) {
+    if(sourceType == EXPONENTTYPE) {
         const Exponent& expObj = dynamic_cast<const Exponent&>(*source);
         Expression newBase;
         Expression newExponent;
@@ -1172,11 +1172,11 @@ Expression substitute(Expression source, Expression target, Expression value) {
     }
     ExprVector elementsToModify;
     ExprVector newElements = *new ExprVector();
-    if(sourceType == ADDTYPE) {
+    if(sourceType == PRODUCTTYPE) {
         const Sum& addObj = dynamic_cast<const Sum&>(*source);
         elementsToModify = addObj.getMembers();
     }
-    if(sourceType == MULTYPE) {
+    if(sourceType == PRODUCTTYPE) {
         const Product& mulObj = dynamic_cast<const Product&>(*source);
         elementsToModify = mulObj.getMembers();
     }
@@ -1193,10 +1193,10 @@ Expression substitute(Expression source, Expression target, Expression value) {
     }
     if(!moddedAnyElements)
         return *new Expression(new NullObject("No substitutions possible"));
-    if(sourceType == ADDTYPE) {
+    if(sourceType == PRODUCTTYPE) {
         return *new Expression(new Sum(newElements));
     }
-    if(sourceType == MULTYPE) {
+    if(sourceType == PRODUCTTYPE) {
         return *new Expression(new Product(newElements));
     }
     return *new Expression(new NullObject("No substitutions possible"));

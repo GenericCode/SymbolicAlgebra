@@ -43,7 +43,7 @@ Expression Real::add(Expression other) const {
         Expression result = declareReal(newVal);
         return result;
     }
-    if(other.getTypeHash() == ADDTYPE) {
+    if(other.getTypeHash() == PRODUCTTYPE) {
         const Sum& otherAdd = dynamic_cast<const Sum&>(*other);
         ExprVector newMembers = *new ExprVector();
         newMembers.push_back(thisExpr);
@@ -60,7 +60,7 @@ Expression Real::subtract(Expression other) const {
         Expression result = declareReal(newVal);
         return result;
     }
-    if(other.getTypeHash() == ADDTYPE) {
+    if(other.getTypeHash() == PRODUCTTYPE) {
         const Sum& otherNegativeAdd = dynamic_cast<const Sum&>(*-other);
         ExprVector newMembers = *new ExprVector();
         newMembers.push_back(thisExpr);
@@ -123,7 +123,7 @@ Expression Real::simplify() const {
 };
 Expression Real::distribute(Expression other) const {
     Expression thisExpr = *new Expression(this);
-    if(other.getTypeHash() == MULTYPE) {
+    if(other.getTypeHash() == PRODUCTTYPE) {
         const Product& otherMul = dynamic_cast<const Product&>(*other);
         ExprVector newMembers = *new ExprVector();
         ExprVector mulMembers = otherMul.getMembers();
@@ -137,7 +137,7 @@ Expression Real::distribute(Expression other) const {
         }
         return *new Expression(new Product(newMembers));
     }
-    if(other.getTypeHash() == ADDTYPE) {
+    if(other.getTypeHash() == PRODUCTTYPE) {
         const Sum& otherAdd= dynamic_cast<const Sum&>(*other);
         ExprVector newMembers = *new ExprVector();
         ExprVector addMembers = otherAdd.getMembers();

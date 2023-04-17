@@ -39,7 +39,7 @@ Expression Symbol::add(Expression other) const {
         return *new Expression(this);
     if(other == thisExpr)
         return 2*thisExpr;
-    if(other.getTypeHash() == ADDTYPE) {
+    if(other.getTypeHash() == PRODUCTTYPE) {
         const Sum& otherAdd = dynamic_cast<const Sum&>(*other);
         ExprVector newMembers = *new ExprVector();
         newMembers.push_back(thisExpr);
@@ -57,7 +57,7 @@ Expression Symbol::subtract(Expression other) const {
     if(other == thisExpr) {
         return ZERO;
     }
-    if(other.getTypeHash() == ADDTYPE) {
+    if(other.getTypeHash() == PRODUCTTYPE) {
         const Sum& otherNegativeAdd = dynamic_cast<const Sum&>(*-other);
         ExprVector newMembers = *new ExprVector();
         newMembers.push_back(thisExpr);
@@ -77,7 +77,7 @@ Expression Symbol::multiply(Expression other) const {
             return *new Expression(new Exponent(thisExpr,2));
         }
     }
-    if(other.getTypeHash() == MULTYPE) {
+    if(other.getTypeHash() == PRODUCTTYPE) {
         const Product& otherMul = dynamic_cast<const Product&>(*other);
         ExprVector newMembers = *new ExprVector();
         newMembers.push_back(thisExpr);
@@ -93,7 +93,7 @@ Expression Symbol::simplify() const {
 Expression Symbol::distribute(Expression other) const {
     size_t otherType = other.getTypeHash();
     Expression thisExpr = *new Expression(this);
-    if(otherType == ADDTYPE) {
+    if(otherType == PRODUCTTYPE) {
         const Sum& otherAdd = dynamic_cast<const Sum&>(*other);
         ExprVector newMembers = otherAdd.getMembers();
         for(size_t i = 0; i<newMembers.size(); i++) {
@@ -101,7 +101,7 @@ Expression Symbol::distribute(Expression other) const {
         }
         return *new Expression(new Sum(newMembers));
     }
-    if(otherType == MULTYPE) {
+    if(otherType == PRODUCTTYPE) {
         const Product& otherMul = dynamic_cast<const Product&>(*other);
         ExprVector newMembers = *new ExprVector();
         ExprVector otherMembers = otherMul.getMembers();
@@ -111,7 +111,7 @@ Expression Symbol::distribute(Expression other) const {
         }
         return *new Expression(new Product(newMembers));
     }
-    if(otherType == FRACTYPE) {
+    if(otherType == FRACTIONTYPE) {
         const Fraction& otherFrac = dynamic_cast<const Fraction&>(*other);
         return *new Expression(new Fraction(distribute(otherFrac.getNumerator()),otherFrac.getDenomenator()));
     }
@@ -154,7 +154,7 @@ Expression ImaginaryUnit::multiply(Expression other) const {
     if(other == thisExpr) {
         return MINUSONE;
     }
-    if(other.getTypeHash() == MULTYPE) {
+    if(other.getTypeHash() == PRODUCTTYPE) {
         const Product& otherMul = dynamic_cast<const Product&>(*other);
         ExprVector newMembers = *new ExprVector();
         newMembers.push_back(thisExpr);
@@ -229,7 +229,7 @@ Expression Matrix::divide(Expression other) const {
 };
 Expression Matrix::add(Expression other) const {
     Expression thisExpr = *new Expression(this);
-    if(other.getTypeHash() == ADDTYPE) {
+    if(other.getTypeHash() == PRODUCTTYPE) {
         const Sum& otherAdd = dynamic_cast<const Sum&>(*other);
         ExprVector newMembers = *new ExprVector();
         newMembers.push_back(thisExpr);
@@ -302,7 +302,7 @@ Expression Matrix::multiply(Expression other) const {
     Expression matTarget = getElementOfType(other,MATRIXTYPE);
     
     if(matTarget.getTypeHash() == NULLTYPE) {
-        if(other.getTypeHash() == MULTYPE) {
+        if(other.getTypeHash() == PRODUCTTYPE) {
             const Product& otherMul = dynamic_cast<const Product&>(*other);
             ExprVector newMembers = *new ExprVector();
             newMembers.push_back(thisExpr);
@@ -346,7 +346,7 @@ Expression Matrix::simplify() const {
 Expression Matrix::distribute(Expression other) const {
     size_t otherType = other.getTypeHash();
     Expression thisExpr = *new Expression(this);
-    if(otherType == ADDTYPE) {
+    if(otherType == PRODUCTTYPE) {
         const Sum& otherAdd = dynamic_cast<const Sum&>(*other);
         ExprVector newMembers = otherAdd.getMembers();
         for(size_t i = 0; i<newMembers.size(); i++) {
@@ -354,7 +354,7 @@ Expression Matrix::distribute(Expression other) const {
         }
         return *new Expression(new Sum(newMembers));
     }
-    if(otherType == MULTYPE) {
+    if(otherType == PRODUCTTYPE) {
         Expression testTarget = getElementOfType(other, MATRIXTYPE);
         if(testTarget.getTypeHash() != NULLTYPE) {
             Expression product = thisExpr*testTarget;
@@ -369,7 +369,7 @@ Expression Matrix::distribute(Expression other) const {
         }
         return *new Expression(new Product(newMembers));
     }
-    if(otherType == FRACTYPE) {
+    if(otherType == FRACTIONTYPE) {
         const Fraction& otherFrac = dynamic_cast<const Fraction&>(*other);
         return *new Expression(new Fraction(distribute(otherFrac.getNumerator()),otherFrac.getDenomenator()));
     }
@@ -444,7 +444,7 @@ Expression EuclidVector::multiply(Expression other) const {
     if(other.getTypeHash() == EUCLIDVECTORTYPE) {
         return matMul(thisExpr, other.transpose());
     }
-    if(other.getTypeHash() == MULTYPE) {
+    if(other.getTypeHash() == PRODUCTTYPE) {
         const Product& otherMul = dynamic_cast<const Product&>(*other);
         ExprVector newMembers = *new ExprVector();
         newMembers.push_back(thisExpr);
@@ -483,7 +483,7 @@ Expression EuclidVector::simplify() const {
 Expression EuclidVector::distribute(Expression other) const {
     size_t otherType = other.getTypeHash();
     Expression thisExpr = *new Expression(this);
-    if(otherType == ADDTYPE) {
+    if(otherType == PRODUCTTYPE) {
         const Sum& otherAdd = dynamic_cast<const Sum&>(*other);
         ExprVector newMembers = otherAdd.getMembers();
         for(size_t i = 0; i<newMembers.size(); i++) {
@@ -491,7 +491,7 @@ Expression EuclidVector::distribute(Expression other) const {
         }
         return *new Expression(new Sum(newMembers));
     }
-    if(otherType == MULTYPE) {
+    if(otherType == PRODUCTTYPE) {
         Expression testTarget = getElementOfType(other, EUCLIDVECTORTYPE);
         if(testTarget.getTypeHash() != NULLTYPE) {
             Expression product = thisExpr*testTarget;
@@ -506,7 +506,7 @@ Expression EuclidVector::distribute(Expression other) const {
         }
         return *new Expression(new Product(newMembers));
     }
-    if(otherType == FRACTYPE) {
+    if(otherType == FRACTIONTYPE) {
         const Fraction& otherFrac = dynamic_cast<const Fraction&>(*other);
         return *new Expression(new Fraction(distribute(otherFrac.getNumerator()),otherFrac.getDenomenator()));
     }

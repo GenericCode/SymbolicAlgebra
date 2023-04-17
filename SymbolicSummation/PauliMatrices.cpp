@@ -88,7 +88,7 @@ Expression PauliMatrix::add(Expression other) const {
     Expression pauliTarget = getElementOfType(other, PAULIMATRIXTYPE);
     //bool wasAVector = false;
     if(pauliTarget.getTypeHash() == NULLTYPE) {
-        if(other.getTypeHash() == ADDTYPE) {
+        if(other.getTypeHash() == PRODUCTTYPE) {
             const Sum& otherAdd = dynamic_cast<const Sum&>(*other);
             ExprVector newMembers = *new ExprVector();
             newMembers.push_back(thisExpr);
@@ -100,8 +100,8 @@ Expression PauliMatrix::add(Expression other) const {
         //return result;
     }
     const PauliMatrix& targetMatrix = dynamic_cast<const PauliMatrix&>(*pauliTarget);
-    if(targetMatrix.flavor != thisPauli.flavor || rtype != MULTYPE) {
-        if(other.getTypeHash() == ADDTYPE) {
+    if(targetMatrix.flavor != thisPauli.flavor || rtype != PRODUCTTYPE) {
+        if(other.getTypeHash() == PRODUCTTYPE) {
             const Sum& otherAdd = dynamic_cast<const Sum&>(*other);
             ExprVector newMembers = *new ExprVector();
             newMembers.push_back(thisExpr);
@@ -176,7 +176,7 @@ Expression PauliMatrix::distribute(Expression other) const {
     if(otherType == ONETYPE) {
         return thisExpr;
     }
-    if(otherType == ADDTYPE) {
+    if(otherType == PRODUCTTYPE) {
         const Sum& otherAdd = dynamic_cast<const Sum&>(*other);
         ExprVector newMembers = otherAdd.getMembers();
         for(size_t i = 0; i<newMembers.size(); i++) {
@@ -186,7 +186,7 @@ Expression PauliMatrix::distribute(Expression other) const {
             return newMembers[0];
         return *new Expression(new Sum(newMembers));
     }
-    if(otherType == MULTYPE) {
+    if(otherType == PRODUCTTYPE) {
         Expression testTarget = getMatrixMatchingPauliFlavor(other, thisExpr);
         
         //This below is fucked.
@@ -203,7 +203,7 @@ Expression PauliMatrix::distribute(Expression other) const {
         }
         return *new Expression(new Product(newMembers));
     }
-    if(otherType == FRACTYPE) {
+    if(otherType == FRACTIONTYPE) {
         const Fraction& otherFrac = dynamic_cast<const Fraction&>(*other);
         return *new Expression(new Fraction(distribute(otherFrac.getNumerator()),otherFrac.getDenomenator()));
     }

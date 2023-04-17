@@ -330,9 +330,9 @@ public:
 };
 
 static const size_t CONTAINERTYPE = typeid(Container).hash_code();
-static const size_t ADDTYPE = typeid(Sum).hash_code();
+static const size_t SUMTYPE = typeid(Sum).hash_code();
 static const size_t SIGNTYPE = typeid(Sign).hash_code();
-static const size_t MULTYPE = typeid(Product).hash_code();
-static const size_t FRACTYPE = typeid(Fraction).hash_code();
-static const size_t EXPTYPE = typeid(Exponent).hash_code();
-static const size_t FUNCTYPE = typeid(Function).hash_code();
+static const size_t PRODUCTTYPE = typeid(Product).hash_code();
+static const size_t FRACTIONTYPE = typeid(Fraction).hash_code();
+static const size_t EXPONENTTYPE = typeid(Exponent).hash_code();
+static const size_t FUNCTIONTYPE = typeid(Function).hash_code();

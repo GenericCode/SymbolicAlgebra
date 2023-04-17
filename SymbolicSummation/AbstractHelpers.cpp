@@ -35,7 +35,7 @@ bool areSimilarTypes(Expression exprA, Expression exprB) {
         result = true;
     if(superType == MATRIXTYPE && subType == PAULIMATRIXTYPE)
         result = true;
-    if(superType == typeid(Container).hash_code() && (subType == ADDTYPE || subType == MULTYPE || subType == FRACTYPE || subType == EXPTYPE || subType == SIGNTYPE))
+    if(superType == typeid(Container).hash_code() && (subType == PRODUCTTYPE || subType == PRODUCTTYPE || subType == FRACTIONTYPE || subType == EXPONENTTYPE || subType == SIGNTYPE))
         result = true;
     return result;
 }
@@ -52,7 +52,7 @@ bool isTypeSimilarTo(Expression subject, size_t type) {
         result = true;
     if(type == MATRIXTYPE && (subType == PAULIMATRIXTYPE || subType == EUCLIDVECTORTYPE))
         result = true;
-    if(type == typeid(Container).hash_code() && (subType == ADDTYPE || subType == MULTYPE || subType == FRACTYPE || subType == EXPTYPE || subType == SIGNTYPE))
+    if(type == typeid(Container).hash_code() && (subType == PRODUCTTYPE || subType == PRODUCTTYPE || subType == FRACTIONTYPE || subType == EXPONENTTYPE || subType == SIGNTYPE))
         result = true;
     return result;
 }
@@ -577,7 +577,7 @@ Expression removeElementMultiplicatively(Expression source, Expression target, b
             return result;
         return -result;
     }
-    if(type == MULTYPE) {
+    if(type == PRODUCTTYPE) {
         const Product& sourceObj = dynamic_cast<const Product&>(*source);
         ExprVector newMembers = removeElementFromVector(sourceObj.getMembers(), target,rightToLeft);
         if(newMembers == sourceObj.getMembers())
@@ -589,7 +589,7 @@ Expression removeElementMultiplicatively(Expression source, Expression target, b
             return newMembers[0];
         return *new Expression(new Product(newMembers));
     }
-    if(type == FRACTYPE) {
+    if(type == FRACTIONTYPE) {
         const Fraction& sourceObj = dynamic_cast<const Fraction&>(*source);
         Expression result = removeElementMultiplicatively(sourceObj.getNumerator(), target, rightToLeft);
         if(result.getTypeHash() == NULLTYPE) {
@@ -604,7 +604,7 @@ Expression removeElementMultiplicatively(Expression source, Expression target, b
         }
         return *new Expression(new Fraction(result,sourceObj.getDenomenator()));
     }
-    if(type == EXPTYPE) {
+    if(type == EXPONENTTYPE) {
         const Exponent& sourceObj = dynamic_cast<const Exponent&>(*source);
         if(sourceObj.getBase() == target) {
             Expression expOneDown = sourceObj.getExponent()-ONE;
@@ -625,7 +625,7 @@ Expression removeElementMultiplicatively(Expression source, Expression target, b
 Expression removeElementAdditively(Expression source, Expression target, bool rightToLeft) {
     if(source == target)
         return ZERO;//*new Expression(new NullObject("this is what happens when you remove something from itself!"));
-    if(source.getTypeHash() != ADDTYPE)
+    if(source.getTypeHash() != PRODUCTTYPE)
         return *new Expression(new NullObject("could not remove target additively"));
     const Sum& sourceObj = dynamic_cast<const Sum&>(*source);
     ExprVector newMembers = removeElementFromVector(sourceObj.getMembers(), target);
@@ -638,7 +638,7 @@ Expression removeElementAdditively(Expression source, Expression target, bool ri
     return *new Expression(new Sum(*new ExprVector(newMembers)));
 };
 Expression removeElementAbsolutely(Expression source, Expression target, bool rightToLeft) {
-    if(source.getTypeHash() == ADDTYPE)
+    if(source.getTypeHash() == PRODUCTTYPE)
         return removeElementAdditively(source, target, rightToLeft);
     else
         return removeElementMultiplicatively(source, target,rightToLeft);
@@ -654,15 +654,15 @@ Expression getElementOfType(Expression source, size_t type, bool rightToLeft) {
     if(sourceType == SIGNTYPE) {
         return getElementOfType(-source, type, rightToLeft);
     }
-    if(sourceType == ADDTYPE) {
+    if(sourceType == PRODUCTTYPE) {
         const Sum& addObj = dynamic_cast<const Sum&>(*source);
         elementsToCheck = addObj.getMembers();
     }
-    if(sourceType == MULTYPE) {
+    if(sourceType == PRODUCTTYPE) {
         const Product& mulObj = dynamic_cast<const Product&>(*source);
         elementsToCheck = mulObj.getMembers();
     }
-    if(sourceType == FRACTYPE) {
+    if(sourceType == FRACTIONTYPE) {
         const Fraction& fracObj = dynamic_cast<const Fraction&>(*source);
         return getElementOfType(fracObj.getNumerator(), type, rightToLeft);
     }
@@ -692,15 +692,15 @@ Expression getElementMatchingCondition(Expression source, std::function<bool(Exp
     if(condition(source))
         return *new Expression(source);
     ExprVector elementsToCheck = *new ExprVector();
-    if(sourceType == ADDTYPE) {
+    if(sourceType == PRODUCTTYPE) {
         const Sum& addObj = dynamic_cast<const Sum&>(*source);
         elementsToCheck = addObj.getMembers();
     }
-    if(sourceType == MULTYPE) {
+    if(sourceType == PRODUCTTYPE) {
         const Product& mulObj = dynamic_cast<const Product&>(*source);
         elementsToCheck = mulObj.getMembers();
     }
-    if(sourceType == FRACTYPE) {
+    if(sourceType == FRACTIONTYPE) {
         const Fraction& fracObj = dynamic_cast<const Fraction&>(*source);
         return getElementMatchingCondition(fracObj.getNumerator(), condition, rightToLeft);
     }
@@ -843,15 +843,15 @@ Expression replaceElement(Expression source, Expression target, Expression value
     if(source == target)
         return *new Expression(value);
     ExprVector elementsToCheck;
-    if(sourceType == ADDTYPE) {
+    if(sourceType == PRODUCTTYPE) {
         const Sum& addObj = dynamic_cast<const Sum&>(*source);
         elementsToCheck = addObj.getMembers();
     }
-    if(sourceType == MULTYPE) {
+    if(sourceType == PRODUCTTYPE) {
         const Product& mulObj = dynamic_cast<const Product&>(*source);
         elementsToCheck = mulObj.getMembers();
     }
-    if(sourceType == FRACTYPE) {
+    if(sourceType == FRACTIONTYPE) {
         const Fraction& fracObj = dynamic_cast<const Fraction&>(*source);
         Expression result = replaceElement(fracObj.getNumerator(), target, value, rightToLeft);
         if(result == fracObj.getNumerator())
@@ -860,14 +860,14 @@ Expression replaceElement(Expression source, Expression target, Expression value
         return finalResult;
     }
     elementsToCheck = replaceElementInVector(elementsToCheck, target, value, rightToLeft);
-    if(sourceType == ADDTYPE) {
+    if(sourceType == PRODUCTTYPE) {
         const Sum& addObj = dynamic_cast<const Sum&>(*source);
         if(elementsToCheck == addObj.getMembers())
             return source;
         Expression result = *new Expression(new Sum(elementsToCheck));
         return result;
     }
-    if(sourceType == MULTYPE) {
+    if(sourceType == PRODUCTTYPE) {
         const Product& mulObj = dynamic_cast<const Product&>(*source);
         if(elementsToCheck == mulObj.getMembers())
             return source;
@@ -881,15 +881,15 @@ Expression replaceElementOfType(Expression source, size_t type, Expression value
     if(isTypeSimilarTo(source, type))
         return *new Expression(value);
     ExprVector elementsToCheck;
-    if(sourceType == ADDTYPE) {
+    if(sourceType == PRODUCTTYPE) {
         const Sum& addObj = dynamic_cast<const Sum&>(*source);
         elementsToCheck = addObj.getMembers();
     }
-    if(sourceType == MULTYPE) {
+    if(sourceType == PRODUCTTYPE) {
         const Product& mulObj = dynamic_cast<const Product&>(*source);
         elementsToCheck = mulObj.getMembers();
     }
-    if(sourceType == FRACTYPE) {
+    if(sourceType == FRACTIONTYPE) {
         const Fraction& fracObj = dynamic_cast<const Fraction&>(*source);
         Expression result = replaceElementOfType(fracObj.getNumerator(), type, value, rightToLeft);
         if(result == fracObj.getNumerator())
@@ -898,14 +898,14 @@ Expression replaceElementOfType(Expression source, size_t type, Expression value
         return finalResult;
     }
     elementsToCheck = replaceElementOfTypeInVector(elementsToCheck, type, value, rightToLeft);
-    if(sourceType == ADDTYPE) {
+    if(sourceType == PRODUCTTYPE) {
         const Sum& addObj = dynamic_cast<const Sum&>(*source);
         if(elementsToCheck == addObj.getMembers())
             return source;
         Expression result = *new Expression(new Sum(elementsToCheck));
         return result;
     }
-    if(sourceType == MULTYPE) {
+    if(sourceType == PRODUCTTYPE) {
         const Product& mulObj = dynamic_cast<const Product&>(*source);
         if(elementsToCheck == mulObj.getMembers())
             return source;
@@ -937,7 +937,7 @@ bool areEqual(const ExpressionObject& left, const ExpressionObject& right) {
     if(leftType == SYMBOLTYPE) {
         areEqual &= (left.print() == right.print());
     }
-    if(leftType == ADDTYPE) {
+    if(leftType == PRODUCTTYPE) {
         const Sum& leftObj = dynamic_cast<const Sum&>(left);
         const Sum& rightObj = dynamic_cast<const Sum&>(right);
         if(leftObj.getMembers().size() != rightObj.getMembers().size())
@@ -954,7 +954,7 @@ bool areEqual(const ExpressionObject& left, const ExpressionObject& right) {
         const Sign& rightObj = dynamic_cast<const Sign&>(right);
         areEqual &= leftObj.getMember() == rightObj.getMember();
     }
-    if(leftType == MULTYPE) {
+    if(leftType == PRODUCTTYPE) {
         const Product& leftObj = dynamic_cast<const Product&>(left);
         const Product& rightObj = dynamic_cast<const Product&>(right);
         areEqual &= leftObj.getMembers().size() == rightObj.getMembers().size();
@@ -962,17 +962,17 @@ bool areEqual(const ExpressionObject& left, const ExpressionObject& right) {
             areEqual &= exprVectorContains(rightObj.getMembers(), leftObj.getMembers()[i]);
         }
     }
-    if(leftType == FRACTYPE) {
+    if(leftType == FRACTIONTYPE) {
         const Fraction& leftObj = dynamic_cast<const Fraction&>(left);
         const Fraction& rightObj = dynamic_cast<const Fraction&>(right);
         areEqual &= (leftObj.getNumerator() == rightObj.getNumerator() && leftObj.getDenomenator() == rightObj.getDenomenator());
     }
-    if(leftType == EXPTYPE) {
+    if(leftType == EXPONENTTYPE) {
         const Exponent& leftObj = dynamic_cast<const Exponent&>(left);
         const Exponent& rightObj = dynamic_cast<const Exponent&>(right);
         areEqual &= (leftObj.getBase() == rightObj.getBase() && leftObj.getExponent() == rightObj.getExponent());
     }
-    if(leftType == FUNCTYPE) {
+    if(leftType == FUNCTIONTYPE) {
         const Function& leftObj = dynamic_cast<const Function&>(left);
         const Function& rightObj = dynamic_cast<const Function&>(right);
         areEqual &= (leftObj.getMember() == rightObj.getMember() && getAddress(leftObj.getAction()) == getAddress(rightObj.getAction()));
@@ -1051,7 +1051,7 @@ ExprVector combineExprVectors(ExprVector left, ExprVector right) {
 
 ExprVector getConstituentSymbols(Expression target) {
     size_t targetType = target.getTypeHash();
-    if(targetType == ADDTYPE) {
+    if(targetType == PRODUCTTYPE) {
         ExprVector symbols = *new ExprVector;
         const Sum& addTarget = dynamic_cast<const Sum&>(*target);
         for(size_t i = 0; i< addTarget.getMembers().size(); i++) {
@@ -1059,7 +1059,7 @@ ExprVector getConstituentSymbols(Expression target) {
         }
         return symbols;
     }
-    if(targetType == MULTYPE) {
+    if(targetType == PRODUCTTYPE) {
         ExprVector symbols = *new ExprVector;
         const Product& mulTarget = dynamic_cast<const Product&>(*target);
         for(size_t i = 0; i< mulTarget.getMembers().size(); i++) {
@@ -1067,12 +1067,12 @@ ExprVector getConstituentSymbols(Expression target) {
         }
         return symbols;
     }
-    if(targetType == FRACTYPE) {
+    if(targetType == FRACTIONTYPE) {
         const Fraction& fracTarget = dynamic_cast<const Fraction&>(*target);
         ExprVector symbols = combineExprVectors(getConstituentSymbols(fracTarget.getNumerator()),getConstituentSymbols(fracTarget.getNumerator()));
         return symbols;
     }
-    if(targetType == EXPTYPE) {
+    if(targetType == EXPONENTTYPE) {
         const Exponent& expTarget = dynamic_cast<const Exponent&>(*target);
         ExprVector symbols = combineExprVectors(getConstituentSymbols(expTarget.getBase()),getConstituentSymbols(expTarget.getExponent()));
         return symbols;

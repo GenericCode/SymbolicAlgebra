@@ -25,18 +25,18 @@ Expression Container::add(Expression other) const {
     }
     if(other->getTypeHash() == ZEROTYPE)
         return thisExpr;
-    if(getTypeHash() == ADDTYPE && other.getTypeHash() == ADDTYPE ) {
+    if(getTypeHash() == PRODUCTTYPE && other.getTypeHash() == PRODUCTTYPE ) {
         const Sum& thisAdd = dynamic_cast<const Sum&>(*thisExpr);
         const Sum& otherAdd = dynamic_cast<const Sum&>(*other);
         return *new Expression(new Sum(setUnion(thisAdd.getMembers(), otherAdd.getMembers())));
     }
-    if(getTypeHash() == ADDTYPE) {
+    if(getTypeHash() == PRODUCTTYPE) {
         const Sum& thisAdd = dynamic_cast<const Sum&>(*thisExpr);
         ExprVector newMembers = thisAdd.getMembers();
         newMembers.push_back(other);
         return *new Expression(new Sum(newMembers));
     }
-    if(other.getTypeHash() == ADDTYPE) {
+    if(other.getTypeHash() == PRODUCTTYPE) {
         const Sum& otherAdd = dynamic_cast<const Sum&>(*other);
         ExprVector newMembers = *new ExprVector();
         newMembers.push_back(thisExpr);
@@ -160,10 +160,10 @@ Expression Sum::simplify() const {
         if(nextMem != ZERO)
             simplifiedMembers.push_back(nextMem);
     }
-    if(exprVectorContainsType(simplifiedMembers, ADDTYPE)) {
+    if(exprVectorContainsType(simplifiedMembers, PRODUCTTYPE)) {
         ExprVector newerMembers = *new ExprVector();
         for(int i=0; i<simplifiedMembers.size(); i++) {
-            if(simplifiedMembers[i].getTypeHash() == ADDTYPE) {
+            if(simplifiedMembers[i].getTypeHash() == PRODUCTTYPE) {
                 const Sum& subAdd = dynamic_cast<const Sum&>(*simplifiedMembers[i]);
                 newerMembers = setUnion(newerMembers, subAdd.getMembers());
             } else {
@@ -194,7 +194,7 @@ Expression Sum::reciprocal() const {
 };
 Expression Sum::determinant() const {
     Expression simpled = simplify();
-    if(simpled.getTypeHash() == ADDTYPE)
+    if(simpled.getTypeHash() == PRODUCTTYPE)
         throw std::logic_error("no general formula for determinant of uncombined sum");
     return simpled.determinant();
 };
@@ -251,7 +251,7 @@ Expression Sum::cancelTerms() const {
             //There are no cases I can think of where this will break commutators,
             //lack of evidence is not evidence of lack however.
             Expression testCombine = sumNotInCommon+otherNotInCommon;
-            if(testCombine.getTypeHash() == ADDTYPE)
+            if(testCombine.getTypeHash() == PRODUCTTYPE)
                 continue;
             runningSum = testCombine*inCommon;
             accountedFor.push_back(j);
@@ -413,10 +413,10 @@ String Product::print() const {
     for(size_t i = 0; i<members.size(); i++) {
         if(i>0)
             result+="*";
-        if(members[i].getTypeHash() == ADDTYPE)
+        if(members[i].getTypeHash() == PRODUCTTYPE)
             result+="(";
         result+=members[i].print();
-        if(members[i].getTypeHash() == ADDTYPE)
+        if(members[i].getTypeHash() == PRODUCTTYPE)
             result+=")";
     }
     return result;
@@ -446,14 +446,14 @@ Expression simplifyMulWithPauliMatrices(Expression target) {
     if(remainder.getTypeHash() != ZEROTYPE) {
         total = total*remainder;
     }
-    if(total.getTypeHash() == MULTYPE) {
+    if(total.getTypeHash() == PRODUCTTYPE) {
         const Product& mulObj = dynamic_cast<const Product&>(*total);
         if(mulObj.getMembers().size() == 0)
             return ZERO;
         if(mulObj.getMembers().size() == 1)
             return mulObj.getMembers()[0];
     }
-    if(total.getTypeHash() == ADDTYPE) {
+    if(total.getTypeHash() == PRODUCTTYPE) {
         const Sum& addObj = dynamic_cast<const Sum&>(*total);
         if(addObj.getMembers().size() == 0)
             return ZERO;
@@ -471,7 +471,7 @@ Expression Product::simplify() const {
         newMembers.push_back(members[i].simplify());
     ExprVector newerMembers = *new ExprVector();
     for(int i=0; i<newMembers.size(); i++) {
-        if(newMembers[i].getTypeHash() == MULTYPE) {
+        if(newMembers[i].getTypeHash() == PRODUCTTYPE) {
             const Product& subMul = dynamic_cast<const Product&>(*newMembers[i]);
             newerMembers = setUnion(newerMembers, subMul.getMembers());
         } else if( isNegative(newMembers[i]) ) {
@@ -483,7 +483,7 @@ Expression Product::simplify() const {
     }
     newMembers = newerMembers;
     Expression result = *new Expression(new Product(newMembers));
-    std::vector<size_t> types = {ADDTYPE,FRACTYPE,EXPTYPE,SYMBOLTYPE,EUCLIDVECTORTYPE,PAULIMATRIXTYPE,MATRIXTYPE,IMAGINARYUNITTYPE,REALTYPE};
+    std::vector<size_t> types = {PRODUCTTYPE,FRACTIONTYPE,EXPONENTTYPE,SYMBOLTYPE,EUCLIDVECTORTYPE,PAULIMATRIXTYPE,MATRIXTYPE,IMAGINARYUNITTYPE,REALTYPE};
     std::function<bool(Expression)> checker;
     for(size_t type : types) {
         if(type == PAULIMATRIXTYPE) {
@@ -511,20 +511,20 @@ Expression Product::simplify() const {
         }
     }
     if(signOfThis) {
-        if(result.getTypeHash() != MULTYPE)
+        if(result.getTypeHash() != PRODUCTTYPE)
             return -result.simplify();
         return -result;
     }
-    if(result.getTypeHash() != MULTYPE)
+    if(result.getTypeHash() != PRODUCTTYPE)
         return result.simplify();
     return result;
 };
 Expression Product::distribute(Expression other) const {
-    if(other.getTypeHash() == MULTYPE) {
+    if(other.getTypeHash() == PRODUCTTYPE) {
         const Product& otherMul = dynamic_cast<const Product&>(*other);
         return *new Expression(new Product(setUnion(members, otherMul.getMembers())));
     }
-    if(other.getTypeHash() == ADDTYPE) {
+    if(other.getTypeHash() == PRODUCTTYPE) {
         const Sum& otherAdd= dynamic_cast<const Sum&>(*other);
         ExprVector newMembers = *new ExprVector();
         for(size_t i = 0; i< otherAdd.getMembers().size(); i++) {
@@ -623,7 +623,7 @@ Expression Fraction::simplify() const {
     return *new Expression(new Fraction(numerator.simplify(),denomenator.simplify()));
 };
 Expression Fraction::distribute(Expression other) const {
-    if(other.getTypeHash() != FRACTYPE)
+    if(other.getTypeHash() != FRACTIONTYPE)
         return *new Expression(new Fraction(numerator.distribute(other),denomenator));
     const Fraction& otherFrac = dynamic_cast<const Fraction&>(*other);
     return *new Expression(new Fraction(numerator.distribute(otherFrac.numerator),denomenator.distribute(otherFrac.denomenator)));
@@ -693,7 +693,7 @@ Expression Exponent::multiply(Expression other) const {
         return ZERO;
     if(other->getTypeHash() == ONETYPE)
         return *new Expression(this);
-    if(other->getTypeHash() == EXPTYPE) {
+    if(other->getTypeHash() == EXPONENTTYPE) {
         const Exponent& otherExp = dynamic_cast<const Exponent&>(*other);
         if(otherExp.base == base || -otherExp.base == base) {
             Expression newExponent = exponent + otherExp.exponent;
@@ -748,7 +748,7 @@ Expression Exponent::simplify() const {
 Expression Exponent::distribute(Expression other) const {
     size_t otherType = other.getTypeHash();
     Expression thisExpr = *new Expression(this);
-    if(otherType == ADDTYPE) {
+    if(otherType == PRODUCTTYPE) {
         const Sum& otherAdd = dynamic_cast<const Sum&>(*other);
         ExprVector newMembers = otherAdd.getMembers();
         for(size_t i = 0; i<newMembers.size(); i++) {
@@ -756,8 +756,8 @@ Expression Exponent::distribute(Expression other) const {
         }
         return *new Expression(new Sum(newMembers));
     }
-    if(otherType == MULTYPE) {
-        Expression testTarget = getElementOfType(other, EXPTYPE);
+    if(otherType == PRODUCTTYPE) {
+        Expression testTarget = getElementOfType(other, EXPONENTTYPE);
         if(testTarget.getTypeHash() != NULLTYPE) {
             Expression product = thisExpr*testTarget;
             return product*cancelFactor(other, testTarget);
@@ -771,7 +771,7 @@ Expression Exponent::distribute(Expression other) const {
         }
         return *new Expression(new Product(newMembers));
     }
-    if(otherType == FRACTYPE) {
+    if(otherType == FRACTIONTYPE) {
         const Fraction& otherFrac = dynamic_cast<const Fraction&>(*other);
         return *new Expression(new Fraction(distribute(otherFrac.getNumerator()),otherFrac.getDenomenator()));
     }
@@ -805,7 +805,7 @@ ExprVector Exponent::getFactors() const {
             return factors;
         }
     }
-    if(expType == ADDTYPE) {
+    if(expType == PRODUCTTYPE) {
         const Sum& addExp = dynamic_cast<const Sum&>(*exponent);
         ExprVector expMembers = addExp.getMembers();
         ExprVector factors = *new ExprVector();
@@ -893,7 +893,7 @@ Expression Function::simplify() const {
 Expression Function::distribute(Expression other) const {
     size_t otherType = other.getTypeHash();
     Expression thisExpr = *new Expression(this);
-    if(otherType == ADDTYPE) {
+    if(otherType == PRODUCTTYPE) {
         const Sum& otherAdd = dynamic_cast<const Sum&>(*other);
         ExprVector newMembers = otherAdd.getMembers();
         for(size_t i = 0; i<newMembers.size(); i++) {
@@ -901,7 +901,7 @@ Expression Function::distribute(Expression other) const {
         }
         return *new Expression(new Sum(newMembers));
     }
-    if(otherType == MULTYPE) {
+    if(otherType == PRODUCTTYPE) {
         const Product& otherMul = dynamic_cast<const Product&>(*other);
         ExprVector newMembers = *new ExprVector();
         ExprVector otherMembers = otherMul.getMembers();
@@ -911,7 +911,7 @@ Expression Function::distribute(Expression other) const {
         }
         return *new Expression(new Product(newMembers));
     }
-    if(otherType == FRACTYPE) {
+    if(otherType == FRACTIONTYPE) {
         const Fraction& otherFrac = dynamic_cast<const Fraction&>(*other);
         return *new Expression(new Fraction(distribute(otherFrac.getNumerator()),otherFrac.getDenomenator()));
     }
