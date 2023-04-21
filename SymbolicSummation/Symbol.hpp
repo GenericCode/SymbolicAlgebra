@@ -33,7 +33,6 @@ public:
     Expression reciprocal() const;
     Expression determinant() const;
     Expression transpose() const;
-    Expression cancelTerms() const;
     ExprVector getFactors() const;
     
     Symbol(const Symbol& target);

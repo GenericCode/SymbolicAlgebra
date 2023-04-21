@@ -76,8 +76,8 @@ Expression Container::divide(Expression other) const {
         Expression result = *new Expression(new Mul(diffAB));
         return result.simplify();
     }
-    Expression numerator = *new Expression(new Mul(diffAB));
-    Expression denomenator = *new Expression(new Mul(diffBA));
+    Expression numerator = (diffAB.size() == 1) ? diffAB[0] : *new Expression(new Mul(diffAB));
+    Expression denomenator = (diffBA.size() == 1) ? diffBA[0] : *new Expression(new Mul(diffBA));
     return *new Expression(new Frac(numerator,denomenator));
 };
 Expression Container::subtract(Expression other) const {
@@ -264,7 +264,19 @@ Expression Add::cancelTerms() const {
     return *new Expression(new Add(newMembers));
 };
 ExprVector Add::getFactors() const {
-    return commonFactors(members);
+    Expression thisExpr = *new Expression(this);
+    ExprVector factors = commonFactors(members);
+    if (factors.size() == 0)
+        return { thisExpr };
+    ExprVector memberRemainders = members;
+    for (int i = 0; i < members.size(); i++) {
+        for (int j = 0; j < factors.size(); j++) {
+            memberRemainders[i] = cancelFactor(memberRemainders[i], factors[j]);
+        }
+    }
+    Expression remainderSum = *new Expression(new Add(memberRemainders));
+    factors.push_back(remainderSum);
+    return factors;
 };
 
 //Sign
@@ -372,6 +384,9 @@ Mul::Mul(const Mul& target) {
     name = target.name;
 };
 Mul::Mul(ExprVector newMembers) {
+    if (newMembers.size() <= 1) {
+        std::cout << "blah";
+    }
     members = *new ExprVector(newMembers);
     name = (*this).print();
 };
@@ -412,23 +427,21 @@ String Mul::print() const {
 
 Expression simplifyMulWithPauliMatrices(Expression target) {
     Expression total;
-    Expression remainder = *new Expression(target.get());
+    Expression remainder = target;
     Expression firstPauli = getElementOfType(target, PAULIMATRIXTYPE);
     if(firstPauli.getTypeHash() == NULLTYPE)
-        return *new Expression(target.get());
+        return target;
     total = ONE;
     
     while(firstPauli.getTypeHash() != NULLTYPE && remainder != ZERO && remainder != ONE) {
-        remainder = removeElementMultiplicatively(remainder, firstPauli);
+        remainder = removeElementMultiplicatively(remainder, firstPauli);//cancelFactor(remainder, firstPauli);
         Expression secondPauli = getMatrixMatchingPauliFlavor(remainder, firstPauli);
         Expression tempResult = firstPauli;
         while(secondPauli.getTypeHash() != NULLTYPE && remainder != ZERO && remainder != ONE) {
-            remainder = removeElementMultiplicatively(remainder, secondPauli);//remainder = remainder.remove(secondPauli);
+            remainder = removeElementMultiplicatively(remainder, secondPauli);//cancelFactor(remainder, secondPauli);//remainder = remainder.remove(secondPauli);
             tempResult = tempResult*secondPauli;
             secondPauli = getMatrixMatchingPauliFlavor(remainder, firstPauli);
         }
-        //if(tempResult.getTypeHash() == NULLTYPE)
-        //    tempResult = firstPauli;
         
         firstPauli = getElementOfType(remainder, PAULIMATRIXTYPE);
         total = total*tempResult;
@@ -484,11 +497,11 @@ Expression Mul::simplify() const {
             if(first.getTypeHash() == NULLTYPE)
                 continue;
             Expression remainder;// = result.remove(first);
-            remainder = removeElementMultiplicatively(result, first);
+            remainder = removeElementMultiplicatively(result, first);//cancelFactor(result, first);
             Expression second = getElementOfType(remainder, type);//remainder.getFirstInstanceOfType(type);
             Expression total = first;
             while(second.getTypeHash() != NULLTYPE && remainder != ONE) {
-                remainder = removeElementMultiplicatively(remainder, second);//remainder = remainder.remove(second);
+                remainder = removeElementMultiplicatively(remainder, second);//cancelFactor(remainder, second);//remainder = remainder.remove(second);
                 total = total*second;
                 second = getElementOfType(remainder, type);//remainder.getFirstInstanceOfType(type);
             }
@@ -740,7 +753,7 @@ Expression Exp::distribute(Expression other) const {
         Expression testTarget = getElementOfType(other, EXPTYPE);
         if(testTarget.getTypeHash() != NULLTYPE) {
             Expression product = thisExpr*testTarget;
-            return product*removeElementMultiplicatively(other, testTarget);
+            return product*cancelFactor(other, testTarget);
         }
         const Mul& otherMul = dynamic_cast<const Mul&>(*other);
         ExprVector newMembers = *new ExprVector();
@@ -758,7 +771,10 @@ Expression Exp::distribute(Expression other) const {
     return *new Expression(new Mul(thisExpr,other));
 };
 Expression Exp::factor() const {
-    return *new Expression(new Mul(getFactors()));
+    ExprVector factors = getFactors();
+    if(factors.size() > 1)
+        return *new Expression(new Mul(factors));
+    return *new Expression(this);
 };
 Expression Exp::reciprocal() const {
     return *new Expression(new Exp(base,-exponent));

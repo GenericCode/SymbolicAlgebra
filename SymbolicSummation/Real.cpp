@@ -111,7 +111,7 @@ Expression Real::divide(Expression other) const {
 };
 String Real::print() const {
     String result;
-    if((float)ceilf(value) == value)
+    if((double)ceilf(value) == value)
         result = std::to_string((int)value);
     else
         result = std::to_string(value);
@@ -156,7 +156,12 @@ Expression Real::distribute(Expression other) const {
     return *new Expression(new Mul(newMembers));
 };
 Expression Real::factor() const {
-    return *new Expression(new Mul(getFactorsOfInt(*new Expression(this))));
+    Expression thisExpr = *new Expression(this);
+    ExprVector factors = getFactorsOfInt(thisExpr);
+    if(factors.size() > 1)
+        return *new Expression(new Mul(factors));
+    return thisExpr;
+
 };
 Expression Real::reciprocal() const {
     return *new Expression(new Frac(*new Expression(this)));

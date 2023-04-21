@@ -29,7 +29,7 @@ Expression Symbol::divide(Expression other) const {
         return ONE;
     }
     if(exprVectorContains(other.getFactors(), thisExpr)) {
-        return *new Expression(new Frac(removeElementMultiplicatively(other, thisExpr)));
+        return *new Expression(new Frac(cancelFactor(other, thisExpr)));
     }
     return *new Expression(new Frac(thisExpr,other));
 };
@@ -263,7 +263,7 @@ Expression Matrix::add(Expression other) const {
     if(matTarget.getTypeHash() == NULLTYPE)
         return *new Expression(new Add(thisExpr,other));
     const Matrix& otherMat = dynamic_cast<const Matrix&>(*matTarget);
-    Expression otherCoefficent = removeElementMultiplicatively(other, matTarget);//other.remove(matTarget);
+    Expression otherCoefficent = cancelFactor(other, matTarget);//other.remove(matTarget);
     ExprMatrix distrElements = *new ExprMatrix();
     for(size_t i = 0; i<otherMat.dimensions.first; i++) {
         ExprVector currentColumn = *new ExprVector();
@@ -358,7 +358,7 @@ Expression Matrix::distribute(Expression other) const {
         Expression testTarget = getElementOfType(other, MATRIXTYPE);
         if(testTarget.getTypeHash() != NULLTYPE) {
             Expression product = thisExpr*testTarget;
-            return product*removeElementMultiplicatively(other, testTarget);
+            return product*cancelFactor(other, testTarget);
         }
         const Mul& otherMul = dynamic_cast<const Mul&>(*other);
         ExprVector newMembers = *new ExprVector();
@@ -495,7 +495,7 @@ Expression EuclidVector::distribute(Expression other) const {
         Expression testTarget = getElementOfType(other, EUCLIDVECTORTYPE);
         if(testTarget.getTypeHash() != NULLTYPE) {
             Expression product = thisExpr*testTarget;
-            return product*removeElementMultiplicatively(other, testTarget);
+            return product*cancelFactor(other, testTarget);
         }
         const Mul& otherMul = dynamic_cast<const Mul&>(*other);
         ExprVector newMembers = *new ExprVector();

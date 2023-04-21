@@ -123,7 +123,7 @@ Expression spinIsospinSummation(ExprVector interactions, bool threeBody = false 
     Expression directPotential = substitute(potential, qOneX, ZERO);
     directPotential = substitute(directPotential, qOneY, ZERO);
     directPotential = substitute(directPotential, qOneZ, ZERO);*/
-    //std::cout << potential.print()+"\n";
+    std::cout << potential.print()+"\n";
     //potential = ONE;
     Expression total = ZERO;
     for(int sigmaOne = 1; sigmaOne>=0; sigmaOne--) {
@@ -185,11 +185,11 @@ Expression spinIsospinSummation(ExprVector interactions, bool threeBody = false 
                                         else
                                             std::cout<<"Exchange\n";
                                         Expression contribution = matrixElement(potential, sigmaOneStates[sigmaOne], sigmaOneStates[sigmaOneFinal]);
-                                        std::cout<<contribution.print()+"\n";
+                                        //std::cout<<contribution.print()+"\n";
                                         contribution = matrixElement(contribution, sigmaTwoStates[sigmaTwo], sigmaTwoStates[sigmaTwoFinal]);
-                                        std::cout<<contribution.print()+"\n";
+                                        //std::cout<<contribution.print()+"\n";
                                         contribution = matrixElement(contribution, tauOneStates[tauOne], tauOneStates[tauOneFinal]);
-                                        std::cout<<contribution.print()+"\n";
+                                        //std::cout<<contribution.print()+"\n";
                                         contribution = matrixElement(contribution, tauTwoStates[tauTwo], tauTwoStates[tauTwoFinal]);
                                         std::cout<<contribution.print()+"\n";
                                         totalForCurrentStates = totalForCurrentStates + contribution;

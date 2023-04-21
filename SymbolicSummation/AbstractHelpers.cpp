@@ -528,7 +528,7 @@ bool exprVectorContains(ExprVector list, Expression target, bool rightToLeft) {
     return positionOfElement(list, target, rightToLeft) >= 0;
 }
 
-ExprVector removeElementFromVector(ExprVector source, Expression target, bool rightToLeft = false) {
+ExprVector removeElementFromVector(ExprVector source, Expression target, bool rightToLeft) {
     ExprVector result = *new ExprVector();
     int location = positionOfElement(source, target, rightToLeft);
     if(location < 0)
@@ -541,6 +541,30 @@ ExprVector removeElementFromVector(ExprVector source, Expression target, bool ri
     }
     return result;
 }
+
+Expression cancelFactor(Expression source, Expression target) {
+    //std::cout << source.print() + "/" + target.print();
+    size_t sourceType = source.getTypeHash();
+    ExprVector factors = source.getFactors();
+    ExprVector newMembers = removeElementFromVector(factors, target);
+    Expression result;
+    if (newMembers.size() == 1) {
+         result = newMembers[0];
+    }
+    else if (newMembers.size() == 0) {
+        result = ONE;
+    }
+    else if (newMembers.size() == factors.size()) {
+        result = *new Expression(new NullObject("Source did not contain factor to remove"));
+    }
+    else {
+        result = *new Expression(new Mul(newMembers));
+    }
+    //std::cout << " = " + result.print() + "\n";
+    return result;
+    
+}
+
 
 Expression removeElementMultiplicatively(Expression source, Expression target, bool rightToLeft) {
     if(source == target)
@@ -597,6 +621,7 @@ Expression removeElementMultiplicatively(Expression source, Expression target, b
         return ONE;
     return *new Expression(new NullObject("could not remove target multiplicatively"));
 };
+/*
 Expression removeElementAdditively(Expression source, Expression target, bool rightToLeft) {
     if(source == target)
         return ZERO;//*new Expression(new NullObject("this is what happens when you remove something from itself!"));
@@ -611,13 +636,14 @@ Expression removeElementAdditively(Expression source, Expression target, bool ri
     if(newMembers.size() == 0)
         return ZERO;
     return *new Expression(new Add(*new ExprVector(newMembers)));
-};
+};*/
+/*
 Expression removeElementAbsolutely(Expression source, Expression target, bool rightToLeft) {
     if(source.getTypeHash() == ADDTYPE)
         return removeElementAdditively(source, target, rightToLeft);
     else
         return removeElementMultiplicatively(source, target,rightToLeft);
-};
+};*/
 
 Expression getElementOfType(Expression source, size_t type, bool rightToLeft) {
     size_t sourceType = source.getTypeHash();
@@ -713,7 +739,7 @@ Expression getMatrixMatchingPauliFlavor(Expression target, Expression matrixToMa
     }
     Expression remainder = *new Expression(target.get());//removeElementAbsolutely(target, matrixToCheck);//target.remove(matrixToCheck);
     while(result.getTypeHash() == NULLTYPE && matrixToCheck.getTypeHash() != NULLTYPE) {
-        remainder = removeElementAbsolutely(remainder, matrixToCheck);//remainder.remove(matrixToCheck);
+        remainder = cancelFactor(remainder, matrixToCheck);//remainder.remove(matrixToCheck);
         const PauliMatrix& matrixObjToCheck = dynamic_cast<const PauliMatrix&>(*matrixToCheck);
         if(matrixObjToCheck.flavor == flavorToFind ) {//&& *matrixToCheck != matrixToMatch) {
             if(sign)

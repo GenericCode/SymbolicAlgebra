@@ -112,7 +112,7 @@ Expression PauliMatrix::add(Expression other) const {
         //Expression result = combineSums(thisExpr, other);
         //return result;
     }
-    Expression otherCoefficent = removeElementMultiplicatively(other, pauliTarget);//other->remove(pauliTarget);
+    Expression otherCoefficent = cancelFactor(other, pauliTarget);//other->remove(pauliTarget);
     ExprMatrix distrElements = *new ExprMatrix();
     for(size_t i = 0; i<targetMatrix.dimensions.first; i++) {
         ExprVector currentColumn = *new ExprVector();
@@ -192,7 +192,7 @@ Expression PauliMatrix::distribute(Expression other) const {
         //This below is fucked.
         if(testTarget.getTypeHash() != NULLTYPE) {
             Expression product = thisExpr*testTarget;
-            return product*removeElementMultiplicatively(other, testTarget);
+            return product*cancelFactor(other, testTarget);
         }
         const Mul& otherMul = dynamic_cast<const Mul&>(*other);
         ExprVector newMembers = *new ExprVector();

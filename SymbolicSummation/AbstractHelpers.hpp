@@ -28,9 +28,12 @@ String printExprMatrix(ExprMatrix target);
 Expression getElementOfType(Expression source, size_t type, bool rightToLeft = false);
 Expression getElementMatchingCondition(Expression source, std::function<bool(Expression)>, bool rightToLeft = false);
 Expression getMatrixMatchingPauliFlavor(Expression target, Expression matrixToMatch);
+ExprVector removeElementFromVector(ExprVector source, Expression target, bool rightToLeft = false);
+Expression cancelFactor(Expression source, Expression target);
 Expression removeElementMultiplicatively(Expression source, Expression target, bool rightToLeft = false);
-Expression removeElementAdditively(Expression source, Expression target, bool rightToLeft = false);
-Expression removeElementAbsolutely(Expression source, Expression target, bool rightToLeft = false);
+//Expression removeElementAdditively(Expression source, Expression target, bool rightToLeft = false);
+//Expression removeElementAbsolutely(Expression source, Expression target, bool rightToLeft = false);
+
 Expression replaceElement(Expression source, Expression target, Expression value, bool rightToLeft = false);
 ExprVector replaceElementInVector(ExprVector source, Expression target, Expression value, bool rightToLeft = false);
 Expression replaceElementOfType(Expression source, size_t type, Expression value, bool rightToLeft = false);

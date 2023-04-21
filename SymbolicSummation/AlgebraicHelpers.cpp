@@ -382,6 +382,7 @@ Expression simplifySubExpressions(Expression target) {
 }
 */
 
+/*
 Expression simplifyPauliMatrices(Expression target) {
     bool isMul = target->getTypeHash() == MULTYPE;
     bool isAdd = target->getTypeHash() == ADDTYPE;
@@ -448,7 +449,7 @@ Expression simplifyPauliMatrices(Expression target) {
         }
     }
     return total;
-}
+}*/
 
 /*
 Expression simplify(Expression target) {
@@ -584,22 +585,9 @@ Expression simplify(Expression target) {
 ExprVector cancelCommonFactors(ExprVector targets) {
     ExprVector results = targets;
     ExprVector factors = commonFactors(results);
-    for(size_t i = 0; i<factors.size(); i++) {
-        for(size_t j =0; j<results.size(); j++) {
-            results[j] = results[j].factor();
-            //bool isContainer = isSubtypeOf(results[j], OPERATORTYPE);
-            //if(isContainer)
-                results[j] = removeElementMultiplicatively(results[j], factors[i]);
-            //else
-            //    results[j] = results[j]/commonFactors[i];
-            results[j] = results[j].simplify();
-            if(results[j].getTypeHash() == NULLTYPE) {
-                const NullObject& nullObj = dynamic_cast<const NullObject&>(*results[j]);
-                if(nullObj.origin == "this is what happens when you remove something from itself!")
-                    results[j] = ONE;
-                else
-                    results[j] = targets[j];
-            }
+    for(size_t i = 0; i<results.size(); i++) {
+        for(size_t j = 0; j<factors.size(); j++) {
+            results[i] = cancelFactor(results[i], factors[j]);
         }
     }
     return results;
