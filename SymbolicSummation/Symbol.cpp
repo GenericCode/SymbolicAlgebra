@@ -29,7 +29,7 @@ Expression Symbol::divide(Expression other) const {
         return ONE;
     }
     if(exprVectorContains(other.getFactors(), thisExpr)) {
-        return *new Expression(new Frac(cancelFactor(other, thisExpr)));
+        return *new Expression(new Fraction(cancelFactor(other, thisExpr)));
     }
     return *new Expression(new Fraction(thisExpr,other));
 };

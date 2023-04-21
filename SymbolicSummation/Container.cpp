@@ -76,9 +76,9 @@ Expression Container::divide(Expression other) const {
         Expression result = *new Expression(new Product(diffAB));
         return result.simplify();
     }
-    Expression numerator = (diffAB.size() == 1) ? diffAB[0] : *new Expression(new Mul(diffAB));
-    Expression denomenator = (diffBA.size() == 1) ? diffBA[0] : *new Expression(new Mul(diffBA));
-    return *new Expression(new Frac(numerator,denomenator));
+    Expression numerator = (diffAB.size() == 1) ? diffAB[0] : *new Expression(new Product(diffAB));
+    Expression denomenator = (diffBA.size() == 1) ? diffBA[0] : *new Expression(new Product(diffBA));
+    return *new Expression(new Fraction(numerator,denomenator));
 };
 Expression Container::subtract(Expression other) const {
     Expression thisExpr = *new Expression(this);
@@ -91,7 +91,7 @@ Expression Container::subtract(Expression other) const {
 Expression Container::negate() const {
     return *new Expression(new Sign(*new Expression(this)));
 };
-//Add
+//Sum
 Sum::~Sum() {
     //delete &members;
     //delete &name;
@@ -195,7 +195,7 @@ Expression Sum::reciprocal() const {
 Expression Sum::determinant() const {
     Expression simpled = simplify();
     if(simpled.getTypeHash() == SUMTYPE)
-        throw std::logic_error("no general formula for determinant of uncombined sum");
+        throw std::logic_error("no general forProducta for determinant of uncombined sum");
     return simpled.determinant();
 };
 Expression Sum::transpose() const {
@@ -263,7 +263,7 @@ Expression Sum::cancelTerms() const {
         return ZERO;
     return *new Expression(new Sum(newMembers));
 };
-ExprVector Add::getFactors() const {
+ExprVector Sum::getFactors() const {
     Expression thisExpr = *new Expression(this);
     ExprVector factors = commonFactors(members);
     if (factors.size() == 0)
@@ -274,7 +274,7 @@ ExprVector Add::getFactors() const {
             memberRemainders[i] = cancelFactor(memberRemainders[i], factors[j]);
         }
     }
-    Expression remainderSum = *new Expression(new Add(memberRemainders));
+    Expression remainderSum = *new Expression(new Sum(memberRemainders));
     factors.push_back(remainderSum);
     return factors;
 };
@@ -368,7 +368,7 @@ Sign::Sign(Expression expr) {
     (*this).member = *new Expression(expr);
     (*this).name = "-"+member.print();
 };
-//Mul
+//Product
 Product::~Product() {
     //delete &members;
     //delete &name;
@@ -422,7 +422,7 @@ String Product::print() const {
     return result;
 };
 
-Expression simplifyMulWithPauliMatrices(Expression target) {
+Expression simplifyProductWithPauliMatrices(Expression target) {
     Expression total;
     Expression remainder = target;
     Expression firstPauli = getElementOfType(target, PAULIMATRIXTYPE);
@@ -447,11 +447,11 @@ Expression simplifyMulWithPauliMatrices(Expression target) {
         total = total*remainder;
     }
     if(total.getTypeHash() == PRODUCTTYPE) {
-        const Product& mulObj = dynamic_cast<const Product&>(*total);
-        if(mulObj.getMembers().size() == 0)
+        const Product& ProductObj = dynamic_cast<const Product&>(*total);
+        if(ProductObj.getMembers().size() == 0)
             return ZERO;
-        if(mulObj.getMembers().size() == 1)
-            return mulObj.getMembers()[0];
+        if(ProductObj.getMembers().size() == 1)
+            return ProductObj.getMembers()[0];
     }
     if(total.getTypeHash() == SUMTYPE) {
         const Sum& addObj = dynamic_cast<const Sum&>(*total);
@@ -472,8 +472,8 @@ Expression Product::simplify() const {
     ExprVector newerMembers = *new ExprVector();
     for(int i=0; i<newMembers.size(); i++) {
         if(newMembers[i].getTypeHash() == PRODUCTTYPE) {
-            const Product& subMul = dynamic_cast<const Product&>(*newMembers[i]);
-            newerMembers = setUnion(newerMembers, subMul.getMembers());
+            const Product& subProduct = dynamic_cast<const Product&>(*newMembers[i]);
+            newerMembers = setUnion(newerMembers, subProduct.getMembers());
         } else if( isNegative(newMembers[i]) ) {
             newerMembers.push_back(-newMembers[i]);
             signOfThis = signOfThis != true;
@@ -487,7 +487,7 @@ Expression Product::simplify() const {
     std::function<bool(Expression)> checker;
     for(size_t type : types) {
         if(type == PAULIMATRIXTYPE) {
-            result = simplifyMulWithPauliMatrices(result);
+            result = simplifyProductWithPauliMatrices(result);
         }
         else {//all cases but simplifying pauli matrices
             Expression first = getElementOfType(result, type);
@@ -521,8 +521,8 @@ Expression Product::simplify() const {
 };
 Expression Product::distribute(Expression other) const {
     if(other.getTypeHash() == PRODUCTTYPE) {
-        const Product& otherMul = dynamic_cast<const Product&>(*other);
-        return *new Expression(new Product(setUnion(members, otherMul.getMembers())));
+        const Product& otherProduct = dynamic_cast<const Product&>(*other);
+        return *new Expression(new Product(setUnion(members, otherProduct.getMembers())));
     }
     if(other.getTypeHash() == SUMTYPE) {
         const Sum& otherAdd= dynamic_cast<const Sum&>(*other);
@@ -542,32 +542,32 @@ Expression Product::factor() const {
         Expression memberFactored = members[i].factor();
         newMembers.push_back(memberFactored);
     }
-    Expression newMul = *new Expression(new Product(newMembers));
-    return newMul;
+    Expression newProduct = *new Expression(new Product(newMembers));
+    return newProduct;
 };
 Expression Product::reciprocal() const {
     ExprVector newMembers = *new ExprVector();
     for(size_t i = (int)members.size()-1; i>=0; i--) {
         newMembers.push_back(members[i].reciprocal());
     }
-    Expression newMul = *new Expression(new Product(newMembers));
-    return newMul;
+    Expression newProduct = *new Expression(new Product(newMembers));
+    return newProduct;
 };
 Expression Product::determinant() const {
     ExprVector newMembers = *new ExprVector();
     for(size_t i = 0; i<members.size(); i++) {
         newMembers.push_back(members[i].determinant());
     }
-    Expression newMul = *new Expression(new Product(newMembers));
-    return newMul;
+    Expression newProduct = *new Expression(new Product(newMembers));
+    return newProduct;
 };
 Expression Product::transpose() const {
     ExprVector newMembers = *new ExprVector();
     for(size_t i = (int)members.size()-1; i>=0; i--) {
         newMembers.push_back(members[i].transpose());
     }
-    Expression newMul = *new Expression(new Product(newMembers));
-    return newMul;
+    Expression newProduct = *new Expression(new Product(newMembers));
+    return newProduct;
 };
 ExprVector Product::getFactors() const {
     ExprVector factors = *new ExprVector();
@@ -576,7 +576,7 @@ ExprVector Product::getFactors() const {
     }
     return factors;
 };
-//Frac
+//Fraction
 Fraction::~Fraction() {
     delete &numerator;
     delete &denomenator;
@@ -762,9 +762,9 @@ Expression Exponent::distribute(Expression other) const {
             Expression product = thisExpr*testTarget;
             return product*cancelFactor(other, testTarget);
         }
-        const Product& otherMul = dynamic_cast<const Product&>(*other);
+        const Product& otherProduct = dynamic_cast<const Product&>(*other);
         ExprVector newMembers = *new ExprVector();
-        ExprVector otherMembers = otherMul.getMembers();
+        ExprVector otherMembers = otherProduct.getMembers();
         newMembers.push_back(thisExpr);
         for(size_t i = 0; i<otherMembers.size(); i++) {
             newMembers.push_back(otherMembers[i]);
@@ -775,16 +775,16 @@ Expression Exponent::distribute(Expression other) const {
         const Fraction& otherFrac = dynamic_cast<const Fraction&>(*other);
         return *new Expression(new Fraction(distribute(otherFrac.getNumerator()),otherFrac.getDenomenator()));
     }
-    return *new Expression(new Mul(thisExpr,other));
+    return *new Expression(new Product(thisExpr,other));
 };
 Expression Exponent::factor() const {
     ExprVector factors = getFactors();
     if(factors.size() > 1)
-        return *new Expression(new Mul(factors));
+        return *new Expression(new Product(factors));
     return *new Expression(this);
 };
 Expression Exponent::reciprocal() const {
-    return *new Expression(new Exp(base,-exponent));
+    return *new Expression(new Exponent(base,-exponent));
 };
 Expression Exponent::determinant() const {
     return *new Expression(this);
@@ -902,9 +902,9 @@ Expression Function::distribute(Expression other) const {
         return *new Expression(new Sum(newMembers));
     }
     if(otherType == PRODUCTTYPE) {
-        const Product& otherMul = dynamic_cast<const Product&>(*other);
+        const Product& otherProduct = dynamic_cast<const Product&>(*other);
         ExprVector newMembers = *new ExprVector();
-        ExprVector otherMembers = otherMul.getMembers();
+        ExprVector otherMembers = otherProduct.getMembers();
         newMembers.push_back(thisExpr);
         for(size_t i = 0; i<otherMembers.size(); i++) {
             newMembers.push_back(otherMembers[i]);

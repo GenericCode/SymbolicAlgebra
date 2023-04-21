@@ -558,7 +558,7 @@ Expression cancelFactor(Expression source, Expression target) {
         result = *new Expression(new NullObject("Source did not contain factor to remove"));
     }
     else {
-        result = *new Expression(new Mul(newMembers));
+        result = *new Expression(new Product(newMembers));
     }
     //std::cout << " = " + result.print() + "\n";
     return result;
@@ -621,28 +621,6 @@ Expression removeElementMultiplicatively(Expression source, Expression target, b
         return ONE;
     return *new Expression(new NullObject("could not remove target multiplicatively"));
 };
-/*
-Expression removeElementAdditively(Expression source, Expression target, bool rightToLeft) {
-    if(source == target)
-        return ZERO;//*new Expression(new NullObject("this is what happens when you remove something from itself!"));
-    if(source.getTypeHash() != SUMTYPE)
-        return *new Expression(new NullObject("could not remove target additively"));
-    const Sum& sourceObj = dynamic_cast<const Sum&>(*source);
-    ExprVector newMembers = removeElementFromVector(sourceObj.getMembers(), target);
-    if(newMembers == sourceObj.getMembers())
-        return *new Expression(new NullObject("could not find target to remove"));
-    if(newMembers.size() == 1)
-        return newMembers[0];
-    if(newMembers.size() == 0)
-        return ZERO;
-    return *new Expression(new Sum(*new ExprVector(newMembers)));
-};
-Expression removeElementAbsolutely(Expression source, Expression target, bool rightToLeft) {
-    if(source.getTypeHash() == SUMTYPE)
-        return removeElementAdditively(source, target, rightToLeft);
-    else
-        return removeElementMultiplicatively(source, target,rightToLeft);
-};*/
 
 Expression getElementOfType(Expression source, size_t type, bool rightToLeft) {
     size_t sourceType = source.getTypeHash();

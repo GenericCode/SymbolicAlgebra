@@ -159,7 +159,7 @@ Expression Real::factor() const {
     Expression thisExpr = *new Expression(this);
     ExprVector factors = getFactorsOfInt(thisExpr);
     if(factors.size() > 1)
-        return *new Expression(new Mul(factors));
+        return *new Expression(new Product(factors));
     return thisExpr;
 
 };
