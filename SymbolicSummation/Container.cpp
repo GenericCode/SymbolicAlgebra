@@ -209,16 +209,16 @@ Expression Sum::cancelTerms() const {
     std::vector<int> accountedFor = *new std::vector<int>();
     ExprVector newMembers = *new ExprVector();
     for(size_t i = 0; i<members.size(); i++) {
-        if(intVectorContains(accountedFor, i))
+        if(intVectorContains(accountedFor, (int)i))
             continue;
         Expression runningSum = members[i];
-        accountedFor.push_back(i);
+        accountedFor.push_back((int)i);
         for(size_t j =i; j<members.size(); j++) {
-            if(intVectorContains(accountedFor, j))
+            if(intVectorContains(accountedFor, (int)j))
                 continue;
             Expression currExpr = members[j];
             if(currExpr == ZERO) {
-                accountedFor.push_back(j);
+                accountedFor.push_back((int)j);
                 continue;
             }
             if(currExpr == runningSum) {
@@ -226,11 +226,11 @@ Expression Sum::cancelTerms() const {
                     runningSum = -2*(-runningSum);
                 else
                     runningSum = 2*runningSum;
-                accountedFor.push_back(j);
+                accountedFor.push_back((int)j);
                 continue;
             }
             if(currExpr == -runningSum || -currExpr == runningSum) {
-                accountedFor.push_back(j);
+                accountedFor.push_back((int)j);
                 runningSum = ZERO;
                 break;
             }
@@ -254,7 +254,7 @@ Expression Sum::cancelTerms() const {
             if(testCombine.getTypeHash() == SUMTYPE)
                 continue;
             runningSum = testCombine*inCommon;
-            accountedFor.push_back(j);
+            accountedFor.push_back((int)j);
         }
         if(runningSum != ZERO)
             newMembers.push_back(runningSum);

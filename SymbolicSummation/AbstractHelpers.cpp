@@ -466,14 +466,14 @@ int positionOfElement(ExprVector list, Expression target, bool rightToLeft) {
     if(!rightToLeft) {
         while(i<list.size()) {
             if(list[i] == target)
-                return i;
+                return (int)i;
             i++;
         }
     } else {
         i = (int)list.size()-1;
         while(i>=0) {
             if(list[i] == target)
-                return i;
+                return (int)i;
             i--;
         }
     }
@@ -485,14 +485,14 @@ int positionOfElementIgnoringSign(ExprVector list, Expression target, bool right
     if(!rightToLeft) {
         while(i<list.size()) {
             if(list[i] == target || -list[i] == target)
-                return i;
+                return (int)i;
             i++;
         }
     } else {
         i = (int)list.size()-1;
         while(i>=0) {
             if(list[i] == target || -list[i] == target)
-                return i;
+                return (int)i;
             i--;
         }
     }
@@ -504,7 +504,7 @@ int positionOfType(ExprVector list, size_t type, bool rightToLeft) {
     if(!rightToLeft) {
         while(i<(int)list.size()) {
             if(isTypeSimilarTo(list[i], type)) {
-                return i;
+                return (int)i;
             }
             i++;
         }
@@ -512,7 +512,7 @@ int positionOfType(ExprVector list, size_t type, bool rightToLeft) {
         i = (int)list.size()-1;
         while(i>=0) {
             if(isTypeSimilarTo(list[i], type)) {
-                return i;
+                return (int)i;
             }
             i--;
         }
@@ -544,7 +544,7 @@ ExprVector removeElementFromVector(ExprVector source, Expression target, bool ri
 
 Expression cancelFactor(Expression source, Expression target) {
     //std::cout << source.print() + "/" + target.print();
-    size_t sourceType = source.getTypeHash();
+    //size_t sourceType = source.getTypeHash();
     ExprVector factors = source.getFactors();
     ExprVector newMembers = removeElementFromVector(factors, target);
     Expression result;
@@ -762,9 +762,9 @@ ExprVector setIntersect(ExprVector setA, ExprVector setB) {
     std::vector<int> countedB = *new std::vector<int>();
     for(size_t i = 0; i<setA.size(); i++) {
         for(size_t j = 0; j<setB.size(); j++) {
-            if(setA[i] == setB[j] && !intVectorContains(countedB, j)) {
+            if(setA[i] == setB[j] && !intVectorContains(countedB, (int)j)) {
                 result.push_back(setA[i]);
-                countedB.push_back(j);
+                countedB.push_back((int)j);
                 break;
             }
         }
@@ -777,9 +777,9 @@ ExprVector setDifference(ExprVector setA, ExprVector setB) {
     for(size_t i = 0; i<setA.size(); i++) {
         bool containedInB = false;
         for(size_t j = 0; j<setB.size(); j++) {
-            if( setA[i] == setB[j] && !intVectorContains(countedB, j) ) {
+            if( setA[i] == setB[j] && !intVectorContains(countedB, (int)j) ) {
                 containedInB = true;
-                countedB.push_back(j);
+                countedB.push_back((int)j);
                 break;
             }
         }
