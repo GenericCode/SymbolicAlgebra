@@ -180,7 +180,7 @@ ExprVector Real::getFactors() const {
 };
 
 Expression Zero::add(Expression other) const {
-    return *new Expression(other);
+    return other;
 };
 
 Expression Zero::subtract(Expression other) const {
@@ -196,5 +196,5 @@ Expression Zero::negate() const {
 };
 
 Expression One::multiply(Expression other) const {
-    return *new Expression(other);
+    return other;
 };

@@ -179,12 +179,12 @@ Matrix::~Matrix() {
 
 Matrix::Matrix(const Matrix& target) : Symbol(target.name) {
     elements = *new ExprMatrix(target.elements);
-    dimensions = *new std::pair<int,int>(target.dimensions);
+    dimensions = target.dimensions;
 };
 
 Matrix& Matrix::operator=(const Matrix &target) {
     elements = *new ExprMatrix(target.elements);
-    dimensions = *new std::pair<int,int>(target.dimensions);
+    dimensions = target.dimensions;
     return *this;
 }
 
@@ -210,12 +210,11 @@ Matrix::Matrix(String name, std::vector<int> newDimensions) : Symbol(name) {
 };//empty matrix
 Matrix::Matrix(Expression diag, int newDim)  : Symbol("I*"+diag.print()) {
     ExprMatrix newElements = *new ExprMatrix();
-    Expression diagElement = *new Expression(diag);
     for(size_t i = 0; i< newDim; i++) {
     ExprVector currColumn = *new ExprVector();
-        for(size_t j =0; j< newDim; j++) {
+        for(size_t j = 0; j< newDim; j++) {
             if(i == j)
-                currColumn.push_back(diagElement);
+                currColumn.push_back(diag);
             else
                 currColumn.push_back(ZERO);
         }
@@ -467,7 +466,7 @@ EuclidVector::EuclidVector(const EuclidVector& target) : Matrix(target) {
 };
 EuclidVector& EuclidVector::operator=(const EuclidVector& target) {
     elements = *new ExprMatrix(target.elements);
-    dimensions = *new std::pair<int,int>(target.dimensions);
+    dimensions = target.dimensions;
     return *this;
 };
 EuclidVector::EuclidVector(String name, ExprVector newElements) : Matrix(name,{newElements}) {};

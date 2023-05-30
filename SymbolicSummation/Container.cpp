@@ -121,10 +121,8 @@ Sum::Sum(ExprVector newMembers) {
 };
 
 Sum::Sum(Expression left, Expression right) {
-    Expression newMem = *new Expression(left);
-    members.push_back(newMem);
-    newMem = *new Expression(right);
-    members.push_back(newMem);
+    members.push_back(left);
+    members.push_back(right);
     name = (*this).print();
 };
 Expression Sum::negate() const {
@@ -282,8 +280,8 @@ ExprVector Sum::getFactors() const {
 //Sign
 
 Sign::~Sign() {
-    delete &member;
-    delete &name;
+    //delete &member;
+    //delete &name;
 }
 
 Expression Sign::negate() const {
@@ -356,17 +354,17 @@ ExprVector Sign::getFactors() const {
 };
 
 Sign::Sign(const Sign& target) {
-    member = *new Expression(target.member);
+    member = target.member;
 };
 const Sign& Sign::operator=(const Sign& target) {
     if(this == &target)
         return *this;
-    member = *new Expression(target.member);
+    member = target.member;
     return *this;
 };
-Sign::Sign(Expression expr) {
-    (*this).member = *new Expression(expr);
-    (*this).name = "-"+member.print();
+Sign::Sign(Expression expression) {
+    member = expression;
+    name = "-"+member.print();
 };
 //Product
 Product::~Product() {
@@ -578,32 +576,32 @@ ExprVector Product::getFactors() const {
 };
 //Fraction
 Fraction::~Fraction() {
-    delete &numerator;
-    delete &denomenator;
-    delete &name;
+    //delete &numerator;
+    //delete &denomenator;
+    //delete &name;
 }
 Fraction& Fraction::operator=(const Fraction &target) {
     if(this == &target)
         return *this;
-    numerator = *new Expression(target.numerator);
-    denomenator = *new Expression(target.denomenator);
+    numerator = target.numerator;
+    denomenator = target.denomenator;
     return *this;
 };
 Fraction::Fraction(const Fraction& target) {
-    numerator = *new Expression(target.numerator);
-    denomenator = *new Expression(target.denomenator);
+    numerator = target.numerator;
+    denomenator = target.denomenator;
     name = target.name;
 };
 
 Fraction::Fraction(Expression denom) {
     numerator = ONE;
-    denomenator = *new Expression(denom);
-    name = (*this).print();
+    denomenator = denom;
+    name = print();
 };
 Fraction::Fraction(Expression num, Expression denom) {
-    numerator = *new Expression(num);
-    denomenator = *new Expression(denom);
-    name = (*this).print();
+    numerator = num;
+    denomenator = denom;
+    name = print();
 };
 Expression Fraction::negate() const {
     Expression negativeOf = -numerator;
@@ -654,32 +652,32 @@ ExprVector Fraction::getFactors() const {
 
 //Exp
 Exponent::~Exponent() {
-    delete &exponent;
-    delete &base;
-    delete &name;
+    //delete &exponent;
+    //delete &base;
+    //delete &name;
 }
 const Exponent& Exponent::operator=(const Exponent &target) {
     if(this == &target)
         return *this;
-    base = *new Expression(target.base);
-    exponent = *new Expression(target.exponent);
+    base = target.base;
+    exponent = target.exponent;
     return *this;
 };
 Exponent::Exponent(const Exponent& target) {
-    base = *new Expression(target.base);
-    exponent = *new Expression(target.exponent);
+    base = target.base;
+    exponent = target.exponent;
     name = target.name;
 };
 Exponent::Exponent(Expression newBase, Expression newExponent) {
-    base = *new Expression(newBase);
-    exponent = *new Expression(newExponent);
-    name = (*this).print();
+    base = newBase;
+    exponent = newExponent;
+    name = print();
 }
 
 Exponent::Exponent(Expression newBase, int newExponent) {
-    base = *new Expression(newBase);
+    base = newBase;
     exponent = declareReal(newExponent);
-    name = (*this).print();
+    name = print();
 }
 
 Expression Exponent::negate() const {
@@ -820,7 +818,7 @@ ExprVector Exponent::getFactors() const {
 //Func
 Function::Function(const Function& target) {
     functionAction = target.functionAction;
-    member = *new Expression(target.member);
+    member = target.member;
     funcName = target.funcName;
 }
 
@@ -828,7 +826,7 @@ Function& Function::operator=(const Function &target) {
     if(this == &target)
         return *this;
     functionAction = target.functionAction;
-    member = *new Expression(target.member);
+    member = target.member;
     funcName = target.funcName;
     return *this;
 }

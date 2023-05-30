@@ -114,8 +114,8 @@ Expression spinIsospinSummation(ExprVector interactions, bool threeBody = false 
     Expression pThreeY = declareSymbol("pThreeY");
     Expression pThreeZ = declareSymbol("pThreeZ");
     Expression pThreeVector = declareEuclidVector("pThreeVector", {pThreeX,pThreeY,pThreeZ});
-    Expression test = qOneVector*qTwoVector;
     Expression potential = parseString("-((tauOneVector*tauTwoVector)*(sigmaOneVector*qOneVector)*(sigmaTwoVector*qOneVector))");
+    //Expression potential = parseString("-((tauOneVector*tauTwoVector)*(sigmaOneVector*qOneVector)*(sigmaTwoVector*qOneVector))");
     //Expression potential = parseString("qOneVector*sigmaTwoVector");
     //Expression potential = parseString("(sigmaOneVector*qOneVector)*(sigmaTwoVector*qOneVector)");//first*second;
     potential = potential.simplify();
@@ -231,7 +231,7 @@ int main(int argc, const char * argv[]) {
     initializeDefaultSymbols();
     initializeDefaultFunctions();
     std::vector<String> interactions = {};
-    Expression result = spinIsospinSummation(interactions, false);
+    Expression result = spinIsospinSummation(interactions, true);
     //Expression result = parseString("2*qOneZ-qOneZ-qOneZ");
     //result = result.simplify();
     //Expression result = parseString("transpose[x]");

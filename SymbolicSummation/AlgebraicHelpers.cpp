@@ -1081,9 +1081,8 @@ Expression insertAsVariable(Expression target, Expression var) {
 }
 
 Expression substitute(Expression source, Expression target, Expression value) {
-    Expression valueExpr = *new Expression(value);
     if(source == target)
-        return valueExpr;
+        return value;
     size_t sourceType = source->getTypeHash();
     if(isTypeSimilarTo(source, MATRIXTYPE)) {
         const Matrix& matObj = dynamic_cast<const Matrix&>(*source);
@@ -1092,11 +1091,11 @@ Expression substitute(Expression source, Expression target, Expression value) {
         for(size_t i = 0; i<matObj.dimensions.first; i++) {
             for (size_t j =0; j<matObj.dimensions.second; j++) {
                 if(elements[i][j] == target) {
-                    elements[i][j] = valueExpr;
+                    elements[i][j] = value;
                     foundTarget = true;
                 }
                 if(-elements[i][j] == target || elements[i][j] == -target) {
-                    elements[i][j] = -valueExpr;
+                    elements[i][j] = -value;
                     foundTarget = true;
                 }
             }
@@ -1203,7 +1202,7 @@ Expression substitute(Expression source, Expression target, Expression value) {
 };
 
 Expression substitute(Expression source, std::vector<std::pair<Expression,Expression>> substitutions) {
-    Expression result = *new Expression(source);
+    Expression result = source;
     for(size_t i = 0; substitutions.size(); i++) {
         Expression temp = substitute(result, substitutions[i].first, substitutions[i].second);
         if(temp.getTypeHash() != NULLTYPE)

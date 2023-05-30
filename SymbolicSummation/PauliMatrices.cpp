@@ -29,15 +29,15 @@ PauliMatrix::PauliMatrix(String name, String flavor, ExprMatrix elements) : Matr
 }
 
 PauliMatrix::PauliMatrix(const PauliMatrix& target) : Matrix(target.name) {
-    (*this).elements = *new ExprMatrix(target.elements);
-    (*this).dimensions = *new std::pair<int,int>(target.dimensions);
-    (*this).flavor = target.flavor;
+    elements = *new ExprMatrix(target.elements);
+    dimensions = target.dimensions;
+    flavor = target.flavor;
 };
 
 PauliMatrix& PauliMatrix::operator=(const PauliMatrix& target) {
-    (*this).elements = *new ExprMatrix(target.elements);
-    (*this).dimensions = *new std::pair<int,int>(target.dimensions);
-    (*this).flavor = target.flavor;
+    elements = *new ExprMatrix(target.elements);
+    dimensions = target.dimensions;
+    flavor = target.flavor;
     return *this;
 };
 
@@ -47,13 +47,13 @@ PauliMatrix::PauliMatrix(int index, String flavor) :  Matrix(flavor+std::to_stri
     Expression minusImag = -IMAGUNIT;
     switch(index) {
         case 1:
-            (*this).elements = generateExprMatrix({{ZERO,ONE},{ONE,ZERO}});
+            elements = generateExprMatrix({{ZERO,ONE},{ONE,ZERO}});
             break;
         case 2:
-            (*this).elements = generateExprMatrix({{ZERO,minusImag},{IMAGUNIT,ZERO}});
+            elements = generateExprMatrix({{ZERO,minusImag},{IMAGUNIT,ZERO}});
             break;
         case 3:
-            (*this).elements = generateExprMatrix({{ONE,ZERO},{ZERO,-ONE}});
+            elements = generateExprMatrix({{ONE,ZERO},{ZERO,-ONE}});
             break;
         case 0:
             break;

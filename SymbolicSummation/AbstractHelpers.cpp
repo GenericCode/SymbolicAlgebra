@@ -581,7 +581,7 @@ Expression removeElementMultiplicatively(Expression source, Expression target, b
         const Product& sourceObj = dynamic_cast<const Product&>(*source);
         ExprVector newMembers = removeElementFromVector(sourceObj.getMembers(), target,rightToLeft);
         if(newMembers == sourceObj.getMembers())
-            return *new Expression(source);
+            return source;
         if(newMembers.size() == 0) {
             return ONE;
         }
@@ -668,7 +668,7 @@ Expression getElementMatchingCondition(Expression source, std::function<bool(Exp
     if(sourceType == NULLTYPE)
         return source;
     if(condition(source))
-        return *new Expression(source);
+        return source;
     ExprVector elementsToCheck = *new ExprVector();
     if(sourceType == SUMTYPE) {
         const Sum& addObj = dynamic_cast<const Sum&>(*source);
@@ -686,14 +686,14 @@ Expression getElementMatchingCondition(Expression source, std::function<bool(Exp
     if(!rightToLeft) {
         for(size_t i = 0; i<elementsToCheck.size(); i++) {
             if(condition(elementsToCheck[i]) )
-                return *new Expression(elementsToCheck[i]);
+                return elementsToCheck[i];
         }
         Expression result = *new Expression(new NullObject("could not find element matching condition"));
         return result;
     } else {
         for(int i = (int)elementsToCheck.size()-1; i>=0; i--) {
             if(condition(elementsToCheck[i]) ) {
-                return *new Expression(elementsToCheck[i]);
+                return elementsToCheck[i];
             }
         }
         Expression result = *new Expression(new NullObject("could not find element matching condition"));
@@ -819,7 +819,7 @@ ExprVector replaceElementInVector(ExprVector source, Expression target, Expressi
 Expression replaceElement(Expression source, Expression target, Expression value, bool rightToLeft) {
     size_t sourceType = source.getTypeHash();
     if(source == target)
-        return *new Expression(value);
+        return value;
     ExprVector elementsToCheck;
     if(sourceType == SUMTYPE) {
         const Sum& addObj = dynamic_cast<const Sum&>(*source);
@@ -833,7 +833,7 @@ Expression replaceElement(Expression source, Expression target, Expression value
         const Fraction& fracObj = dynamic_cast<const Fraction&>(*source);
         Expression result = replaceElement(fracObj.getNumerator(), target, value, rightToLeft);
         if(result == fracObj.getNumerator())
-            return *new Expression(source);
+            return source;
         Expression finalResult = *new Expression(new Fraction(result,fracObj.getDenomenator()));
         return finalResult;
     }
@@ -852,7 +852,7 @@ Expression replaceElement(Expression source, Expression target, Expression value
         Expression result = *new Expression(new Product(elementsToCheck));
         return result;
     }
-    return *new Expression(source);
+    return source;
 };
 Expression replaceElementOfType(Expression source, size_t type, Expression value, bool rightToLeft) {
     size_t sourceType = source.getTypeHash();
