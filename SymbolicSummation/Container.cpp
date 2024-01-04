@@ -545,7 +545,7 @@ Expression Product::factor() const {
 };
 Expression Product::reciprocal() const {
     ExprVector newMembers = *new ExprVector();
-    for(size_t i = (int)members.size()-1; i>=0; i--) {
+    for(size_t i = members.size()-1; i>=0; i--) {
         newMembers.push_back(members[i].reciprocal());
     }
     Expression newProduct = *new Expression(new Product(newMembers));
@@ -561,7 +561,7 @@ Expression Product::determinant() const {
 };
 Expression Product::transpose() const {
     ExprVector newMembers = *new ExprVector();
-    for(size_t i = (int)members.size()-1; i>=0; i--) {
+    for(size_t i = members.size()-1; i>=0; i--) {
         newMembers.push_back(members[i].transpose());
     }
     Expression newProduct = *new Expression(new Product(newMembers));

@@ -470,7 +470,7 @@ int positionOfElement(ExprVector list, Expression target, bool rightToLeft) {
             i++;
         }
     } else {
-        i = (int)list.size()-1;
+        i = list.size()-1;
         while(i>=0) {
             if(list[i] == target)
                 return (int)i;
@@ -489,7 +489,7 @@ int positionOfElementIgnoringSign(ExprVector list, Expression target, bool right
             i++;
         }
     } else {
-        i = (int)list.size()-1;
+        i = list.size()-1;
         while(i>=0) {
             if(list[i] == target || -list[i] == target)
                 return (int)i;
@@ -509,7 +509,7 @@ int positionOfType(ExprVector list, size_t type, bool rightToLeft) {
             i++;
         }
     } else {
-        i = (int)list.size()-1;
+        i = list.size()-1;
         while(i>=0) {
             if(isTypeSimilarTo(list[i], type)) {
                 return (int)i;
