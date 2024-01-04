@@ -358,11 +358,11 @@ Expression declareSymbol(String name, Expression value) {
     if(!declaredSymbols.contains(name)) {
         if(value.getTypeHash() != NULLTYPE) {
             declaredSymbols[name] = value;
-            return *new Expression(declaredSymbols[name].get());
+            return declaredSymbols[name];
         }
-        declaredSymbols[name] = *new Expression(new Symbol(name));;
+        declaredSymbols[name] = *new Expression(new Symbol(name));
     }
-    return *new Expression(declaredSymbols[name].get());
+    return declaredSymbols[name];
 };
 
 Expression parseString(String exprString) {
@@ -714,7 +714,7 @@ Expression getMatrixMatchingPauliFlavor(Expression target, Expression matrixToMa
         sign = true;
         matrixToCheck = -matrixToCheck;
     }
-    Expression remainder = *new Expression(target.get());//removeElementAbsolutely(target, matrixToCheck);//target.remove(matrixToCheck);
+    Expression remainder = target;//removeElementAbsolutely(target, matrixToCheck);//target.remove(matrixToCheck);
     while(result.getTypeHash() == NULLTYPE && matrixToCheck.getTypeHash() != NULLTYPE) {
         remainder = cancelFactor(remainder, matrixToCheck);//remainder.remove(matrixToCheck);
         const PauliMatrix& matrixObjToCheck = dynamic_cast<const PauliMatrix&>(*matrixToCheck);

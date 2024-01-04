@@ -17,7 +17,7 @@ Expression complexConjugate(Expression target) {
     Expression result = substitute(target, IMAGUNIT, (-IMAGUNIT));
     if(result.getTypeHash() != NULLTYPE)
         return result;
-    return *new Expression(target.get());
+    return target;
 }
 
 bool isNegative(Expression target) {
@@ -170,10 +170,10 @@ Expression combineProducts(Expression left, Expression right) {
         left*right;
     if(leftType == ZEROTYPE || rightType == ZEROTYPE)
         return ZERO;
-    if(leftType == ONETYPE)
-        return *new Expression(right.get());
-    if(rightType == ONETYPE)
-        return *new Expression(left.get());
+    if (leftType == ONETYPE)
+        return right;
+    if (rightType == ONETYPE)
+        return left;
     if(isTypeSimilarTo(left, REALTYPE) && isTypeSimilarTo(right, REALTYPE))
         return left*right;
     if(leftType == PRODUCTTYPE) {
