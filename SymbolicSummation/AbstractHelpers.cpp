@@ -145,7 +145,7 @@ std::vector<String> tokenize(String expr, String delimiters) {
     std::vector<String> tokens = *new std::vector<String>();
     String currentToken = "";
     int parenthesisDepth = 0;
-    for(size_t i = 0; i<expr.length(); i++) {
+    for(int i = 0; i<expr.length(); i++) {
         char currChar = expr[i];
         if(currChar == '(')
             parenthesisDepth++;
@@ -173,7 +173,7 @@ SignVector getTokenSigns(String expr) {
     SignVector memberSigns = *new SignVector();
     int parenthesisDepth = 0;
     memberSigns.push_back(expr[0] == '-');
-    for(size_t i = 0; i<expr.length(); i++) {
+    for(int i = 0; i<expr.length(); i++) {
         switch (expr[i]) {
             case '(':
                 parenthesisDepth++;
@@ -208,7 +208,7 @@ String sanitize(String expr) {
     if(result[0] == '(' && result[result.size()-1] == ')') {
         bool parensActedUpon = false;
         int parenthesisDepth = 0;
-        for(size_t i = 1; i<result.length()-1; i++) {
+        for(int i = 1; i<result.length()-1; i++) {
             char currChar = result[i];
             if(currChar == '(') {
                 parenthesisDepth++;
@@ -378,7 +378,7 @@ Expression parseString(String exprString) {
         if(tokens.size() == 1) {
             return *new Expression(new Sign(parseString(tokens[0])));
         }
-        for(size_t i = 0; i<tokens.size(); i++) {
+        for(int i = 0; i<tokens.size(); i++) {
             String nextToken = tokens[i];
             Expression next = parseString(nextToken);
             //declareSymbol(next.getNamePerform(),next);
@@ -394,7 +394,7 @@ Expression parseString(String exprString) {
     if(exprType == "mul") {
         ExprVector members = *new ExprVector();
         std::vector<String> tokens = tokenize(sanitize(exprString), "*");
-        for(size_t i = 0; i<tokens.size(); i++) {
+        for(int i = 0; i<tokens.size(); i++) {
             Expression next = parseString(sanitize(tokens[i]));
             members.push_back(next);
         }
@@ -533,7 +533,7 @@ ExprVector removeElementFromVector(ExprVector source, Expression target, bool ri
     int location = positionOfElement(source, target, rightToLeft);
     if(location < 0)
         return source;
-    for(size_t i = 0; i<source.size(); i++) {
+    for(int i = 0; i<source.size(); i++) {
         if(i == location)
             continue;
         result.push_back(source[i]);
@@ -646,7 +646,7 @@ Expression getElementOfType(Expression source, size_t type, bool rightToLeft) {
     }
     
     if(!rightToLeft) {
-        for(size_t i = 0; i<elementsToCheck.size(); i++) {
+        for(int i = 0; i<elementsToCheck.size(); i++) {
             if(isTypeSimilarTo(elementsToCheck[i], type) )
                 return *new Expression(elementsToCheck[i]);
         }
@@ -684,7 +684,7 @@ Expression getElementMatchingCondition(Expression source, std::function<bool(Exp
     }
     
     if(!rightToLeft) {
-        for(size_t i = 0; i<elementsToCheck.size(); i++) {
+        for(int i = 0; i<elementsToCheck.size(); i++) {
             if(condition(elementsToCheck[i]) )
                 return elementsToCheck[i];
         }
@@ -738,7 +738,7 @@ ExprVector replaceElementOfTypeInVector(ExprVector source, size_t type, Expressi
     int location = positionOfType(source, type, rightToLeft);
     if(location >= 0) {
         ExprVector newMembers = *new ExprVector();//members;
-        for(size_t i = 0; i< source.size(); i++ ) {
+        for(int i = 0; i< source.size(); i++ ) {
             if(i == location)
                 newMembers.push_back(*new Expression(value));
             newMembers.push_back(source[i]);
@@ -749,10 +749,10 @@ ExprVector replaceElementOfTypeInVector(ExprVector source, size_t type, Expressi
 };
 ExprVector setUnion(ExprVector setA, ExprVector setB) {
     ExprVector result = *new ExprVector();
-    for(size_t i = 0; i<setA.size(); i++) {
+    for(int i = 0; i<setA.size(); i++) {
         result.push_back(setA[i]);
     }
-    for(size_t i = 0; i<setB.size(); i++) {
+    for(int i = 0; i<setB.size(); i++) {
         result.push_back(setB[i]);
     }
     return result;
@@ -760,8 +760,8 @@ ExprVector setUnion(ExprVector setA, ExprVector setB) {
 ExprVector setIntersect(ExprVector setA, ExprVector setB) {
     ExprVector result = *new ExprVector();
     std::vector<int> countedB = *new std::vector<int>();
-    for(size_t i = 0; i<setA.size(); i++) {
-        for(size_t j = 0; j<setB.size(); j++) {
+    for(int i = 0; i<setA.size(); i++) {
+        for(int j = 0; j<setB.size(); j++) {
             if(setA[i] == setB[j] && !intVectorContains(countedB, (int)j)) {
                 result.push_back(setA[i]);
                 countedB.push_back((int)j);
@@ -774,9 +774,9 @@ ExprVector setIntersect(ExprVector setA, ExprVector setB) {
 ExprVector setDifference(ExprVector setA, ExprVector setB) {
     ExprVector result = *new ExprVector();
     std::vector<int> countedB = *new std::vector<int>();
-    for(size_t i = 0; i<setA.size(); i++) {
+    for(int i = 0; i<setA.size(); i++) {
         bool containedInB = false;
-        for(size_t j = 0; j<setB.size(); j++) {
+        for(int j = 0; j<setB.size(); j++) {
             if( setA[i] == setB[j] && !intVectorContains(countedB, (int)j) ) {
                 containedInB = true;
                 countedB.push_back((int)j);
@@ -805,7 +805,7 @@ ExprVector replaceElementInVector(ExprVector source, Expression target, Expressi
     ExprVector result = *new ExprVector();
     int location = positionOfElement(source, target);
     if(location >= 0) {
-        for(size_t i = 0; i< source.size(); i++ ) {
+        for(int i = 0; i< source.size(); i++ ) {
             if(i == location)
                 result.push_back(*new Expression(value));
             else
@@ -920,10 +920,10 @@ bool areEqual(const ExpressionObject& left, const ExpressionObject& right) {
         const Sum& rightObj = dynamic_cast<const Sum&>(right);
         if(leftObj.getMembers().size() != rightObj.getMembers().size())
             return false;
-        for(size_t i = 0; i<leftObj.getMembers().size(); i++) {
+        for(int i = 0; i<leftObj.getMembers().size(); i++) {
             areEqual &= exprVectorContains(rightObj.getMembers(), leftObj.getMembers()[i]);
         }
-        for(size_t i = 0; i<rightObj.getMembers().size(); i++) {
+        for(int i = 0; i<rightObj.getMembers().size(); i++) {
             areEqual &= exprVectorContains(leftObj.getMembers(), rightObj.getMembers()[i]);
         }
     }
@@ -936,7 +936,7 @@ bool areEqual(const ExpressionObject& left, const ExpressionObject& right) {
         const Product& leftObj = dynamic_cast<const Product&>(left);
         const Product& rightObj = dynamic_cast<const Product&>(right);
         areEqual &= leftObj.getMembers().size() == rightObj.getMembers().size();
-        for(size_t i = 0; i<leftObj.getMembers().size(); i++) {
+        for(int i = 0; i<leftObj.getMembers().size(); i++) {
             areEqual &= exprVectorContains(rightObj.getMembers(), leftObj.getMembers()[i]);
         }
     }
@@ -994,11 +994,11 @@ bool isInteger(Expression target) {
 
 String printExprMatrix(ExprMatrix target) {
     String result = "{";
-    for(size_t i = 0; i<target.size(); i++) {
+    for(int i = 0; i<target.size(); i++) {
         result+="{";
         if(i!=0)
             result+=",";
-        for(size_t j =0; j<target[0].size(); j++) {
+        for(int j =0; j<target[0].size(); j++) {
             if(j!=0)
                 result+=",";
             result+=target[i][j].print();
@@ -1011,7 +1011,7 @@ String printExprMatrix(ExprMatrix target) {
 
 bool intVectorContains(std::vector<int> container, int target) {
     bool result = false;
-    for(size_t i = 0; i< container.size(); i++) {
+    for(int i = 0; i< container.size(); i++) {
         if(container[i] == target)
             return true;
         //result |= container[i] == target;
@@ -1021,7 +1021,7 @@ bool intVectorContains(std::vector<int> container, int target) {
 
 ExprVector combineExprVectors(ExprVector left, ExprVector right) {
     ExprVector newVector = *new ExprVector(left);
-    for(size_t i = 0; i<right.size(); i++) {
+    for(int i = 0; i<right.size(); i++) {
         newVector.push_back(right[i]);
     }
     return *new ExprVector(newVector);
@@ -1032,7 +1032,7 @@ ExprVector getConstituentSymbols(Expression target) {
     if(targetType == SUMTYPE) {
         ExprVector symbols = *new ExprVector();
         const Sum& addTarget = dynamic_cast<const Sum&>(*target);
-        for(size_t i = 0; i< addTarget.getMembers().size(); i++) {
+        for(int i = 0; i< addTarget.getMembers().size(); i++) {
             symbols = combineExprVectors(symbols, getConstituentSymbols(addTarget.getMembers()[i]));
         }
         return symbols;
@@ -1040,7 +1040,7 @@ ExprVector getConstituentSymbols(Expression target) {
     if(targetType == PRODUCTTYPE) {
         ExprVector symbols = *new ExprVector();
         const Product& mulTarget = dynamic_cast<const Product&>(*target);
-        for(size_t i = 0; i< mulTarget.getMembers().size(); i++) {
+        for(int i = 0; i< mulTarget.getMembers().size(); i++) {
             symbols = combineExprVectors(symbols, getConstituentSymbols(mulTarget.getMembers()[i]));
         }
         return symbols;
@@ -1082,7 +1082,7 @@ void lambdifyToFile(Expression func, String funcName = "foo", String filePath = 
     String funcToPrint  = func.print();
     ExprVector variables = getConstituentSymbols(func);
     String variableList = "";
-    for(size_t i = 0; i<variables.size(); i++) {
+    for(int i = 0; i<variables.size(); i++) {
         variableList += "float "+variables[i].print();
         if(i != variables.size()-1)
             variableList += ",";

@@ -127,7 +127,7 @@ Sum::Sum(Expression left, Expression right) {
 };
 Expression Sum::negate() const {
     ExprVector newMembers = *new ExprVector(members);
-    for(size_t i = 0; i<newMembers.size(); i++) {
+    for(int i = 0; i<newMembers.size(); i++) {
         newMembers[i] = -newMembers[i];
     }
     Expression result = *new Expression(new Sum(newMembers));
@@ -137,7 +137,7 @@ Expression Sum::negate() const {
 String Sum::print() const {
     String result = "";
     //std::cout << members.size();
-    for(size_t i = 0; i<members.size(); i++) {
+    for(int i = 0; i<members.size(); i++) {
         Expression next = members[i];
         if(i>0 && next.getTypeHash() != SIGNTYPE)
             result+="+";
@@ -153,7 +153,7 @@ String Sum::print() const {
 
 Expression Sum::simplify() const {
     ExprVector simplifiedMembers = *new ExprVector();
-    for(size_t i = 0; i< members.size(); i++) {
+    for(int i = 0; i< members.size(); i++) {
         Expression nextMem = members[i].simplify();
         if(nextMem != ZERO)
             simplifiedMembers.push_back(nextMem);
@@ -175,7 +175,7 @@ Expression Sum::simplify() const {
 };
 Expression Sum::distribute(Expression other) const {
     ExprVector newMembers = *new ExprVector();
-    for(size_t i = 0; i< members.size(); i++)
+    for(int i = 0; i< members.size(); i++)
         newMembers.push_back(members[i].distribute(other));
     return *new Expression(new Sum(newMembers));
 };
@@ -198,7 +198,7 @@ Expression Sum::determinant() const {
 };
 Expression Sum::transpose() const {
     ExprVector newMembers = *new ExprVector();
-    for(size_t i = 0; i<members.size(); i++) {
+    for(int i = 0; i<members.size(); i++) {
         newMembers.push_back(members[i].transpose());
     }
     return *new Expression(new Sum(newMembers));
@@ -206,12 +206,12 @@ Expression Sum::transpose() const {
 Expression Sum::cancelTerms() const {
     std::vector<int> accountedFor = *new std::vector<int>();
     ExprVector newMembers = *new ExprVector();
-    for(size_t i = 0; i<members.size(); i++) {
+    for(int i = 0; i<members.size(); i++) {
         if(intVectorContains(accountedFor, (int)i))
             continue;
         Expression runningSum = members[i];
         accountedFor.push_back((int)i);
-        for(size_t j =i; j<members.size(); j++) {
+        for(int j =i; j<members.size(); j++) {
             if(intVectorContains(accountedFor, (int)j))
                 continue;
             Expression currExpr = members[j];
@@ -408,7 +408,7 @@ Expression Product::negate() const {
 
 String Product::print() const {
     String result = "";
-    for(size_t i = 0; i<members.size(); i++) {
+    for(int i = 0; i<members.size(); i++) {
         if(i>0)
             result+="*";
         if(members[i].getTypeHash() == SUMTYPE)
@@ -465,7 +465,7 @@ Expression simplifyProductWithPauliMatrices(Expression target) {
 Expression Product::simplify() const {
     ExprVector newMembers = *new ExprVector();
     bool signOfThis = false;
-    for(size_t i = 0; i< members.size(); i++)
+    for(int i = 0; i< members.size(); i++)
         newMembers.push_back(members[i].simplify());
     ExprVector newerMembers = *new ExprVector();
     for(int i=0; i<newMembers.size(); i++) {
@@ -483,7 +483,7 @@ Expression Product::simplify() const {
     Expression result = *new Expression(new Product(newMembers));
     std::vector<size_t> types = {SUMTYPE,FRACTIONTYPE,EXPONENTTYPE,SYMBOLTYPE,EUCLIDVECTORTYPE,PAULIMATRIXTYPE,MATRIXTYPE,IMAGINARYUNITTYPE,REALTYPE};
     std::function<bool(Expression)> checker;
-    for(size_t type : types) {
+    for(int type : types) {
         if(type == PAULIMATRIXTYPE) {
             result = simplifyProductWithPauliMatrices(result);
         }
@@ -525,7 +525,7 @@ Expression Product::distribute(Expression other) const {
     if(other.getTypeHash() == SUMTYPE) {
         const Sum& otherAdd= dynamic_cast<const Sum&>(*other);
         ExprVector newMembers = *new ExprVector();
-        for(size_t i = 0; i< otherAdd.getMembers().size(); i++) {
+        for(int i = 0; i< otherAdd.getMembers().size(); i++) {
             newMembers.push_back(distribute(otherAdd.getMembers()[i]).simplify());
         }
         return *new Expression(new Sum(newMembers));
@@ -536,7 +536,7 @@ Expression Product::distribute(Expression other) const {
 };
 Expression Product::factor() const {
     ExprVector newMembers = *new ExprVector();
-    for(size_t i = 0; i< members.size(); i++) {
+    for(int i = 0; i< members.size(); i++) {
         Expression memberFactored = members[i].factor();
         newMembers.push_back(memberFactored);
     }
@@ -545,7 +545,7 @@ Expression Product::factor() const {
 };
 Expression Product::reciprocal() const {
     ExprVector newMembers = *new ExprVector();
-    for(size_t i = members.size()-1; i>=0; i--) {
+    for(int i = members.size()-1; i>=0; i--) {
         newMembers.push_back(members[i].reciprocal());
     }
     Expression newProduct = *new Expression(new Product(newMembers));
@@ -553,7 +553,7 @@ Expression Product::reciprocal() const {
 };
 Expression Product::determinant() const {
     ExprVector newMembers = *new ExprVector();
-    for(size_t i = 0; i<members.size(); i++) {
+    for(int i = 0; i<members.size(); i++) {
         newMembers.push_back(members[i].determinant());
     }
     Expression newProduct = *new Expression(new Product(newMembers));
@@ -561,7 +561,7 @@ Expression Product::determinant() const {
 };
 Expression Product::transpose() const {
     ExprVector newMembers = *new ExprVector();
-    for(size_t i = members.size()-1; i>=0; i--) {
+    for(int i = members.size()-1; i>=0; i--) {
         newMembers.push_back(members[i].transpose());
     }
     Expression newProduct = *new Expression(new Product(newMembers));
@@ -569,7 +569,7 @@ Expression Product::transpose() const {
 };
 ExprVector Product::getFactors() const {
     ExprVector factors = *new ExprVector();
-    for(size_t i = 0; i<members.size(); i++) {
+    for(int i = 0; i<members.size(); i++) {
         factors = setUnion(factors, members[i].getFactors());
     }
     return factors;
@@ -644,7 +644,7 @@ Expression Fraction::transpose() const {
 ExprVector Fraction::getFactors() const {
     ExprVector numFactors = numerator.getFactors();
     ExprVector denomFactors = denomenator.getFactors();
-    for(size_t i = 0; i<denomFactors.size(); i++) {
+    for(int i = 0; i<denomFactors.size(); i++) {
         denomFactors[i] = denomFactors[i].reciprocal();
     }
     return setUnion(numFactors, denomFactors);
@@ -744,12 +744,12 @@ Expression Exponent::simplify() const {
     return *new Expression(new Exponent(base.simplify(),exponent.simplify()));
 };
 Expression Exponent::distribute(Expression other) const {
-    size_t otherType = other.getTypeHash();
+    int otherType = other.getTypeHash();
     Expression thisExpr = *new Expression(this);
     if(otherType == SUMTYPE) {
         const Sum& otherAdd = dynamic_cast<const Sum&>(*other);
         ExprVector newMembers = otherAdd.getMembers();
-        for(size_t i = 0; i<newMembers.size(); i++) {
+        for(int i = 0; i<newMembers.size(); i++) {
             newMembers[i] = distribute(newMembers[i]);
         }
         return *new Expression(new Sum(newMembers));
@@ -764,7 +764,7 @@ Expression Exponent::distribute(Expression other) const {
         ExprVector newMembers = *new ExprVector();
         ExprVector otherMembers = otherProduct.getMembers();
         newMembers.push_back(thisExpr);
-        for(size_t i = 0; i<otherMembers.size(); i++) {
+        for(int i = 0; i<otherMembers.size(); i++) {
             newMembers.push_back(otherMembers[i]);
         }
         return *new Expression(new Product(newMembers));
@@ -791,13 +791,13 @@ Expression Exponent::transpose() const {
     return *new Expression(this);
 };
 ExprVector Exponent::getFactors() const {
-    size_t expType = exponent.getTypeHash();
+    int expType = exponent.getTypeHash();
     if(expType == REALTYPE) {
         const Real& realExp = dynamic_cast<const Real&>(*exponent);
         if(floor(realExp.getValue()) == realExp.getValue()) {
             int expVal = realExp.getValue();
             ExprVector factors = *new ExprVector();
-            for(size_t i = 0; i<expVal; i++ ) {
+            for(int i = 0; i<expVal; i++ ) {
                 factors.push_back(base);
             }
             return factors;
@@ -807,7 +807,7 @@ ExprVector Exponent::getFactors() const {
         const Sum& addExp = dynamic_cast<const Sum&>(*exponent);
         ExprVector expMembers = addExp.getMembers();
         ExprVector factors = *new ExprVector();
-        for(size_t i = 0; i<expMembers.size(); i++) {
+        for(int i = 0; i<expMembers.size(); i++) {
             factors.push_back(*new Expression(new Exponent(base,expMembers[i])));
         }
         return factors;
@@ -889,12 +889,12 @@ Expression Function::simplify() const {
     return *new Expression(new Function(funcName,functionAction,member.simplify()));
 };
 Expression Function::distribute(Expression other) const {
-    size_t otherType = other.getTypeHash();
+    int otherType = other.getTypeHash();
     Expression thisExpr = *new Expression(this);
     if(otherType == SUMTYPE) {
         const Sum& otherAdd = dynamic_cast<const Sum&>(*other);
         ExprVector newMembers = otherAdd.getMembers();
-        for(size_t i = 0; i<newMembers.size(); i++) {
+        for(int i = 0; i<newMembers.size(); i++) {
             newMembers[i] = distribute(newMembers[i]);
         }
         return *new Expression(new Sum(newMembers));
@@ -904,7 +904,7 @@ Expression Function::distribute(Expression other) const {
         ExprVector newMembers = *new ExprVector();
         ExprVector otherMembers = otherProduct.getMembers();
         newMembers.push_back(thisExpr);
-        for(size_t i = 0; i<otherMembers.size(); i++) {
+        for(int i = 0; i<otherMembers.size(); i++) {
             newMembers.push_back(otherMembers[i]);
         }
         return *new Expression(new Product(newMembers));

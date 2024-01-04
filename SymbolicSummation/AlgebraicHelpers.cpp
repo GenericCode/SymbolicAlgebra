@@ -33,7 +33,7 @@ bool isNegative(Expression target) {
         const Sum& addObj = dynamic_cast<const Sum&>(*target);
         elementsToCheck = addObj.getMembers();
         bool totallyNegative = true;
-        for(size_t i = 0; i<elementsToCheck.size(); i++) {
+        for(int i = 0; i<elementsToCheck.size(); i++) {
             totallyNegative &= isNegative(elementsToCheck[i]);
         }
         return negative != totallyNegative;
@@ -41,7 +41,7 @@ bool isNegative(Expression target) {
     if(targetType == PRODUCTTYPE) {
         const Product& mulObj = dynamic_cast<const Product&>(*target);
         elementsToCheck = mulObj.getMembers();
-        for(size_t i = 0; i<elementsToCheck.size(); i++) {
+        for(int i = 0; i<elementsToCheck.size(); i++) {
             negative = negative != isNegative(elementsToCheck[i]);
         }
         return negative;
@@ -106,12 +106,12 @@ Expression matMul(Expression left, Expression right) {
         
         ExprMatrix newElements = *new ExprMatrix();
         String newName = "{";
-        for(size_t i = 0; i<newDimensions.first; i++) {
+        for(int i = 0; i<newDimensions.first; i++) {
             ExprVector currentRow = *new ExprVector();
             newName+="{";
             if(i!=0)
                 newName+=",";
-            for(size_t j =0; j<newDimensions.second; j++) {
+            for(int j =0; j<newDimensions.second; j++) {
                 Expression result = ZERO;
                 for(int k = 0; k<leftMatrix.dimensions.second; k++) {
                     Expression leftEle = leftMatrix.elements[i][k];
@@ -144,9 +144,9 @@ Expression matMul(Expression left, Expression right) {
     dimensions.first = matTarget.dimensions.second;
     dimensions.second = matTarget.dimensions.first;
     ExprMatrix newElements = *new ExprMatrix();
-    for(size_t i = 0; i <dimensions.first; i++) {
+    for(int i = 0; i <dimensions.first; i++) {
         ExprVector currentRow = *new ExprVector();
-        for(size_t j =0; j<dimensions.second; j++) {
+        for(int j =0; j<dimensions.second; j++) {
             Expression currElement = matTarget.elements[j][i];
             currentRow.push_back(currElement);
         }
@@ -182,7 +182,7 @@ Expression combineProducts(Expression left, Expression right) {
         if(rightType == PRODUCTTYPE) {
             const Product& rMul = dynamic_cast<const Product&>(*right);
             ExprVector rightMembers = rMul.getMembers();
-            for(size_t i = 0; i<rightMembers.size(); i++) {
+            for(int i = 0; i<rightMembers.size(); i++) {
                 newMembers.push_back(rightMembers[i]);
             }
         } else {
@@ -197,7 +197,7 @@ Expression combineProducts(Expression left, Expression right) {
         const Product& rMul = dynamic_cast<const Product&>(*right);
         ExprVector newMembers = *new ExprVector();
         newMembers.push_back(*new Expression(left));
-        for(size_t i = 0; i< rMul.getMembers().size(); i++) {
+        for(int i = 0; i< rMul.getMembers().size(); i++) {
             newMembers.push_back(rMul.getMembers()[i]);
         }
         Expression result = *new Expression(new Product(newMembers));
@@ -226,7 +226,7 @@ Expression combineSums(Expression left, Expression right) {
                 Expression tempResult = lAdd.getMembers()[0]+rAdd.getMembers()[0];
                 return tempResult;
             }
-            for(size_t i = 0; i<rightMembers.size(); i++) {
+            for(int i = 0; i<rightMembers.size(); i++) {
                 //Expression nextMember(rightMembers[i]);
                 if(rightMembers[i] == ZERO)
                     continue;
@@ -245,7 +245,7 @@ Expression combineSums(Expression left, Expression right) {
         const Add& rAdd = dynamic_cast<const Add&>(*right);
         ExprVector newMembers = *new ExprVector();
         newMembers.push_back(*new Expression(left));
-        for(size_t i = 0; i<rAdd.getMembers().size(); i++) {
+        for(int i = 0; i<rAdd.getMembers().size(); i++) {
             newMembers.push_back(rAdd.getMembers()[i]);
         }
         Expression result = *new Expression(new Add(newMembers));
@@ -309,12 +309,12 @@ Expression cancelTerms(Expression target) {
     ExprVector newMembers = *new ExprVector();
     std::vector<int> indicesAccountedFor = *new std::vector<int>();
     bool didAnyCancelation = false;
-    for(size_t i = 0; i<members.size(); i++) {
+    for(int i = 0; i<members.size(); i++) {
         if(intVectorContains(indicesAccountedFor, i))
             continue;
         indicesAccountedFor.push_back(i);
         Expression total = members[i];
-        for(size_t j =i+1; j<members.size(); j++) {
+        for(int j =i+1; j<members.size(); j++) {
             if(intVectorContains(indicesAccountedFor, j))
                 continue;
             Expression currMember = members[j];
@@ -479,7 +479,7 @@ Expression simplify(Expression target) {
         if(members.size() == 1)
             return members[0];
         ExprVector newMembers = *new ExprVector();
-        for(size_t i = 0; i<members.size(); i++) {
+        for(int i = 0; i<members.size(); i++) {
             Expression simplified = simplify(members[i]);
             if(simplified == ZERO)
                 return ZERO;
@@ -501,7 +501,7 @@ Expression simplify(Expression target) {
         if(members.size() == 1)
             return *new Expression(target.get());
         ExprVector newMembers = *new ExprVector();
-        for(size_t i = 0; i<members.size(); i++) {
+        for(int i = 0; i<members.size(); i++) {
             Expression simplified = simplify(members[i]);
             if(simplified == ZERO)
                 continue;
@@ -517,7 +517,7 @@ Expression simplify(Expression target) {
         result = simplifiedTarget;
         
     }
-    for(size_t type : types) {
+    for(int type : types) {
         isAdd = (result.getTypeHash() == ADDTYPE);
         isMul = (result.getTypeHash() == MULTYPE);
         if(type == PAULIMATRIXTYPE) {
@@ -585,8 +585,8 @@ Expression simplify(Expression target) {
 ExprVector cancelCommonFactors(ExprVector targets) {
     ExprVector results = targets;
     ExprVector factors = commonFactors(results);
-    for(size_t i = 0; i<results.size(); i++) {
-        for(size_t j = 0; j<factors.size(); j++) {
+    for(int i = 0; i<results.size(); i++) {
+        for(int j = 0; j<factors.size(); j++) {
             results[i] = cancelFactor(results[i], factors[j]);
         }
     }
@@ -734,7 +734,7 @@ ExprVector getFactorsOfInt(Expression factee) {
         factors.push_back(MINUSONE);
         val = -val;
     }
-    for(size_t i = 2; i <= val; i++) {
+    for(int i = 2; i <= val; i++) {
         int remain = val%i;
         if(remain == 0) {
             int temp = val;
@@ -754,9 +754,9 @@ ExprVector getFactors(Expression factee) {
     if(type == MULTYPE) {
         const Mul& mulObj = dynamic_cast<const Mul&>(*factee);
         ExprVector factors = *new ExprVector();
-        for(size_t i = 0; i< mulObj.getMembers().size(); i++) {
+        for(int i = 0; i< mulObj.getMembers().size(); i++) {
             ExprVector tempFactors = getFactors(mulObj.getMembers()[i]);
-            for(size_t j =0; j< tempFactors.size(); j++)
+            for(int j =0; j< tempFactors.size(); j++)
                 //if(!containsElement(factors, tempFactors[j]))
                     factors.push_back(tempFactors[j]);
         }
@@ -789,7 +789,7 @@ ExprVector getFactors(Expression factee) {
         if(exponentType == ADDTYPE) {
             ExprVector factors = *new ExprVector();
             const Add& addObj = dynamic_cast<const Add&>(*exponent);
-            for(size_t i = 0; i<addObj.getMembers().size(); i++) {
+            for(int i = 0; i<addObj.getMembers().size(); i++) {
                 Expression newExpression = *new Expression(new Exp(expObj.getBase(),addObj.getMembers()[i]));
                 factors.push_back(newExpression);
             }
@@ -806,7 +806,7 @@ ExprVector commonFactors(ExprVector terms) {
     ExprVector commonFactors = firstTermFactors;
     if(terms.size() == 1)
         return firstTermFactors;
-    for(size_t i = 1; i< terms.size(); i++) {
+    for(int i = 1; i< terms.size(); i++) {
         ExprVector nextFactors = terms[i].getFactors();
         commonFactors = setIntersect(commonFactors, nextFactors);
     }
@@ -818,13 +818,13 @@ ExprVector commonFactors(ExprVector terms) {
     if(terms.size()<2)
         return firstTermFactors;
     std::vector<std::vector<int>> indicesAlreadyCounted = *new std::vector<std::vector<int>>();
-    for(size_t i = 1; i<terms.size(); i++) {
+    for(int i = 1; i<terms.size(); i++) {
         ExprVector currTermFactors = getFactors(terms[i]);
         ithTermFactors.push_back(currTermFactors);
         indicesAlreadyCounted.push_back(*new std::vector<int>());
     }
     
-    for(size_t i = 0; i<firstTermFactors.size(); i++) {
+    for(int i = 0; i<firstTermFactors.size(); i++) {
         bool isCommonFactor = true;
         for(int j=0; j<(ithTermFactors).size(); j++) {
             bool containsFactor = false;
@@ -881,7 +881,7 @@ Expression combineTermsDifferingByCoefficientsAdditively(Expression left, Expres
     targets = generateExprVector({*new Expression(left),*new Expression(right)});
     ExprVector results = cancelCommonFactors(targets);//cancelCommonFactors(targets);
     Expression inCommon = ONE;
-    for(size_t i = 0; i< factors.size(); i++) {
+    for(int i = 0; i< factors.size(); i++) {
         inCommon = inCommon * factors[i];
     }
     Expression combinedCoeffs = combineTermsDifferingByCoefficientsAdditively(results[0], results[1]);
@@ -896,7 +896,7 @@ Expression performActions(Expression target) {
     if(isTypeSimilarTo(target, MATRIXTYPE)) {
         const Matrix& matObj = dynamic_cast<const Matrix&>(*target);
         ExprMatrix elements = *new ExprMatrix(matObj.elements);
-        for(size_t i = 0; i<matObj.dimensions.first; i++) {
+        for(int i = 0; i<matObj.dimensions.first; i++) {
             for (size_t j =0; j<matObj.dimensions.second; j++) {
                 if(elements[i][j] == target) {
                     elements[i][j] = performActions(elements[i][j]);
@@ -941,7 +941,7 @@ Expression performActions(Expression target) {
         const Product& mulObj = dynamic_cast<const Product&>(*target);
         elementsToModify = mulObj.getMembers();
     }
-    for(size_t i = 0; i< elementsToModify.size(); i++) {
+    for(int i = 0; i< elementsToModify.size(); i++) {
         Expression moddedEle = performActions(elementsToModify[i]);
         newElements.push_back(moddedEle);
     }
@@ -959,7 +959,7 @@ Expression performActionsOn(Expression target, Expression var) {
     if(isTypeSimilarTo(target, MATRIXTYPE)) {
         const Matrix& matObj = dynamic_cast<const Matrix&>(*target);
         ExprMatrix elements = *new ExprMatrix(matObj.elements);
-        for(size_t i = 0; i<matObj.dimensions.first; i++) {
+        for(int i = 0; i<matObj.dimensions.first; i++) {
             for (size_t j =0; j<matObj.dimensions.second; j++) {
                 if(elements[i][j] == target) {
                     elements[i][j] = performActionsOn(elements[i][j],var);
@@ -1004,7 +1004,7 @@ Expression performActionsOn(Expression target, Expression var) {
         const Product& mulObj = dynamic_cast<const Product&>(*target);
         elementsToModify = mulObj.getMembers();
     }
-    for(size_t i = 0; i< elementsToModify.size(); i++) {
+    for(int i = 0; i< elementsToModify.size(); i++) {
         Expression moddedEle = performActionsOn(elementsToModify[i], var);
         newElements.push_back(moddedEle);
     }
@@ -1022,7 +1022,7 @@ Expression insertAsVariable(Expression target, Expression var) {
     if(isTypeSimilarTo(target, MATRIXTYPE)) {
         const Matrix& matObj = dynamic_cast<const Matrix&>(*target);
         ExprMatrix elements = *new ExprMatrix(matObj.elements);
-        for(size_t i = 0; i<matObj.dimensions.first; i++) {
+        for(int i = 0; i<matObj.dimensions.first; i++) {
             for (size_t j =0; j<matObj.dimensions.second; j++) {
                 if(elements[i][j] == target) {
                     elements[i][j] = insertAsVariable(elements[i][j],var);
@@ -1067,7 +1067,7 @@ Expression insertAsVariable(Expression target, Expression var) {
         const Product& mulObj = dynamic_cast<const Product&>(*target);
         elementsToModify = mulObj.getMembers();
     }
-    for(size_t i = 0; i< elementsToModify.size(); i++) {
+    for(int i = 0; i< elementsToModify.size(); i++) {
         Expression moddedEle = insertAsVariable(elementsToModify[i], var);
         newElements.push_back(moddedEle);
     }
@@ -1088,7 +1088,7 @@ Expression substitute(Expression source, Expression target, Expression value) {
         const Matrix& matObj = dynamic_cast<const Matrix&>(*source);
         ExprMatrix elements = *new ExprMatrix(matObj.elements);
         bool foundTarget = false;
-        for(size_t i = 0; i<matObj.dimensions.first; i++) {
+        for(int i = 0; i<matObj.dimensions.first; i++) {
             for (size_t j =0; j<matObj.dimensions.second; j++) {
                 if(elements[i][j] == target) {
                     elements[i][j] = value;
@@ -1181,7 +1181,7 @@ Expression substitute(Expression source, Expression target, Expression value) {
     }
     
     bool moddedAnyElements = false;
-    for(size_t i = 0; i< elementsToModify.size(); i++) {
+    for(int i = 0; i< elementsToModify.size(); i++) {
         Expression moddedEle = substitute(elementsToModify[i], target, value);
         if(moddedEle.getTypeHash() == NULLTYPE) {
             newElements.push_back(elementsToModify[i]);
@@ -1203,7 +1203,7 @@ Expression substitute(Expression source, Expression target, Expression value) {
 
 Expression substitute(Expression source, std::vector<std::pair<Expression,Expression>> substitutions) {
     Expression result = source;
-    for(size_t i = 0; substitutions.size(); i++) {
+    for(int i = 0; substitutions.size(); i++) {
         Expression temp = substitute(result, substitutions[i].first, substitutions[i].second);
         if(temp.getTypeHash() != NULLTYPE)
             result = temp;

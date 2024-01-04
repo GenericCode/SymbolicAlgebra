@@ -114,9 +114,9 @@ Expression PauliMatrix::add(Expression other) const {
     }
     Expression otherCoefficent = cancelFactor(other, pauliTarget);//other->remove(pauliTarget);
     ExprMatrix distrElements = *new ExprMatrix();
-    for(size_t i = 0; i<targetMatrix.dimensions.first; i++) {
+    for(int i = 0; i<targetMatrix.dimensions.first; i++) {
         ExprVector currentColumn = *new ExprVector();
-        for(size_t j =0; j<targetMatrix.dimensions.second; j++) {
+        for(int j =0; j<targetMatrix.dimensions.second; j++) {
             Expression distrResult = otherCoefficent*targetMatrix.elements[i][j];
             currentColumn.push_back(distrResult);
             //distrElements[i].push_back(distrResult);
@@ -160,8 +160,8 @@ Expression PauliMatrix::multiply(Expression other) const {
 Expression PauliMatrix::simplify() const {
     return *new Expression(this);
     /*ExprMatrix newElements = *new ExprMatrix(elements);
-    for(size_t i = 0; i<dimensions.first; i++) {
-        for(size_t j =0; j<dimensions.second; j++) {
+    for(int i = 0; i<dimensions.first; i++) {
+        for(int j =0; j<dimensions.second; j++) {
             newElements[i][j] = newElements[i][j].simplify();
         }
     }
@@ -179,7 +179,7 @@ Expression PauliMatrix::distribute(Expression other) const {
     if(otherType == SUMTYPE) {
         const Sum& otherAdd = dynamic_cast<const Sum&>(*other);
         ExprVector newMembers = otherAdd.getMembers();
-        for(size_t i = 0; i<newMembers.size(); i++) {
+        for(int i = 0; i<newMembers.size(); i++) {
             newMembers[i] = distribute(newMembers[i]);
         }
         if(newMembers.size() == 0)
@@ -198,7 +198,7 @@ Expression PauliMatrix::distribute(Expression other) const {
         ExprVector newMembers = *new ExprVector();
         ExprVector otherMembers = otherMul.getMembers();
         newMembers.push_back(thisExpr);
-        for(size_t i = 0; i<otherMembers.size(); i++) {
+        for(int i = 0; i<otherMembers.size(); i++) {
             newMembers.push_back(otherMembers[i]);
         }
         return *new Expression(new Product(newMembers));
@@ -212,9 +212,9 @@ Expression PauliMatrix::distribute(Expression other) const {
 };
 Expression PauliMatrix::transpose() const {
     ExprMatrix transElements = *new ExprMatrix();
-    for(size_t i = 0; i<dimensions.second; i++) {
+    for(int i = 0; i<dimensions.second; i++) {
         ExprVector newColumn = *new ExprVector();
-        for(size_t j =0; j<dimensions.first; j++) {
+        for(int j =0; j<dimensions.first; j++) {
            
             newColumn.push_back(elements[j][i]);
         }

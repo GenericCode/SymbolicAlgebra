@@ -130,7 +130,7 @@ Expression Real::distribute(Expression other) const {
         int index = positionOfType(mulMembers, REALTYPE);
         Expression result = index >= 0? thisExpr*mulMembers[index] : thisExpr;
         newMembers.push_back(result);
-        for(size_t i = 0; i< mulMembers.size(); i++) {
+        for(int i = 0; i< mulMembers.size(); i++) {
             if(i == index)
                 continue;
             newMembers.push_back(mulMembers[i]);
@@ -141,7 +141,7 @@ Expression Real::distribute(Expression other) const {
         const Sum& otherAdd= dynamic_cast<const Sum&>(*other);
         ExprVector newMembers = *new ExprVector();
         ExprVector addMembers = otherAdd.getMembers();
-        for(size_t i = 0; i< addMembers.size(); i++) {
+        for(int i = 0; i< addMembers.size(); i++) {
             newMembers.push_back(distribute(addMembers[i]));
         }
         return *new Expression(new Sum(newMembers));
