@@ -16,7 +16,7 @@ protected:
     String flavor = "";
     Expression add(Expression other) const;
     Expression subtract(Expression other) const;
-    Expression multiply(Expression other) const;
+    Expression multiply(Expression left, Expression right) const;
     Expression negate() const;
 public:
     String print() const {

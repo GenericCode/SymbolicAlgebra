@@ -2,7 +2,7 @@
 #include "Expression.hpp"
 #include "AbstractHelpers.hpp"
 ExpressionObject::~ExpressionObject(){};
-
+/*
 Expression operator+(const ExpressionObject& self, const ExpressionObject& other) {
     return self.add(&other);
 };
@@ -54,47 +54,47 @@ Expression operator/(float self, const ExpressionObject& other) {
 
 bool operator==(const ExpressionObject& left, const ExpressionObject& right) {
     return areEqual(left, right);
-};
+};*/
 
 NullObject::NullObject(String newOrigin) {
     origin = newOrigin;
 }
 Expression NullObject::add(Expression other) const {
-    throw std::logic_error("null object: "+origin);
+    throw std::runtime_error("null object: "+origin);
 };
 Expression NullObject::subtract(Expression other) const {
-    throw std::logic_error("null object: "+origin);
+    throw std::runtime_error("null object: "+origin);
 };
 Expression NullObject::negate() const {
-    throw std::logic_error("null object: "+origin);
+    throw std::runtime_error("null object: "+origin);
 };
-Expression NullObject::multiply(Expression other) const {
-    throw std::logic_error("null object: "+origin);
+Expression NullObject::multiply(Expression left, Expression right) const {
+    throw std::runtime_error("null object: "+origin);
 };
 Expression NullObject::divide(Expression other) const {
-    throw std::logic_error("null object: "+origin);
+    throw std::runtime_error("null object: "+origin);
 };
 String NullObject::print() const {
-    throw std::logic_error("null object: "+origin);
+    throw std::runtime_error("null object: "+origin);
 };
 Expression NullObject::simplify() const {
-    throw std::logic_error("null object: "+origin);
+    throw std::runtime_error("null object: "+origin);
 };
-Expression NullObject::distribute(Expression other) const {
-    throw std::logic_error("null object: "+origin);
-};
+/*Expression NullObject::distribute(Expression other) const {
+    throw std::runtime_error("null object: "+origin);
+};*/
 Expression NullObject::factor() const {
-    throw std::logic_error("null object: "+origin);
+    throw std::runtime_error("null object: "+origin);
 };
 Expression NullObject::reciprocal() const {
-    throw std::logic_error("null object: "+origin);
+    throw std::runtime_error("null object: "+origin);
 };
 Expression NullObject::determinant() const {
-    throw std::logic_error("null object: "+origin);
+    throw std::runtime_error("null object: "+origin);
 };
 Expression NullObject::transpose() const {
-    throw std::logic_error("null object: "+origin);
+    throw std::runtime_error("null object: "+origin);
 };
 ExprVector NullObject::getFactors() const {
-    throw std::logic_error("null object: "+origin);
+    throw std::runtime_error("null object: "+origin);
 };

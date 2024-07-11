@@ -207,6 +207,11 @@ Expression PauliMatrix::distribute(Expression other) const {
         const Fraction& otherFrac = dynamic_cast<const Fraction&>(*other);
         return *new Expression(new Fraction(distribute(otherFrac.getNumerator()),otherFrac.getDenomenator()));
     }
+    if (otherType == SIGNTYPE) {
+        const Sign& otherSign = dynamic_cast<const Sign&>(*other);
+        Expression value = otherSign.getMember();
+        return -(thisExpr * value);
+    }
     return *new Expression(new Product(thisExpr,other));
     
 };

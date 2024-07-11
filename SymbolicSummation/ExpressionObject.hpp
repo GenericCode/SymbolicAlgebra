@@ -16,10 +16,10 @@ public:
     virtual Expression add(Expression other) const = 0;
     virtual Expression subtract(Expression other) const = 0;
     virtual Expression negate() const = 0;
-    virtual Expression multiply(Expression other) const = 0;
+    virtual Expression multiply(Expression left, Expression right) const = 0;
     virtual Expression divide(Expression other) const = 0;
     virtual Expression simplify() const = 0;
-    virtual Expression distribute(Expression other) const = 0;
+    //virtual Expression distribute(Expression other) const = 0;
     virtual Expression factor() const = 0;
     virtual Expression reciprocal() const = 0;
     virtual Expression determinant() const = 0;
@@ -28,6 +28,7 @@ public:
     virtual ~ExpressionObject() = 0;
 public:
     virtual String print() const = 0;
+    /*
     friend bool areEqual(Expression left, Expression right);
     friend Expression simplify(Expression target);
     friend Expression operator+(ExpressionObject& self, ExpressionObject& other);
@@ -42,7 +43,7 @@ public:
     friend Expression operator+(float self, ExpressionObject& other);
     friend Expression operator-(float self, ExpressionObject& other);
     friend Expression operator*(float self, ExpressionObject& other);
-    friend Expression operator/(float self, ExpressionObject& other);
+    friend Expression operator/(float self, ExpressionObject& other);*/
     
     //virtual ~ExpressionObject() = 0;
     size_t getTypeHash() const {
@@ -62,12 +63,12 @@ protected:
     Expression add(Expression other) const ;
     Expression subtract(Expression other) const;
     Expression negate() const;
-    Expression multiply(Expression other) const;
+    Expression multiply(Expression left, Expression right) const;
     Expression divide(Expression other) const;
 public:
     String print() const;
     Expression simplify() const;
-    Expression distribute(Expression other) const;
+    //Expression distribute(Expression other) const;
     Expression factor() const;
     Expression reciprocal() const;
     Expression determinant() const;
@@ -76,6 +77,7 @@ public:
 };
 
 const size_t NULLTYPE = typeid(NullObject).hash_code();
+/*
 Expression operator+(const ExpressionObject& self, const ExpressionObject& other);
 Expression operator-(const ExpressionObject& self, const ExpressionObject& other);
 Expression operator-(const ExpressionObject& self);
@@ -90,4 +92,4 @@ Expression operator+(float self, const ExpressionObject& other);
 Expression operator-(float self, const ExpressionObject& other);
 Expression operator*(float self, const ExpressionObject& other);
 Expression operator/(float self, const ExpressionObject& other);
-bool operator==(const ExpressionObject& left, const ExpressionObject& right);
+bool operator==(const ExpressionObject& left, const ExpressionObject& right);*/

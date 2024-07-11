@@ -13,7 +13,7 @@
 
 
 Real::Real( const Real& target) {
-    value = target.value;
+    value = target.getValue();
 };
 
 Real::Real(double newVal)  {
@@ -24,7 +24,7 @@ Real::Real(double newVal)  {
 };
 
 const Real& Real::operator=(const Real& target) {
-    value = target.value;
+    value = target.getValue();
     return *this;
 };
 Expression Real::add(Expression other) const {
@@ -34,10 +34,10 @@ Expression Real::add(Expression other) const {
         double otherVal;
         if(sign) {
             const Real& otherObj = dynamic_cast<const Real&>(*-other);
-            otherVal = -otherObj.value;
+            otherVal = -otherObj.getValue();
         } else {
             const Real& otherObj = dynamic_cast<const Real&>(*other);
-            otherVal = otherObj.value;
+            otherVal = otherObj.getValue();
         }
         double newVal = value + otherVal;
         Expression result = declareReal(newVal);
@@ -56,7 +56,7 @@ Expression Real::subtract(Expression other) const {
     Expression thisExpr = *new Expression(this);
     if(isTypeSimilarTo(other, REALTYPE)) {
         const Real& otherReal = dynamic_cast<const Real&>(*other);
-        double newVal = value-otherReal.value;
+        double newVal = value-otherReal.getValue();
         Expression result = declareReal(newVal);
         return result;
     }
@@ -73,34 +73,35 @@ Expression Real::negate() const {
     Expression result = declareReal(-value);
     return result;
 };
-Expression Real::multiply(Expression other) const {
-    Expression thisExpr = *new Expression(this);
-    if(isTypeSimilarTo(other, REALTYPE)) {
-        if(other.getTypeHash() != SIGNTYPE) {
-            const Real& otherReal = dynamic_cast<const Real&>(*other);
-            double newVal = value*otherReal.value;
-            Expression result = declareReal(newVal);
-            return result;
-        } else {
-            const Real& otherReal = dynamic_cast<const Real&>(*-other);
-            double newVal = -value*otherReal.value;
-            Expression result = declareReal(newVal);
-            return result;
-        }
+Expression Real::multiply(Expression left, Expression right) const {
+    size_t leftType = left.getTypeHash();
+    size_t rightType = right.getTypeHash();
+    if (leftType == ZEROTYPE || rightType == ZEROTYPE)
+        return ZERO;
+    if (leftType == ONETYPE)
+        return right;
+    if (rightType == ONETYPE)
+        return left;
+    if( leftType == REALTYPE && rightType == REALTYPE ) {
+        const Real& leftObj = dynamic_cast<const Real&>(*left);
+        const Real& rightObj = dynamic_cast<const Real&>(*right);
+        double newVal = -leftObj.getValue()* rightObj.getValue();
+        Expression result = declareReal(newVal);
+        return result;
     }
-    return distribute(other);
+    return *new Expression(new Product(left, right));
 };
 Expression Real::divide(Expression other) const {
     Expression thisExpr = *new Expression(this);
     if(isTypeSimilarTo(other, REALTYPE)) {
         bool sign = other.getTypeHash() == SIGNTYPE;
-        Expression temp = NULL;
+        Expression temp = *new Expression(new NullObject("runtime error"));
         if(sign)
-            temp = (-*other);
+            temp = (-other);
         else
             temp = other;
         const Real& otherReal = dynamic_cast<const Real&>(*temp);
-        double newVal = value/otherReal.value;
+        double newVal = getValue()/otherReal.getValue();
         if(sign)
             newVal *= -1;
         Expression result = declareReal(newVal);
@@ -187,14 +188,16 @@ Expression Zero::subtract(Expression other) const {
     return -other;
 };
 
-Expression Zero::multiply(Expression other) const {
-    return *new Expression(this);
+Expression Zero::multiply(Expression left, Expression right) const {
+    return ZERO;
 };
 
 Expression Zero::negate() const {
     return *new Expression(this);
 };
 
-Expression One::multiply(Expression other) const {
-    return other;
+Expression One::multiply(Expression left, Expression right) const {
+    if (left.getTypeHash() == ONETYPE)
+        return right;
+    return left;
 };

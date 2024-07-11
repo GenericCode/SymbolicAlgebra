@@ -39,7 +39,7 @@ protected:
     size_t getTypeHash() const;
     String print() const;
     Expression simplify() const;
-    Expression distribute(Expression other) const;
+    //Expression distribute(Expression other) const;
     Expression factor() const;
     Expression reciprocal() const;
     Expression determinant() const;

@@ -19,6 +19,52 @@
 static std::unordered_map<String,Expression> declaredSymbols = *new std::unordered_map<String, Expression>();
 static std::unordered_map<String,Expression> declaredFunctions = *new std::unordered_map<String, Expression>();
 
+
+/*
+* Returns:  true if right has higher multiplicative priority than left
+*           false if right has lesser or equal priority to left
+*/
+
+bool getMultiplierPriority(Expression left, Expression right) {
+    size_t leftType = left.getTypeHash();
+    size_t rightType = right.getTypeHash();
+    int priorityTotal = 0;
+    if (rightType == MATRIXTYPE || rightType == PAULIMATRIXTYPE) {
+        priorityTotal += 3;
+    }
+    if (leftType == MATRIXTYPE || leftType == PAULIMATRIXTYPE) {
+        priorityTotal -= 3;
+    }
+    /*
+    if (rightType == SYMBOLTYPE || rightType == REALTYPE) {
+        priorityTotal += 2;
+    }
+    if (leftType == SYMBOLTYPE || leftType == REALTYPE) {
+        priorityTotal -= 2;
+    }*/
+    if (rightType == SUMTYPE || rightType == SIGNTYPE) {
+        priorityTotal += 2;
+    }
+    if (leftType == SUMTYPE || leftType == SIGNTYPE) {
+        priorityTotal -= 2;
+    }
+    if (rightType == PRODUCTTYPE || rightType == FRACTIONTYPE || EXPONENTTYPE) {
+        priorityTotal += 1;
+    }
+    if (leftType == SUMTYPE || leftType == SIGNTYPE) {
+        priorityTotal -= 1;
+    }
+    //Uhm
+    //MATRIXTYPE has priority over all the container types, basic Symbol, Real, etc
+    //PauliVector, PauliMatrix should have the same priority, though they don't have priority over one another
+    //Symbol, Real should have priority over container types
+    //Sum should have priority over other container types (because it can do the distribution easier)
+
+    if (priorityTotal > 0)
+        return true;
+    return false;
+}
+
 bool areSimilarTypes(Expression exprA, Expression exprB) {
     size_t subType = exprA.getTypeHash();
     if(subType == SIGNTYPE) {
@@ -52,7 +98,7 @@ bool isTypeSimilarTo(Expression subject, size_t type) {
         result = true;
     if(type == MATRIXTYPE && (subType == PAULIMATRIXTYPE || subType == EUCLIDVECTORTYPE))
         result = true;
-    if(type == typeid(Container).hash_code() && (subType == SUMTYPE || subType == PRODUCTTYPE || subType == FRACTIONTYPE || subType == EXPONENTTYPE || subType == SIGNTYPE))
+    if(type == CONTAINERTYPE && (subType == SUMTYPE || subType == PRODUCTTYPE || subType == FRACTIONTYPE || subType == EXPONENTTYPE || subType == SIGNTYPE))
         result = true;
     return result;
 }
@@ -910,7 +956,7 @@ bool areEqual(const ExpressionObject& left, const ExpressionObject& right) {
     if(leftType == REALTYPE) {
         const Real& leftObj = dynamic_cast<const Real&>(left);
         const Real& rightObj = dynamic_cast<const Real&>(right);
-        areEqual &= (leftObj.value == rightObj.value);
+        areEqual &= (leftObj.getValue() == rightObj.getValue());
     }
     if(leftType == SYMBOLTYPE) {
         areEqual &= (left.print() == right.print());

@@ -22,7 +22,7 @@ protected:
     Expression add(Expression other) const;
     Expression negate() const;
     Expression subtract(Expression other) const;
-    Expression multiply(Expression other) const;
+    Expression multiply(Expression left, Expression right) const;
 public:
     String print() const {
         return name;
@@ -51,8 +51,8 @@ protected:
     Expression addPerform(SymbolicObject* other);
     Expression subtractPerform(SymbolicObject* other);
      */
-    Expression multiply(Expression other) const;
-    Expression negate() const;
+    //Expression multiply(Expression left, Expression right) const;
+    //Expression negate() const;
      
 public:
     ImaginaryUnit(const ImaginaryUnit& target);
@@ -69,7 +69,7 @@ protected:
     Expression add(Expression other) const;
     Expression negate() const;
     Expression subtract(Expression other) const;
-    Expression multiply(Expression other) const;
+    Expression multiply(Expression left, Expression right) const;
 public:
     String print() const;
     Expression simplify() const;
@@ -89,6 +89,9 @@ public:
     Matrix(Expression diag, int newDim = 0);//Identity matrix times const expression
     ~Matrix();
     ExprMatrix getElements() const;
+    std::pair<int, int> getDimensions() const {
+        return dimensions;
+    }
     friend Expression matMul(Expression left, Expression right);
     friend ExprVector getConstituentSymbols(Expression target);
     friend Expression determinant(Expression target);
@@ -102,7 +105,7 @@ public:
 class EuclidVector : public Matrix {
 protected:
     Expression add(Expression other) const;
-    Expression multiply(Expression other) const;
+    Expression multiply(Expression left, Expression right) const;
 public:
     String print() const;
     Expression simplify() const;

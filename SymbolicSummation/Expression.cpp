@@ -18,7 +18,9 @@ Expression Expression::negate() const {
     return (**this).negate();
 };
 Expression Expression::multiply(Expression other) const {
-    return (**this).multiply(other);
+    if (getMultiplierPriority(*this, other))
+        return (*other).multiply(*this, other);
+    return (**this).multiply(*this, other);
 };
 Expression Expression::divide(Expression other) const {
     return (**this).divide(other);
@@ -31,9 +33,9 @@ String Expression::print() const {
 Expression Expression::simplify() const {
     return (**this).simplify();
 };
-Expression Expression::distribute(Expression other) const {
+/*Expression Expression::distribute(Expression other) const {
     return (**this).distribute(other);
-};
+};*/
 Expression Expression::factor() const {
     return (**this).factor();
 };

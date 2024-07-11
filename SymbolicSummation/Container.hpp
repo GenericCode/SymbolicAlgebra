@@ -16,7 +16,7 @@ class Container : public ExpressionObject {
 protected:
     String name = "";
     Expression add(Expression other) const;
-    Expression multiply(Expression other) const;
+    Expression multiply(Expression left, Expression right) const;
     Expression divide(Expression other) const;
     Expression subtract(Expression other) const;
     Expression negate() const;
@@ -33,7 +33,7 @@ protected:
 public:
     String print() const;
     Expression simplify() const;
-    Expression distribute(Expression other) const;
+    //Expression distribute(Expression other) const;
     Expression factor() const;
     Expression reciprocal() const;
     Expression determinant() const;
@@ -50,7 +50,7 @@ public:
     Sum(ExprVector newMembers);
     Sum(Expression left, Expression right);
     ~Sum();/*
-    friend Expression distribute(Expression left, Expression right);
+    friend //Expression distribute(Expression left, Expression right);
     friend ExprVector getFactors(Expression factee);
     friend Expression combineProducts(Expression left, Expression right);
     friend Expression cancelTerms(Expression target);
@@ -75,13 +75,13 @@ private:
     Expression member;
 protected:
     Expression negate() const;
-    Expression multiply(Expression other) const;
+    //Expression multiply(Expression other) const;
     Expression add(Expression other) const;
     Expression subtract(Expression other) const;
 public:
     String print() const;
     Expression simplify() const;
-    Expression distribute(Expression other) const;
+    //Expression distribute(Expression other) const;
     Expression factor() const;
     Expression reciprocal() const;
     Expression determinant() const;
@@ -97,7 +97,7 @@ public:
     Sign(Expression member);
     ~Sign();
     /*
-    friend Expression distribute(Expression left, Expression right);
+    friend //Expression distribute(Expression left, Expression right);
     friend ExprVector getFactors(Expression factee);
     friend Expression combineProducts(Expression left, Expression right);
     friend Expression combineTermsDifferingByCoefficientsAdditively(Expression left, Expression right);
@@ -126,7 +126,7 @@ protected:
 public:
     String print() const;
     Expression simplify() const;
-    Expression distribute(Expression other) const;
+    //Expression distribute(Expression other) const;
     Expression factor() const;
     Expression reciprocal() const;
     Expression determinant() const;
@@ -144,7 +144,7 @@ public:
     ~Product();
     /*
     friend Expression simplifyMulWithPauliMatrices(Expression target);
-    friend Expression distribute(Expression left, Expression right);
+    friend //Expression distribute(Expression left, Expression right);
     friend ExprVector getFactors(Expression factee);
     friend Expression combineProducts(Expression left, Expression right);
     friend Expression combineSums(Expression left, Expression right);
@@ -172,7 +172,7 @@ protected:
 public:
     String print() const;
     Expression simplify() const;
-    Expression distribute(Expression other) const;
+    //Expression distribute(Expression other) const;
     Expression factor() const;
     Expression reciprocal() const;
     Expression determinant() const;
@@ -192,7 +192,7 @@ public:
     Fraction(Expression num, Expression denom);
     ~Fraction();
     /*
-    friend Expression distribute(Expression left, Expression right);
+    friend //Expression distribute(Expression left, Expression right);
     friend ExprVector getFactors(Expression factee);
     friend Expression combineProducts(Expression left, Expression right);
     friend Expression combineSums(Expression left, Expression right);
@@ -221,7 +221,7 @@ protected:
 public:
     String print() const;
     Expression simplify() const;
-    Expression distribute(Expression other) const;
+    //Expression distribute(Expression other) const;
     Expression factor() const;
     Expression reciprocal() const;
     Expression determinant() const;
@@ -241,7 +241,7 @@ public:
     Exponent(Expression base, int exponent);
     ~Exponent();
     /*
-    friend Expression distribute(Expression left, Expression right);
+    friend //Expression distribute(Expression left, Expression right);
     friend ExprVector getFactors(Expression factee);
     friend Expression combineProducts(Expression left, Expression right);
     friend Expression combineSums(Expression left, Expression right);
@@ -279,7 +279,7 @@ protected:
 public:
     String print() const;
     Expression simplify() const;
-    Expression distribute(Expression other) const;
+    //Expression distribute(Expression other) const;
     Expression factor() const;
     Expression reciprocal() const;
     Expression determinant() const;
@@ -312,7 +312,7 @@ public:
     Function(String name, ExprAction action, Expression member);
     /*
     friend Expression parseString(String expr);
-    friend Expression distribute(Expression left, Expression right);
+    friend //Expression distribute(Expression left, Expression right);
     friend ExprVector getFactors(Expression factee);
     friend Expression combineProducts(Expression left, Expression right);
     friend Expression combineSums(Expression left, Expression right);

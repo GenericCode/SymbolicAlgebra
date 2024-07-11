@@ -152,9 +152,9 @@ Expression matMul(Expression left, Expression right) {
         }
         newElements.push_back(currentRow);
     }
-    if(target->getTypeHash() == PAULIMATRIXTYPE) {
+    if(target.getTypeHash() == PAULIMATRIXTYPE) {
         const PauliMatrix& pauliTarget = dynamic_cast<const PauliMatrix&>(*target);
-        Expression result = *new Expression(new PauliMatrix(target->print()+"Transpose",pauliTarget.flavor,newElements));
+        Expression result = *new Expression(new PauliMatrix(target.print()+"Transpose",pauliTarget.flavor,newElements));
         return result;
     }
     Expression result = *new Expression(new Matrix(matTarget.name+"Transpose", newElements));
@@ -162,8 +162,8 @@ Expression matMul(Expression left, Expression right) {
 }*/
 
 Expression combineProducts(Expression left, Expression right) {
-    size_t leftType = left->getTypeHash();
-    size_t rightType = right->getTypeHash();
+    size_t leftType = left.getTypeHash();
+    size_t rightType = right.getTypeHash();
     if(rightType == NULLTYPE)
         right*left;
     if(leftType == NULLTYPE)
@@ -210,8 +210,8 @@ Expression combineProducts(Expression left, Expression right) {
 
 /*
 Expression combineSums(Expression left, Expression right) {
-    size_t leftType = left->getTypeHash();
-    size_t rightType = right->getTypeHash();
+    size_t leftType = left.getTypeHash();
+    size_t rightType = right.getTypeHash();
     if(rightType == NULLTYPE)
         right*left;
     if(leftType == NULLTYPE)
@@ -258,8 +258,8 @@ Expression combineSums(Expression left, Expression right) {
 */
 
 bool commutesWith(Expression left, Expression right) {
-    size_t ltype = left->getTypeHash();
-    size_t rtype = right->getTypeHash();
+    size_t ltype = left.getTypeHash();
+    size_t rtype = right.getTypeHash();
     
     //check matrices
     if(ltype == MATRIXTYPE) {
@@ -289,11 +289,11 @@ bool commutesWith(Expression left, Expression right) {
     if(ltype == IMAGINARYUNITTYPE) {
         if(rtype == IMAGINARYUNITTYPE)
             return false;
-        Expression iTarget = getElementOfType(right, IMAGINARYUNITTYPE);//right->getFirstInstanceOfType(IMAGINARYUNITTYPE);
+        Expression iTarget = getElementOfType(right, IMAGINARYUNITTYPE);//right.getFirstInstanceOfType(IMAGINARYUNITTYPE);
         return iTarget.getTypeHash() == NULLTYPE;
     }
     if(rtype == IMAGINARYUNITTYPE) {
-        Expression iTarget = getElementOfType(left, IMAGINARYUNITTYPE);//left->getFirstInstanceOfType(IMAGINARYUNITTYPE);
+        Expression iTarget = getElementOfType(left, IMAGINARYUNITTYPE);//left.getFirstInstanceOfType(IMAGINARYUNITTYPE);
         return iTarget.getTypeHash() == NULLTYPE;
     }
     
@@ -302,7 +302,7 @@ bool commutesWith(Expression left, Expression right) {
 
 /*
 Expression cancelTerms(Expression target) {
-    if(target->getTypeHash() != ADDTYPE)
+    if(target.getTypeHash() != ADDTYPE)
         return *new Expression(target.get());
     const Add& addObj = dynamic_cast<const Add&>(*target);
     ExprVector members = *new ExprVector(addObj.getMembers());
@@ -343,8 +343,8 @@ Expression cancelTerms(Expression target) {
 
 /*
 Expression simplifySubExpressions(Expression target) {
-    bool isMul = target->getTypeHash() == MULTYPE;
-    bool isAdd = target->getTypeHash() == ADDTYPE;
+    bool isMul = target.getTypeHash() == MULTYPE;
+    bool isAdd = target.getTypeHash() == ADDTYPE;
     Expression total;
     Expression remainder = *new Expression(target.get());
     Expression first;
@@ -384,8 +384,8 @@ Expression simplifySubExpressions(Expression target) {
 
 /*
 Expression simplifyPauliMatrices(Expression target) {
-    bool isMul = target->getTypeHash() == PRODUCTTYPE;
-    bool isAdd = target->getTypeHash() == SUMTYPE;
+    bool isMul = target.getTypeHash() == PRODUCTTYPE;
+    bool isAdd = target.getTypeHash() == SUMTYPE;
     Expression total;
     Expression remainder = *new Expression(target.get());
     Expression firstPauli = getElementOfType(target, PAULIMATRIXTYPE);
@@ -456,7 +456,7 @@ Expression simplify(Expression target) {
     //std::vector<size_t> types = {REALTYPE,IMAGINARYUNITTYPE,SYMBOLTYPE,MATRIXTYPE,PAULIMATRIXTYPE,FRACTYPE};
     std::vector<size_t> types = {FRACTYPE,EXPTYPE,SYMBOLTYPE,EUCLIDVECTORTYPE,PAULIMATRIXTYPE,MATRIXTYPE,IMAGINARYUNITTYPE,REALTYPE};
     Expression result = *new Expression(target.get());
-    size_t targetType = target->getTypeHash();
+    size_t targetType = target.getTypeHash();
     bool isAdd = (targetType == ADDTYPE);
     bool isMul = (targetType == MULTYPE);
     bool overallSign = false;
@@ -594,8 +594,8 @@ ExprVector cancelCommonFactors(ExprVector targets) {
 }
 
 Expression distribute(Expression left, Expression right) {
-    size_t leftType = left->getTypeHash();
-    size_t rightType = right->getTypeHash();
+    size_t leftType = left.getTypeHash();
+    size_t rightType = right.getTypeHash();
     if(rightType == NULLTYPE)
         right*left;
     if(leftType == NULLTYPE)
@@ -750,7 +750,7 @@ ExprVector getFactorsOfInt(Expression factee) {
 
 /*
 ExprVector getFactors(Expression factee) {
-    size_t type = factee->getTypeHash();
+    size_t type = factee.getTypeHash();
     if(type == MULTYPE) {
         const Mul& mulObj = dynamic_cast<const Mul&>(*factee);
         ExprVector factors = *new ExprVector();
@@ -856,18 +856,18 @@ ExprVector commonFactors(ExprVector terms) {
 //DOES NOT RESPECT COMMUTATION PROPERTIES... probably
 /*
 Expression combineTermsDifferingByCoefficientsAdditively(Expression left, Expression right) {
-    if(left->getTypeHash() == ZEROTYPE)
+    if(left.getTypeHash() == ZEROTYPE)
         return *new Expression(right.get());
-    if(right->getTypeHash() == ZEROTYPE)
+    if(right.getTypeHash() == ZEROTYPE)
         return *new Expression(left.get());
     if(isTypeSimilarTo(left, REALTYPE) && isTypeSimilarTo(right, REALTYPE))
         return left+right;
-    if(left->getTypeHash() == SIGNTYPE) {
+    if(left.getTypeHash() == SIGNTYPE) {
         const Sign& signObj = dynamic_cast<const Sign&>(*left);
         if(signObj.getMember() == right)
             return ZERO;
     }
-    else if(right->getTypeHash() == SIGNTYPE) {
+    else if(right.getTypeHash() == SIGNTYPE) {
         const Sign& signObj = dynamic_cast<const Sign&>(*right);
         if(signObj.getMember() == left)
             return ZERO;
@@ -892,7 +892,7 @@ Expression combineTermsDifferingByCoefficientsAdditively(Expression left, Expres
 }*/
 
 Expression performActions(Expression target) {
-    size_t sourceType = target->getTypeHash();
+    size_t sourceType = target.getTypeHash();
     if(isTypeSimilarTo(target, MATRIXTYPE)) {
         const Matrix& matObj = dynamic_cast<const Matrix&>(*target);
         ExprMatrix elements = *new ExprMatrix(matObj.elements);
@@ -955,7 +955,7 @@ Expression performActions(Expression target) {
 }
 
 Expression performActionsOn(Expression target, Expression var) {
-    size_t sourceType = target->getTypeHash();
+    size_t sourceType = target.getTypeHash();
     if(isTypeSimilarTo(target, MATRIXTYPE)) {
         const Matrix& matObj = dynamic_cast<const Matrix&>(*target);
         ExprMatrix elements = *new ExprMatrix(matObj.elements);
@@ -1018,7 +1018,7 @@ Expression performActionsOn(Expression target, Expression var) {
 }
 
 Expression insertAsVariable(Expression target, Expression var) {
-    size_t sourceType = target->getTypeHash();
+    size_t sourceType = target.getTypeHash();
     if(isTypeSimilarTo(target, MATRIXTYPE)) {
         const Matrix& matObj = dynamic_cast<const Matrix&>(*target);
         ExprMatrix elements = *new ExprMatrix(matObj.elements);
@@ -1083,7 +1083,7 @@ Expression insertAsVariable(Expression target, Expression var) {
 Expression substitute(Expression source, Expression target, Expression value) {
     if(source == target)
         return value;
-    size_t sourceType = source->getTypeHash();
+    size_t sourceType = source.getTypeHash();
     if(isTypeSimilarTo(source, MATRIXTYPE)) {
         const Matrix& matObj = dynamic_cast<const Matrix&>(*source);
         ExprMatrix elements = *new ExprMatrix(matObj.elements);

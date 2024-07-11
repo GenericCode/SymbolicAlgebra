@@ -66,25 +66,27 @@ Expression Symbol::subtract(Expression other) const {
     }
     return *new Expression(new Sum(thisExpr,-other));
 };
-Expression Symbol::multiply(Expression other) const {
-    Expression thisExpr = *new Expression(this);
-    if(other.getTypeHash() == ZEROTYPE)
+Expression Symbol::multiply(Expression left, Expression right) const {
+    size_t leftType = left.getTypeHash();
+    size_t rightType = right.getTypeHash();
+    if (leftType == ZEROTYPE || rightType == ZEROTYPE)
         return ZERO;
-    if(other.getTypeHash() == ONETYPE)
-        return *new Expression(this);
-    if(other.getTypeHash() == SYMBOLTYPE) {
-        if(thisExpr == other) {
-            return *new Expression(new Exponent(thisExpr,2));
+    if (leftType == ONETYPE)
+        return right;
+    if (rightType == ONETYPE)
+        return left;
+    if(leftType == rightType) {
+        if (leftType == SYMBOLTYPE) {
+            if (left == right) {
+                return *new Expression(new Exponent(thisExpr, 2));
+            }
         }
+        if (leftType == IMAGINARYUNITTYPE) {
+            return MINUSONE;
+        }
+        
     }
-    if(other.getTypeHash() == PRODUCTTYPE) {
-        const Product& otherMul = dynamic_cast<const Product&>(*other);
-        ExprVector newMembers = *new ExprVector();
-        newMembers.push_back(thisExpr);
-        newMembers = setUnion(newMembers, otherMul.getMembers());
-        return *new Expression(new Product(newMembers));
-    }
-    return *new Expression(new Product(thisExpr,other));
+    return *new Expression(new Product(left, right));
 }; 
 
 Expression Symbol::simplify() const {
@@ -145,7 +147,8 @@ ImaginaryUnit& ImaginaryUnit::operator=(const ImaginaryUnit &target) {
     return *this;
 }
 
-Expression ImaginaryUnit::multiply(Expression other) const {
+/*
+Expression ImaginaryUnit::multiply(Expression left, Expression) const {
     Expression thisExpr = *new Expression(this);
     if(other.getTypeHash() == ZEROTYPE)
         return ZERO;
@@ -162,11 +165,12 @@ Expression ImaginaryUnit::multiply(Expression other) const {
         return *new Expression(new Product(newMembers));
     }
     return *new Expression(new Product(thisExpr,other));
-};
+};*/
 
+/*
 Expression ImaginaryUnit::negate() const {
     return *new Expression(new Sign(IMAGUNIT));
-}
+}*/
 
 
 //Matrix
@@ -239,6 +243,7 @@ Expression Matrix::add(Expression other) const {
         const Matrix& otherMat = dynamic_cast<const Matrix&>(*other);
         bool zeroMat = true;
         if(dimensions != otherMat.dimensions) {
+            throw std::runtime_error("mismatch between dimensions for adding MATRIXTYPE");
             Expression result = *new Expression(new NullObject("mismatch between dimensions for adding MATRIXTYPE"));
             return result;
         }
@@ -292,27 +297,74 @@ Expression Matrix::subtract(Expression other) const {
     Expression negativeOf = -other;
     return thisExpr+negativeOf;
 };
-Expression Matrix::multiply(Expression other) const {
-    Expression thisExpr = *new Expression(this);
-    if(other.getTypeHash() == MATRIXTYPE) {
-        Expression result = matMul(*new Expression(this), other);
-        return result;
+/*
+    Matrices should absorb EVERYTHING. if a matrix multiplies anything that isn't a Mul or Frac containing another matrix of the same type (valid for multiplication),
+        then the result should just be that matrix with all its elements multiplied by the target
+    Do we need some kind of operational priority system so that things like this always behave a certain way, no matter of left or right position?
+
+*/
+Expression Matrix::multiply(Expression left, Expression right) const {
+    size_t leftType = left.getTypeHash();
+    size_t rightType = right.getTypeHash();
+    if (leftType == ZEROTYPE || rightType == ZEROTYPE)
+        return ZERO;
+    if (leftType == ONETYPE)
+        return right;
+    if (rightType == ONETYPE)
+        return left;
+    if(leftType == rightType) {
+        return matMul(left, right);
     }
-    Expression matTarget = getElementOfType(other,MATRIXTYPE);
-    
-    if(matTarget.getTypeHash() == NULLTYPE) {
-        if(other.getTypeHash() == PRODUCTTYPE) {
-            const Product& otherMul = dynamic_cast<const Product&>(*other);
-            ExprVector newMembers = *new ExprVector();
-            newMembers.push_back(thisExpr);
-            newMembers = setUnion(newMembers, otherMul.getMembers());
-            return *new Expression(new Product(newMembers));
+
+    //Matrix
+    if (leftType == MATRIXTYPE) {//leftToRight
+        ExprVector factors = right.getFactors();
+        ExprVector newElements = *new ExprVector();
+        bool foundOne = false;
+        for (int i = 0; i < factors.size(); i++) {
+            if (factors[i].getTypeHash() == MATRIXTYPE && !foundOne) {
+                newElements.push_back(matMul(left, factors[i]));
+                foundOne == true;
+            }
+            else {
+                newElements.push_back(factors[i]);
+            }
         }
-        return *new Expression(new Product(thisExpr,other));
+        if (!foundOne) {
+            const Matrix& leftObj = dynamic_cast<const Matrix&>(*left);
+            ExprMatrix contents = leftObj.getElements();
+            for (int i = 0; i <= leftObj.getDimensions().first; i++) {
+                for (int j = 0; j < leftObj.getDimensions().second) {
+
+                }
+            }
+            ExprVector temp = *new ExprVector();
+            temp.push_back(left);
+            return *new Expression(new Product(setUnion(temp, newElements));
+        }
+        return *new Expression(new Product(newElements));
     }
-    Expression result = matMul(thisExpr, matTarget);
-    Expression finalResult = replaceElementOfType(other,MATRIXTYPE,result);
-    return finalResult;
+    if (rightType == MATRIXTYPE) {//rightToLeft
+        ExprVector factors = left.getFactors();
+        ExprVector newElements = *new ExprVector();
+        bool foundOne = false;
+        for (int i = factors.size()-1; i >= 0; i--) {
+            if (factors[i].getTypeHash() == MATRIXTYPE && !foundOne) {
+                newElements.push_back(matMul(factors[i],right));
+                foundOne == true;
+            }
+            else {
+                newElements.push_back(factors[i]);
+            }
+        }
+        if (!foundOne) {
+            newElements.push_back(right);
+            return *new Expression(new Product(newElements));
+        }
+        return *new Expression(new Product(newElements));
+    }
+
+    return *new Expression;
 };
 
 ExprMatrix Matrix::getElements() const {

@@ -18,7 +18,7 @@ protected:
     Expression add(Expression other) const;
     Expression subtract(Expression other) const;
     Expression negate() const;
-    Expression multiply(Expression other) const;
+    Expression multiply(Expression left, Expression right) const;
     Expression divide(Expression other) const;
 public:
     String print() const;
@@ -36,7 +36,7 @@ public:
     Real(const Real& target);
     const Real& operator=(const Real& target);
     Real(double newVal);
-    friend bool areEqual(const ExpressionObject& left, const ExpressionObject& right);
+    //friend bool areEqual(const ExpressionObject& left, const ExpressionObject& right);
     friend ExprVector getFactorsOfInt(Expression factee);
 };
 
@@ -49,7 +49,7 @@ public:
 protected:
     Expression add(Expression other) const;
     Expression subtract(Expression other) const;
-    Expression multiply(Expression other) const;
+    Expression multiply(Expression left, Expression right) const;
     Expression negate() const;
 };
 
@@ -60,7 +60,7 @@ public:
         
     }
 protected:
-    Expression multiply(Expression other) const;
+    Expression multiply(Expression left, Expression right) const;
 };
 #include "Container.hpp"
 static const size_t REALTYPE = typeid(Real).hash_code();
