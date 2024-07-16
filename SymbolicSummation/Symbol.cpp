@@ -78,7 +78,7 @@ Expression Symbol::multiply(Expression left, Expression right) const {
     if(leftType == rightType) {
         if (leftType == SYMBOLTYPE) {
             if (left == right) {
-                return *new Expression(new Exponent(thisExpr, 2));
+                return *new Expression(new Exponent(left, 2));
             }
         }
         if (leftType == IMAGINARYUNITTYPE) {
@@ -332,15 +332,13 @@ Expression Matrix::multiply(Expression left, Expression right) const {
         }
         if (!foundOne) {
             const Matrix& leftObj = dynamic_cast<const Matrix&>(*left);
-            ExprMatrix contents = leftObj.getElements();
+            ExprMatrix newContents = leftObj.getElements();
             for (int i = 0; i <= leftObj.getDimensions().first; i++) {
-                for (int j = 0; j < leftObj.getDimensions().second) {
-
+                for (int j = 0; j <= leftObj.getDimensions().second; j++) {
+                    newContents[i][j] = newContents[i][j] * right;
                 }
             }
-            ExprVector temp = *new ExprVector();
-            temp.push_back(left);
-            return *new Expression(new Product(setUnion(temp, newElements));
+            return *new Expression(new Matrix(left.print()+"*"+right.print(), newContents));
         }
         return *new Expression(new Product(newElements));
     }
@@ -358,8 +356,14 @@ Expression Matrix::multiply(Expression left, Expression right) const {
             }
         }
         if (!foundOne) {
-            newElements.push_back(right);
-            return *new Expression(new Product(newElements));
+            const Matrix& rightObj = dynamic_cast<const Matrix&>(*right);
+            ExprMatrix newContents = rightObj.getElements();
+            for (int i = 0; i <= rightObj.getDimensions().first; i++) {
+                for (int j = 0; j <= rightObj.getDimensions().second; j++) {
+                    newContents[i][j] = left * newContents[i][j];
+                }
+            }
+            return *new Expression(new Matrix(left.print() + "*" + right.print(),newContents));
         }
         return *new Expression(new Product(newElements));
     }
@@ -490,19 +494,51 @@ Expression EuclidVector::add(Expression other) const {
     }
     return temp;
 };
-Expression EuclidVector::multiply(Expression other) const {
-    Expression thisExpr = *new Expression(this);
-    if(other.getTypeHash() == EUCLIDVECTORTYPE) {
-        return matMul(thisExpr, other.transpose());
+Expression EuclidVector::multiply(Expression left, Expression right) const {
+    size_t leftType = left.getTypeHash();
+    size_t rightType = right.getTypeHash();
+    if (leftType == ZEROTYPE || rightType == ZEROTYPE)
+        return ZERO;
+    if (leftType == ONETYPE)
+        return right;
+    if (rightType == ONETYPE)
+        return left;
+    if (leftType == rightType) {
+        return matMul(left, right.transpose());
     }
-    if(other.getTypeHash() == PRODUCTTYPE) {
-        const Product& otherMul = dynamic_cast<const Product&>(*other);
-        ExprVector newMembers = *new ExprVector();
-        newMembers.push_back(thisExpr);
-        newMembers = setUnion(newMembers, otherMul.getMembers());
+    if(leftType == PRODUCTTYPE) {
+        const Product& otherMul = dynamic_cast<const Product&>(*left);
+        ExprVector newMembers = otherMul.getMembers();
+        bool foundOne = false;
+        for (int i = newMembers.size() - 1; i >= 0; i--) {
+            if (newMembers[i].getTypeHash() == EUCLIDVECTORTYPE) {
+                Expression newVal = matMul(newMembers[i], right.transpose());
+                foundOne = true;
+            }
+        }
+        if (!foundOne)
+            newMembers.push_back(right);
         return *new Expression(new Product(newMembers));
     }
-    return *new Expression(new Product(thisExpr,other));
+    if (rightType == PRODUCTTYPE) {
+        const Product& otherMul = dynamic_cast<const Product&>(*right);
+        ExprVector newMembers = otherMul.getMembers();
+        bool foundOne = false;
+        for (int i = 0; i < newMembers.size(); i++) {
+            if (newMembers[i].getTypeHash() == EUCLIDVECTORTYPE) {
+                Expression newVal = matMul(left, newMembers[i].transpose());
+                foundOne = true;
+            }
+        }
+        if (!foundOne) {
+            ExprVector temp;
+            temp.push_back(left);
+            newMembers = setUnion(temp, newMembers);
+        }
+            
+        return *new Expression(new Product(newMembers));
+    }
+    return *new Expression(new Product(left,right));
 };
 String EuclidVector::print() const {
     /*String result = "{";

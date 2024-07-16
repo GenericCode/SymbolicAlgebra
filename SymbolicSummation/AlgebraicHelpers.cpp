@@ -1080,6 +1080,119 @@ Expression insertAsVariable(Expression target, Expression var) {
     return target;
 }
 
+/*
+* This just does the basic Container multiplication logic; anything with higher priority should do it's own thing, not this (unless it doesn't need to)
+* 
+*/
+Expression distrubute(Expression left, Expression right)
+{
+    size_t leftType = left.getTypeHash();
+    size_t rightType = right.getTypeHash();
+    if (leftType == ZEROTYPE || rightType == ZEROTYPE)
+        return ZERO;
+    if (leftType == ONETYPE)
+        return right;
+    if (rightType == ONETYPE)
+        return left;
+    if (leftType == rightType) {
+        if (leftType == PRODUCTTYPE) {
+            const Product& leftObj = dynamic_cast<const Product&>(*left);
+            const Product& rightObj = dynamic_cast<const Product&>(*right);
+            ExprVector newElements = setUnion(leftObj.getMembers(), rightObj.getMembers());
+            return *new Expression(new Product(newElements));
+        }
+        if (leftType == SUMTYPE) {
+            const Sum& leftObj = dynamic_cast<const Sum&>(*left);
+            const Sum& rightObj = dynamic_cast<const Sum&>(*right);
+            ExprVector newElements = *new ExprVector();
+            for (int i = 0; i < leftObj.getMembers().size(); i++) {
+                for (int j = 0; j < rightObj.getMembers().size(); j++) {
+                    newElements.push_back(leftObj.getMembers()[i] * rightObj.getMembers()[j]);
+                }
+            }
+            return *new Expression(new Sum(newElements));
+        }
+        if (leftType == SIGNTYPE) {
+            const Sign& leftObj = dynamic_cast<const Sign&>(*left);
+            const Sign& rightObj = dynamic_cast<const Sign&>(*right);
+            return leftObj.getMember() * rightObj.getMember();
+        }
+        if (leftType == FRACTIONTYPE) {
+            const Fraction& leftObj = dynamic_cast<const Fraction&>(*left);
+            const Fraction& rightObj = dynamic_cast<const Fraction&>(*right);
+            Expression newNumerator = leftObj.getNumerator() * rightObj.getNumerator();
+            Expression newDenomenator = leftObj.getDenomenator() * rightObj.getDenomenator();
+            return *new Expression(new Fraction(newNumerator, newDenomenator));
+        }
+        if (leftType == EXPONENTTYPE) {
+            const Exponent& leftObj = dynamic_cast<const Exponent&>(*left);
+            const Exponent& rightObj = dynamic_cast<const Exponent&>(*right);
+            if (leftObj.getBase() != rightObj.getBase())
+                return *new Expression(new Product(left, right));
+            Expression newExponent = leftObj.getExponent() + rightObj.getExponent();
+            return *new Expression(new Exponent(leftObj.getBase(), newExponent));
+        }
+
+        return *new Expression(new Product(left, right));
+    }
+    if (leftType == SUMTYPE) {
+        const Sum& leftObj = dynamic_cast<const Sum&>(*left);
+        ExprVector newMembers = *new ExprVector();
+        for (int i = 0; i < leftObj.getMembers().size(); i++) {
+            newMembers.push_back(leftObj.getMembers()[i] * right);
+        }
+        return *new Expression(new Sum(newMembers));
+    }
+    if (rightType == SUMTYPE) {
+        const Sum& rightObj = dynamic_cast<const Sum&>(*right);
+        ExprVector newMembers = *new ExprVector();
+        for (int i = 0; i < rightObj.getMembers().size(); i++) {
+            newMembers.push_back(left * rightObj.getMembers()[i]);
+        }
+        return *new Expression(new Sum(newMembers));
+    }
+    if (leftType == FRACTIONTYPE) {
+        const Fraction& leftObj = dynamic_cast<const Fraction&>(*left);
+        Expression newNumerator = leftObj.getNumerator() * right;
+        return *new Expression(new Fraction(newNumerator, leftObj.getDenomenator()));
+    }
+    if (rightType == FRACTIONTYPE) {
+        const Fraction& rightObj = dynamic_cast<const Fraction&>(*right);
+        Expression newNumerator = left * rightObj.getNumerator();
+        return *new Expression(new Fraction(newNumerator, rightObj.getDenomenator()));
+    }
+    if (leftType == PRODUCTTYPE) {
+        const Product& leftObj = dynamic_cast<const Product&>(*left);
+        ExprVector newMembers = leftObj.getMembers();
+        newMembers.push_back(right);
+        return *new Expression(new Product(newMembers));
+    }
+    if (rightType == PRODUCTTYPE) {
+        const Product& rightObj = dynamic_cast<const Product&>(*right);
+        ExprVector newMembers = *new ExprVector();
+        newMembers.push_back(left);
+        newMembers = setUnion(newMembers, rightObj.getMembers());
+        return *new Expression(new Product(newMembers));
+    }
+    if (leftType == EXPONENTTYPE) {
+        const Exponent& leftObj = dynamic_cast<const Exponent&>(*left);
+        if (leftObj.getBase() == right) {
+            Expression newExponent = leftObj.getExponent() + ONE;
+            return *new Expression(new Exponent(leftObj.getBase(), newExponent));
+        }
+        return *new Expression(new Product(left, right));
+    }
+    if (rightType == EXPONENTTYPE) {
+        const Exponent& rightObj = dynamic_cast<const Exponent&>(*left);
+        if (rightObj.getBase() == left) {
+            Expression newExponent = ONE + rightObj.getExponent();
+            return *new Expression(new Exponent(rightObj.getBase(), newExponent));
+        }
+        return *new Expression(new Product(left, right));
+    }
+    return *new Expression(new Product(left, right));
+}
+
 Expression substitute(Expression source, Expression target, Expression value) {
     if(source == target)
         return value;

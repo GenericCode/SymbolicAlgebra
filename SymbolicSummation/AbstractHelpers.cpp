@@ -29,10 +29,10 @@ bool getMultiplierPriority(Expression left, Expression right) {
     size_t leftType = left.getTypeHash();
     size_t rightType = right.getTypeHash();
     int priorityTotal = 0;
-    if (rightType == MATRIXTYPE || rightType == PAULIMATRIXTYPE) {
+    if (rightType == MATRIXTYPE || rightType == PAULIMATRIXTYPE || rightType == EUCLIDVECTORTYPE) {
         priorityTotal += 3;
     }
-    if (leftType == MATRIXTYPE || leftType == PAULIMATRIXTYPE) {
+    if (leftType == MATRIXTYPE || leftType == PAULIMATRIXTYPE || leftType == EUCLIDVECTORTYPE) {
         priorityTotal -= 3;
     }
     /*
