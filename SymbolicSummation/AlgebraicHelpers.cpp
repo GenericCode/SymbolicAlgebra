@@ -593,6 +593,7 @@ ExprVector cancelCommonFactors(ExprVector targets) {
     return results;
 }
 
+/*
 Expression distribute(Expression left, Expression right) {
     size_t leftType = left.getTypeHash();
     size_t rightType = right.getTypeHash();
@@ -710,7 +711,7 @@ Expression distribute(Expression left, Expression right) {
     }
     Expression mul = combineProducts(left, right);
     return mul;
-}
+}*/
 
 
 /*Expression factor(Expression factee) {
@@ -1084,7 +1085,7 @@ Expression insertAsVariable(Expression target, Expression var) {
 * This just does the basic Container multiplication logic; anything with higher priority should do it's own thing, not this (unless it doesn't need to)
 * 
 */
-Expression distrubute(Expression left, Expression right)
+Expression distribute(Expression left, Expression right)
 {
     size_t leftType = left.getTypeHash();
     size_t rightType = right.getTypeHash();
@@ -1131,6 +1132,9 @@ Expression distrubute(Expression left, Expression right)
                 return *new Expression(new Product(left, right));
             Expression newExponent = leftObj.getExponent() + rightObj.getExponent();
             return *new Expression(new Exponent(leftObj.getBase(), newExponent));
+        }
+        if (!isTypeSimilarTo(left, CONTAINERTYPE) && !isTypeSimilarTo(right, CONTAINERTYPE)) {
+            return left * right;
         }
 
         return *new Expression(new Product(left, right));

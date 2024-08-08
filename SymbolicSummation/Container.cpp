@@ -47,7 +47,7 @@ Expression Container::add(Expression other) const {
     return *new Expression(new Sum(thisExpr,other));
 };
 Expression Container::multiply(Expression left, Expression right) const {
-    distrubute(left, right);
+    return distribute(left, right);
 };
 Expression Container::divide(Expression other) const {
     Expression thisExpr = *new Expression(this);

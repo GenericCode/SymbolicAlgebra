@@ -92,6 +92,8 @@ Expression Symbol::multiply(Expression left, Expression right) const {
 Expression Symbol::simplify() const {
     return *new Expression(this);
 };
+
+/*
 Expression Symbol::distribute(Expression other) const {
     size_t otherType = other.getTypeHash();
     Expression thisExpr = *new Expression(this);
@@ -122,7 +124,7 @@ Expression Symbol::distribute(Expression other) const {
             return *new Expression(new Exponent(thisExpr,2));
     }
     return *new Expression(new Product(thisExpr,other));
-};
+};*/
 Expression Symbol::factor() const {
     return *new Expression(this);
 };
@@ -324,7 +326,7 @@ Expression Matrix::multiply(Expression left, Expression right) const {
         for (int i = 0; i < factors.size(); i++) {
             if (factors[i].getTypeHash() == MATRIXTYPE && !foundOne) {
                 newElements.push_back(matMul(left, factors[i]));
-                foundOne == true;
+                foundOne = true;
             }
             else {
                 newElements.push_back(factors[i]);
@@ -349,7 +351,7 @@ Expression Matrix::multiply(Expression left, Expression right) const {
         for (int i = factors.size()-1; i >= 0; i--) {
             if (factors[i].getTypeHash() == MATRIXTYPE && !foundOne) {
                 newElements.push_back(matMul(factors[i],right));
-                foundOne == true;
+                foundOne = true;
             }
             else {
                 newElements.push_back(factors[i]);
@@ -368,7 +370,7 @@ Expression Matrix::multiply(Expression left, Expression right) const {
         return *new Expression(new Product(newElements));
     }
 
-    return *new Expression;
+    return distribute(left, right);
 };
 
 ExprMatrix Matrix::getElements() const {
@@ -398,6 +400,7 @@ String Matrix::print() const {
 Expression Matrix::simplify() const {
     return *new Expression(this);
 };
+/*
 Expression Matrix::distribute(Expression other) const {
     size_t otherType = other.getTypeHash();
     Expression thisExpr = *new Expression(this);
@@ -429,7 +432,7 @@ Expression Matrix::distribute(Expression other) const {
         return *new Expression(new Fraction(distribute(otherFrac.getNumerator()),otherFrac.getDenomenator()));
     }
     return *new Expression(new Product(thisExpr,other));
-};
+};*/
 Expression Matrix::factor() const {
     return *new Expression(this);
 };
@@ -538,6 +541,7 @@ Expression EuclidVector::multiply(Expression left, Expression right) const {
             
         return *new Expression(new Product(newMembers));
     }
+    //if(leftType == SUMTYPE ||)
     return *new Expression(new Product(left,right));
 };
 String EuclidVector::print() const {
@@ -567,6 +571,8 @@ EuclidVector::~EuclidVector() {
 Expression EuclidVector::simplify() const {
     return *new Expression(this);
 };
+
+/*
 Expression EuclidVector::distribute(Expression other) const {
     size_t otherType = other.getTypeHash();
     Expression thisExpr = *new Expression(this);
@@ -598,7 +604,8 @@ Expression EuclidVector::distribute(Expression other) const {
         return *new Expression(new Fraction(distribute(otherFrac.getNumerator()),otherFrac.getDenomenator()));
     }
     return *new Expression(new Product(thisExpr,other));
-};
+};*/
+
 Expression EuclidVector::factor() const {
     return *new Expression(this);
 };

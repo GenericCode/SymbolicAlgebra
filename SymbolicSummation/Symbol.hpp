@@ -28,7 +28,6 @@ public:
         return name;
     };
     Expression simplify() const;
-    Expression distribute(Expression other) const;
     Expression factor() const;
     Expression reciprocal() const;
     Expression determinant() const;
@@ -73,12 +72,12 @@ protected:
 public:
     String print() const;
     Expression simplify() const;
-    Expression distribute(Expression other) const;
+    //Expression distribute(Expression other) const;
     Expression factor() const;
     Expression reciprocal() const;
     Expression determinant() const;
     Expression transpose() const;
-    Expression cancelTerms() const;
+    //Expression cancelTerms() const;
     ExprVector getFactors() const;
     
     Matrix(const Matrix& target);
@@ -109,11 +108,9 @@ protected:
 public:
     String print() const;
     Expression simplify() const;
-    Expression distribute(Expression other) const;
     Expression factor() const;
     Expression reciprocal() const;
     Expression determinant() const;
-    Expression cancelTerms() const;
     ExprVector getFactors() const;
     
     EuclidVector(const EuclidVector& target);

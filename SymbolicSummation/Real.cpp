@@ -122,6 +122,7 @@ String Real::print() const {
 Expression Real::simplify() const {
     return *new Expression(this);
 };
+/*
 Expression Real::distribute(Expression other) const {
     Expression thisExpr = *new Expression(this);
     if(other.getTypeHash() == PRODUCTTYPE) {
@@ -155,7 +156,7 @@ Expression Real::distribute(Expression other) const {
     newMembers.push_back(*new Expression(this));
     newMembers.push_back(other);
     return *new Expression(new Product(newMembers));
-};
+};*/
 Expression Real::factor() const {
     Expression thisExpr = *new Expression(this);
     ExprVector factors = getFactorsOfInt(thisExpr);

@@ -23,9 +23,12 @@ public:
         return name;
     };
     Expression simplify() const;
-    Expression distribute(Expression other) const;
+    //Expression distribute(Expression other) const;
     Expression transpose() const;
-    Expression cancelTerms() const;
+    //Expression cancelTerms() const;
+    String getFlavor() const {
+        return flavor;
+    };
     
     PauliMatrix(String name, String flavor, std::initializer_list<std::initializer_list<Expression>> newElements );
     PauliMatrix(String name, String flavor, ExprMatrix elements);

@@ -135,26 +135,84 @@ Expression PauliMatrix::subtract(Expression other) const {
 Expression PauliMatrix::negate() const {
     return *new Expression(new Sign(*new Expression(this)));
 }
-Expression PauliMatrix::multiply(Expression other) const {
-    size_t rtype = other->getTypeHash();
-    const PauliMatrix& thisPauli = dynamic_cast<const PauliMatrix&>(*this);
-    if(rtype == PAULIMATRIXTYPE) {
-        const PauliMatrix& otherPauli = dynamic_cast<const PauliMatrix&>(*other);
-        if(thisPauli.flavor != otherPauli.flavor) {
-            Expression result = *new Expression(new Product(*new Expression(this),other));
-            return result;
-        }
-        
-        Expression tempResult = matMul(*new Expression(this), other);//leftAsMat*rightAsMat;
-        if(tempResult.getTypeHash() != MATRIXTYPE)
-            return tempResult;
-        const Matrix& resultingMatrix = dynamic_cast<const Matrix&>(*tempResult);
-        Expression resultingPauli = *new Expression(new PauliMatrix(flavor+resultingMatrix.print(),thisPauli.flavor,resultingMatrix.getElements()));
-        return resultingPauli;
+Expression PauliMatrix::multiply(Expression left, Expression right) const {
+    size_t leftType = left.getTypeHash();
+    size_t rightType = right.getTypeHash();
+    if (leftType == ZEROTYPE || rightType == ZEROTYPE)
+        return ZERO;
+    if (leftType == ONETYPE)
+        return right;
+    if (rightType == ONETYPE)
+        return left;
+    if (leftType == rightType) {
+        const PauliMatrix& leftObj = dynamic_cast<const PauliMatrix&>(*left);
+        const PauliMatrix& rightObj = dynamic_cast<const PauliMatrix&>(*right);
+        if(leftObj.getFlavor() == rightObj.getFlavor())
+            return matMul(left, right);
+        return distribute(left, right);
     }
-    
-    Expression result = distribute(other);
-    return result;
+
+    //Matrix
+    if (leftType == PAULIMATRIXTYPE) {//leftToRight
+        ExprVector factors = right.getFactors();
+        ExprVector newElements = *new ExprVector();
+        bool foundOne = false;
+        for (int i = 0; i < factors.size(); i++) {
+            if (factors[i].getTypeHash() == PAULIMATRIXTYPE && !foundOne) {
+                const PauliMatrix& leftObj = dynamic_cast<const PauliMatrix&>(*left);
+                const PauliMatrix& factorObj = dynamic_cast<const PauliMatrix&>(*factors[i]);
+                if (leftObj.getFlavor() == factorObj.getFlavor()) {
+                    newElements.push_back(matMul(left, factors[i]));
+                    foundOne = true;
+                }
+            }
+            if(!foundOne) {
+                newElements.push_back(factors[i]);
+            }
+        }
+        if (!foundOne) {
+            const PauliMatrix& leftObj = dynamic_cast<const PauliMatrix&>(*left);
+            ExprMatrix newContents = leftObj.getElements();
+            for (int i = 0; i <= leftObj.getDimensions().first; i++) {
+                for (int j = 0; j <= leftObj.getDimensions().second; j++) {
+                    newContents[i][j] = newContents[i][j] * right;
+                }
+            }
+            return *new Expression(new PauliMatrix(left.print() + "*" + right.print(), leftObj.getFlavor(), newContents));
+        }
+        return *new Expression(new Product(newElements));
+    }
+    if (rightType == PAULIMATRIXTYPE) {//rightToLeft
+        ExprVector factors = left.getFactors();
+        ExprVector newElements = *new ExprVector();
+        bool foundOne = false;
+        for (int i = factors.size() - 1; i >= 0; i--) {
+            if (factors[i].getTypeHash() == PAULIMATRIXTYPE && !foundOne) {
+                const PauliMatrix& factorObj = dynamic_cast<const PauliMatrix&>(*factors[i]);
+                const PauliMatrix& rightObj = dynamic_cast<const PauliMatrix&>(*righy);
+                if (rightObj.getFlavor() == factorObj.getFlavor()) {
+                    newElements.push_back(matMul(factors[i], right));
+                    foundOne = true;
+                }
+            }
+            if (!foundOne) {
+                newElements.push_back(factors[i]);
+            }
+        }
+        if (!foundOne) {
+            const PauliMatrix& rightObj = dynamic_cast<const PauliMatrix&>(*right);
+            ExprMatrix newContents = rightObj.getElements();
+            for (int i = 0; i <= rightObj.getDimensions().first; i++) {
+                for (int j = 0; j <= rightObj.getDimensions().second; j++) {
+                    newContents[i][j] = left * newContents[i][j];
+                }
+            }
+            return *new Expression(new PauliMatrix(left.print() + "*" + right.print(), rightObj.getFlavor(), newContents));
+        }
+        return *new Expression(new Product(newElements));
+    }
+
+    return distribute(left, right);
 };
 
 Expression PauliMatrix::simplify() const {
@@ -167,6 +225,8 @@ Expression PauliMatrix::simplify() const {
     }
     return *new Expression(new PauliMatrix(name+"Simplified",index,flavor,newElements));*/
 };
+
+/*
 Expression PauliMatrix::distribute(Expression other) const {
     size_t otherType = other.getTypeHash();
     Expression thisExpr = *new Expression(this);
@@ -214,7 +274,7 @@ Expression PauliMatrix::distribute(Expression other) const {
     }
     return *new Expression(new Product(thisExpr,other));
     
-};
+};*/
 Expression PauliMatrix::transpose() const {
     ExprMatrix transElements = *new ExprMatrix();
     for(int i = 0; i<dimensions.second; i++) {

@@ -24,7 +24,7 @@ static std::unordered_map<String,Expression> declaredFunctions = *new std::unord
 * Returns:  true if right has higher multiplicative priority than left
 *           false if right has lesser or equal priority to left
 */
-
+//Probably need to change; containers should be lowest priority, everything else incl Symbol, Real, etc. has special behavior for combining that should be respected
 bool getMultiplierPriority(Expression left, Expression right) {
     size_t leftType = left.getTypeHash();
     size_t rightType = right.getTypeHash();
@@ -35,13 +35,12 @@ bool getMultiplierPriority(Expression left, Expression right) {
     if (leftType == MATRIXTYPE || leftType == PAULIMATRIXTYPE || leftType == EUCLIDVECTORTYPE) {
         priorityTotal -= 3;
     }
-    /*
-    if (rightType == SYMBOLTYPE || rightType == REALTYPE) {
+    if (rightType == SYMBOLTYPE || rightType == REALTYPE || rightType == ZEROTYPE || rightType == ONETYPE || rightType == IMAGINARYUNITTYPE) {
         priorityTotal += 2;
     }
-    if (leftType == SYMBOLTYPE || leftType == REALTYPE) {
+    if (leftType == SYMBOLTYPE || leftType == REALTYPE || leftType == ZEROTYPE || leftType == ONETYPE || leftType == IMAGINARYUNITTYPE) {
         priorityTotal -= 2;
-    }*/
+    }
     if (rightType == SUMTYPE || rightType == SIGNTYPE) {
         priorityTotal += 2;
     }
