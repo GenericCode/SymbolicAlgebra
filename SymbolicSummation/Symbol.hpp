@@ -60,10 +60,11 @@ public:
 };
 
 class Matrix : public Symbol {
+private:
 protected:
-    //{rows,columns}
-    std::pair<int,int> dimensions;// = {0,0};
+    std::pair<int, int> dimensions;// = {0,0};
     ExprMatrix elements = *new ExprMatrix();
+    //{rows,columns}
     Expression divide(Expression other) const;
     Expression add(Expression other) const;
     Expression negate() const;
@@ -93,7 +94,6 @@ public:
     }
     friend Expression matMul(Expression left, Expression right);
     friend ExprVector getConstituentSymbols(Expression target);
-    friend Expression determinant(Expression target);
     friend Expression substitute(Expression source, Expression target, Expression value);
     friend bool areEqual(const ExpressionObject& left, const ExpressionObject& right);
     friend Expression performActions(Expression target);
@@ -101,7 +101,9 @@ public:
     friend Expression insertAsVariable(Expression target, Expression var);
 };
 
-class EuclidVector : public Matrix {
+class EuclidVector : public Symbol {
+private:
+    ExprVector components;
 protected:
     Expression add(Expression other) const;
     Expression multiply(Expression left, Expression right) const;
@@ -112,18 +114,28 @@ public:
     Expression reciprocal() const;
     Expression determinant() const;
     ExprVector getFactors() const;
+    ExprVector getComponents() const;
     
     EuclidVector(const EuclidVector& target);
     EuclidVector& operator=(const EuclidVector& target);
-    EuclidVector(String name, ExprVector newElements);
-    EuclidVector(String name, std::initializer_list<Expression> newElements);
-    EuclidVector(String name, int newDimension = 0);//empty matrix
-    EuclidVector(Expression diag, int newDim = 0);//Identity matrix times const expression
+
+    String getEuclidVectorName(ExprVector components) {
+        String name = "(";
+        for (int i = 0; i < 3; i++) {
+            name += components[i].print();
+            if (i < 2)
+                name += ",";
+        }
+        name += ")";
+        return name;
+    }
+
+
+    EuclidVector(String name, ExprVector elements);
+    EuclidVector(ExprVector elements) : EuclidVector(getEuclidVectorName(elements), elements) {};
+    //EuclidVector(std::initializer_list<Expression> newElements, String name = "");
     ~EuclidVector();
-    friend Expression matMul(Expression left, Expression right);
     friend ExprVector getConstituentSymbols(Expression target);
-    friend Expression determinant(Expression target);
-    friend Expression transpose(Expression target);
     friend Expression substitute(Expression source, Expression target, Expression value);
     friend bool areEqual(const ExpressionObject& left, const ExpressionObject& right);
     friend Expression performActions(Expression target);
@@ -142,8 +154,8 @@ static Expression IMAGUNIT = *new Expression(new ImaginaryUnit());
 //static SymbolicObject* IDENTITYMAT = *new Matrix("I",{{one,zero},{zero,one}});
 //static Expression identitymat = *new Expression(&IDENTITYMAT);
 static Expression IDENMAT = *new Expression(new Matrix("I",{{ONE,ZERO},{ZERO,ONE}}));
-static Expression XUNITVECTOR = *new Expression(new EuclidVector("xUnitVector",{ONE,ZERO,ZERO}));
-static Expression YUNITVECTOR = *new Expression(new EuclidVector("yUnitVector",{ZERO,ONE,ZERO}));
-static Expression ZUNITVECTOR = *new Expression(new EuclidVector("zUnitVector",{ZERO,ZERO,ONE}));
+static Expression XUNITVECTOR = *new Expression(new EuclidVector("xUnitVector", {ONE,ZERO,ZERO}));
+static Expression YUNITVECTOR = *new Expression(new EuclidVector("yUnitVector", {ZERO,ONE,ZERO}));
+static Expression ZUNITVECTOR = *new Expression(new EuclidVector("zUnitVector", {ZERO,ZERO,ONE}));
 #endif /* Symbol_hpp */
 

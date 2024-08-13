@@ -29,14 +29,14 @@ PauliMatrix::PauliMatrix(String name, String flavor, ExprMatrix elements) : Matr
 }
 
 PauliMatrix::PauliMatrix(const PauliMatrix& target) : Matrix(target.name) {
-    elements = *new ExprMatrix(target.elements);
-    dimensions = target.dimensions;
+    elements = target.getElements();
+    dimensions = target.getDimensions();
     flavor = target.flavor;
 };
 
 PauliMatrix& PauliMatrix::operator=(const PauliMatrix& target) {
-    elements = *new ExprMatrix(target.elements);
-    dimensions = target.dimensions;
+    elements = target.getElements();
+    dimensions = target.getDimensions();
     flavor = target.flavor;
     return *this;
 };
@@ -173,8 +173,8 @@ Expression PauliMatrix::multiply(Expression left, Expression right) const {
         if (!foundOne) {
             const PauliMatrix& leftObj = dynamic_cast<const PauliMatrix&>(*left);
             ExprMatrix newContents = leftObj.getElements();
-            for (int i = 0; i <= leftObj.getDimensions().first; i++) {
-                for (int j = 0; j <= leftObj.getDimensions().second; j++) {
+            for (int i = 0; i < leftObj.getDimensions().first; i++) {
+                for (int j = 0; j < leftObj.getDimensions().second; j++) {
                     newContents[i][j] = newContents[i][j] * right;
                 }
             }
@@ -189,7 +189,7 @@ Expression PauliMatrix::multiply(Expression left, Expression right) const {
         for (int i = factors.size() - 1; i >= 0; i--) {
             if (factors[i].getTypeHash() == PAULIMATRIXTYPE && !foundOne) {
                 const PauliMatrix& factorObj = dynamic_cast<const PauliMatrix&>(*factors[i]);
-                const PauliMatrix& rightObj = dynamic_cast<const PauliMatrix&>(*righy);
+                const PauliMatrix& rightObj = dynamic_cast<const PauliMatrix&>(*right);
                 if (rightObj.getFlavor() == factorObj.getFlavor()) {
                     newElements.push_back(matMul(factors[i], right));
                     foundOne = true;
@@ -202,8 +202,8 @@ Expression PauliMatrix::multiply(Expression left, Expression right) const {
         if (!foundOne) {
             const PauliMatrix& rightObj = dynamic_cast<const PauliMatrix&>(*right);
             ExprMatrix newContents = rightObj.getElements();
-            for (int i = 0; i <= rightObj.getDimensions().first; i++) {
-                for (int j = 0; j <= rightObj.getDimensions().second; j++) {
+            for (int i = 0; i < rightObj.getDimensions().first; i++) {
+                for (int j = 0; j < rightObj.getDimensions().second; j++) {
                     newContents[i][j] = left * newContents[i][j];
                 }
             }

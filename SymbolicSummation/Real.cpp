@@ -89,7 +89,7 @@ Expression Real::multiply(Expression left, Expression right) const {
         Expression result = declareReal(newVal);
         return result;
     }
-    return *new Expression(new Product(left, right));
+    return distribute(left, right);
 };
 Expression Real::divide(Expression other) const {
     Expression thisExpr = *new Expression(this);

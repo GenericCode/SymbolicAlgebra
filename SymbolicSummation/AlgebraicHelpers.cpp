@@ -94,11 +94,24 @@ bool isNegative(Expression target) {
     return det;
 }*/
 
+Expression dotProduct(Expression left, Expression right) {
+    if (left.getTypeHash() != EUCLIDVECTORTYPE || right.getTypeHash() != EUCLIDVECTORTYPE)
+        return left * right;
+    const EuclidVector& leftVector = dynamic_cast<const EuclidVector&>(*left);
+    const EuclidVector& rightVector = dynamic_cast<const EuclidVector&>(*right);
+    ExprVector resultMembers = *new ExprVector();
+    for (int i = 0; i < 3; i++) {
+        resultMembers.push_back((leftVector.getComponents())[i] * (rightVector.getComponents())[i]);
+    }
+    return *new Expression(new Sum(resultMembers));
+}
+
 Expression matMul(Expression left, Expression right) {
     if( isTypeSimilarTo(right, MATRIXTYPE) && isTypeSimilarTo(left, MATRIXTYPE)) {
         const Matrix& leftMatrix = dynamic_cast<const Matrix&>(*left);
         const Matrix& rightMatrix = dynamic_cast<const Matrix&>(*right);
         if(leftMatrix.dimensions.second != rightMatrix.dimensions.first) {
+            throw std::runtime_error("mismatch between dimensions for adding MATRIXTYPE");
             Expression result = *new Expression(new NullObject("mismatch in dimensions for multiplication of MATRIXTYPE"));
             return result;
         }
@@ -1133,9 +1146,9 @@ Expression distribute(Expression left, Expression right)
             Expression newExponent = leftObj.getExponent() + rightObj.getExponent();
             return *new Expression(new Exponent(leftObj.getBase(), newExponent));
         }
-        if (!isTypeSimilarTo(left, CONTAINERTYPE) && !isTypeSimilarTo(right, CONTAINERTYPE)) {
+        /*if (!isTypeSimilarTo(left, CONTAINERTYPE) && !isTypeSimilarTo(right, CONTAINERTYPE)) {
             return left * right;
-        }
+        }*/
 
         return *new Expression(new Product(left, right));
     }

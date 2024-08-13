@@ -86,7 +86,7 @@ Expression Symbol::multiply(Expression left, Expression right) const {
         }
         
     }
-    return *new Expression(new Product(left, right));
+    return distribute(left, right);
 }; 
 
 Expression Symbol::simplify() const {
@@ -335,8 +335,8 @@ Expression Matrix::multiply(Expression left, Expression right) const {
         if (!foundOne) {
             const Matrix& leftObj = dynamic_cast<const Matrix&>(*left);
             ExprMatrix newContents = leftObj.getElements();
-            for (int i = 0; i <= leftObj.getDimensions().first; i++) {
-                for (int j = 0; j <= leftObj.getDimensions().second; j++) {
+            for (int i = 0; i < leftObj.getDimensions().first; i++) {
+                for (int j = 0; j < leftObj.getDimensions().second; j++) {
                     newContents[i][j] = newContents[i][j] * right;
                 }
             }
@@ -360,8 +360,8 @@ Expression Matrix::multiply(Expression left, Expression right) const {
         if (!foundOne) {
             const Matrix& rightObj = dynamic_cast<const Matrix&>(*right);
             ExprMatrix newContents = rightObj.getElements();
-            for (int i = 0; i <= rightObj.getDimensions().first; i++) {
-                for (int j = 0; j <= rightObj.getDimensions().second; j++) {
+            for (int i = 0; i < rightObj.getDimensions().first; i++) {
+                for (int j = 0; j < rightObj.getDimensions().second; j++) {
                     newContents[i][j] = left * newContents[i][j];
                 }
             }
@@ -489,13 +489,15 @@ ExprVector Matrix::getFactors() const {
 
 //EuclidVector
 Expression EuclidVector::add(Expression other) const {
-    Expression temp = Matrix::add(other);
-    if(isTypeSimilarTo(temp, MATRIXTYPE)) {
-        const Matrix& tempMat = dynamic_cast<const Matrix&>(*temp);
-        Expression result = *new Expression(new EuclidVector(tempMat.print(),tempMat.getElements()[0]));
-        return result;
+    size_t otherType = other.getTypeHash();
+    Expression thisExpression = *new Expression(this);
+    if (otherType == EUCLIDVECTORTYPE) {
+
     }
-    return temp;
+    if (otherType == SUMTYPE) {
+
+    }
+    //return *new Expression(new Sum(thisExpression, other));
 };
 Expression EuclidVector::multiply(Expression left, Expression right) const {
     size_t leftType = left.getTypeHash();
@@ -507,7 +509,7 @@ Expression EuclidVector::multiply(Expression left, Expression right) const {
     if (rightType == ONETYPE)
         return left;
     if (leftType == rightType) {
-        return matMul(left, right.transpose());
+
     }
     if(leftType == PRODUCTTYPE) {
         const Product& otherMul = dynamic_cast<const Product&>(*left);
@@ -515,7 +517,7 @@ Expression EuclidVector::multiply(Expression left, Expression right) const {
         bool foundOne = false;
         for (int i = newMembers.size() - 1; i >= 0; i--) {
             if (newMembers[i].getTypeHash() == EUCLIDVECTORTYPE) {
-                Expression newVal = matMul(newMembers[i], right.transpose());
+                Expression newVal = matMul(newMembers[i], right);
                 foundOne = true;
             }
         }
@@ -529,7 +531,7 @@ Expression EuclidVector::multiply(Expression left, Expression right) const {
         bool foundOne = false;
         for (int i = 0; i < newMembers.size(); i++) {
             if (newMembers[i].getTypeHash() == EUCLIDVECTORTYPE) {
-                Expression newVal = matMul(left, newMembers[i].transpose());
+                Expression newVal = dotProduct(left, newMembers[i]);
                 foundOne = true;
             }
         }
@@ -542,7 +544,7 @@ Expression EuclidVector::multiply(Expression left, Expression right) const {
         return *new Expression(new Product(newMembers));
     }
     //if(leftType == SUMTYPE ||)
-    return *new Expression(new Product(left,right));
+    return distribute(left, right);
 };
 String EuclidVector::print() const {
     /*String result = "{";
@@ -553,17 +555,18 @@ String EuclidVector::print() const {
     String result = name;
     return result;
 };
-EuclidVector::EuclidVector(const EuclidVector& target) : Matrix(target) {
+
+EuclidVector::EuclidVector(String name, ExprVector components) : Symbol(name) {
+    (*this).components = components;
+}
+
+EuclidVector::EuclidVector(const EuclidVector& target) : Symbol(target.print()) {
     
 };
 EuclidVector& EuclidVector::operator=(const EuclidVector& target) {
-    elements = *new ExprMatrix(target.elements);
-    dimensions = target.dimensions;
+    components = *new ExprVector(target.components);
     return *this;
 };
-EuclidVector::EuclidVector(String name, ExprVector newElements) : Matrix(name,{newElements}) {};
-EuclidVector::EuclidVector(String name, std::initializer_list<Expression> newElements) : Matrix(name,{newElements}) {};
-EuclidVector::EuclidVector(String name, int newDimension) : Matrix(name, {1,newDimension}) {};//empty matrix
 EuclidVector::~EuclidVector() {
     
 };
@@ -621,4 +624,9 @@ Expression EuclidVector::transpose() const {
 };*/
 ExprVector EuclidVector::getFactors() const {
     return {*new Expression(this)};
-};
+}
+ExprVector EuclidVector::getComponents() const
+{
+    return components;
+}
+;

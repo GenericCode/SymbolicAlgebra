@@ -28,6 +28,7 @@ Expression insertAsVariable(Expression target, Expression var);
 Expression distribute(Expression left, Expression right);
 //Expression reciprocal(Expression self);
 Expression matMul(Expression left, Expression right);
+Expression dotProduct(Expression left, Expression right);
 //Expression combineProducts(Expression left, Expression right);
 //Expression combineSums(Expression left, Expression right);
 //Expression cancelTerms(Expression target);

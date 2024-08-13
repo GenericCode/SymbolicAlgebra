@@ -331,13 +331,13 @@ Expression declareFunction(String name, ExprAction action) {
 }
 
 Expression declareEuclidVector(std::string name, ExprVector components) {
-    Expression vector = *new Expression(new EuclidVector(name,components));
+    Expression vector = *new Expression(new EuclidVector(name, components));
     return declareSymbol(name, vector);
 }
 
-Expression declareEuclidVector(std::string name, std::initializer_list<Expression> components) {
-    Expression vector = *new Expression(new EuclidVector(name,components));
-    return declareSymbol(name, vector);
+Expression declareEuclidVector(ExprVector components) {
+    Expression vector = *new Expression(new EuclidVector(components));
+    return declareSymbol(vector.print(), vector);
 }
 
 Expression declareMatrix(Expression value) {
